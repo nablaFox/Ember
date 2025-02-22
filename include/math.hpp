@@ -172,5 +172,25 @@ Mat<T, Rows, Cols> operator*(const Mat<T, Rows, N>& a, const Mat<T, N, Cols>& b)
 
 using Mat4 = Mat<float, 4, 4>;
 using Mat3 = Mat<float, 3, 3>;
-using Vec3 = Vec<float, 3>;
 using Vec4 = Vec<float, 4>;
+
+class Vec3 : public Vec<float, 3> {
+public:
+	Vec3() = default;
+
+	Vec3(float x, float y, float z) {
+		(*this)[0] = x;
+		(*this)[1] = y;
+		(*this)[2] = z;
+	}
+
+	Vec3(const Vec<float, 3>& v) : Vec<float, 3>(v) {}
+
+	Vec3 cross(const Vec3& other) const {
+		return {
+			(*this)[1] * other[2] - (*this)[2] * other[1],
+			(*this)[2] * other[0] - (*this)[0] * other[2],
+			(*this)[0] * other[1] - (*this)[1] * other[0],
+		};
+	}
+};

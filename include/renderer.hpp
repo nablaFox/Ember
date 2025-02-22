@@ -65,57 +65,49 @@ struct Camera {
 	float fov = 90.f;
 	float aspect = 1.77f;
 
-	WorldTransform transform;
-
-	Mat4 V = {
-		{1, 0, 0, 0},  // right
-		{0, 1, 0, 0},  // up
-		{0, 0, 1, 0},  // forward
-		{0, 0, 0, 1},
-	};
+	WorldTransform transform{};
 
 	void rotate(Rot rotation) {
-		if (rotation.pitch > 89.f)
-			rotation.pitch = 89.f;
-		else if (rotation.pitch < -89.f)
-			rotation.pitch = -89.f;
+		transform.rotation.yaw += rotation.yaw;
+		transform.rotation.pitch += rotation.pitch;
 
-		// we need the inverse
-		// and for a rotation matrix, the inverse is the transpose
-		V = V * rotation.getRotMatrix().transpose();
+		if (transform.rotation.pitch > M_PI / 2) {
+			transform.rotation.pitch = M_PI / 2;
+		} else if (transform.rotation.pitch < -M_PI / 2) {
+			transform.rotation.pitch = -M_PI / 2;
+		}
 	}
 
 	void translate(Vec3 translation) {
+		Rot rot = transform.rotation;
+
 		Vec3 forward = {
-			V(2, 0),
-			V(2, 1),
-			V(2, 2),
+			sinf(-rot.yaw) * cosf(rot.pitch),
+			sinf(rot.pitch),
+			cosf(-rot.yaw) * cosf(rot.pitch),
 		};
 
-		Vec3 right = {
-			V(0, 0),
-			V(0, 1),
-			V(0, 2),
-		};
+		Vec3 right = forward.cross({0, 1, 0}).normalize();
+		right *= -1;
 
-		Vec3 up = {
-			V(1, 0),
-			V(1, 1),
-			V(1, 2),
-		};
+		Vec3 up = right.cross(forward).normalize();
+		up *= -1;
 
-		std::cout << "forward" << std::endl;
-		forward.print();
-
-		transform.translation += (forward * translation[0] + right * translation[1] +
-								  up * translation[2]) *
-								 -1;
+		transform.translation +=
+			forward * translation[0] + right * translation[1] + up * translation[2];
 	}
 
 	Mat4 getViewMatrix() {
-		Mat4 position = transform.getTransMatrix();
+		Mat4 viewTranslation = {
+			{1, 0, 0, -transform.translation[0]},
+			{0, 1, 0, -transform.translation[1]},
+			{0, 0, 1, -transform.translation[2]},
+			{0, 0, 0, 1},
+		};
 
-		return V * position;
+		Mat4 viewRotation = transform.getRotMatrix().transpose();
+
+		return viewRotation.transpose() * viewTranslation;
 	}
 
 	Mat4 getProjMatrix() {

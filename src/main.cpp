@@ -3,8 +3,8 @@
 #include "renderer.hpp"
 #include "mesh.hpp"
 
-constexpr int WINDOW_WIDTH = 800;
-constexpr int WINDOW_HEIGHT = 600;
+constexpr int WINDOW_WIDTH = 1980;
+constexpr int WINDOW_HEIGHT = 1080;
 
 struct Cube : Mesh {
 	static constexpr int verticesCount = 8;
@@ -64,8 +64,8 @@ auto updateCamera(Camera& camera, const Window& window) -> void {
 	constexpr float sensitivity = 0.005f;
 
 	camera.rotate({
-		.yaw = -deltaX * sensitivity,
-		.pitch = -deltaY * sensitivity,
+		.yaw = deltaX * sensitivity,
+		.pitch = deltaY * sensitivity,
 	});
 
 	constexpr float cameraSpeed = 0.1f;
