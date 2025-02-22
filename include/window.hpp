@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan_core.h>
 
 class Window {
 public:
@@ -16,6 +17,8 @@ public:
 
 	auto getMouseX() const -> double;
 	auto getMouseY() const -> double;
+
+	auto getWindow() const -> GLFWwindow* { return m_window; }
 
 private:
 	GLFWwindow* m_window;

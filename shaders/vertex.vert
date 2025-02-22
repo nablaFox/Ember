@@ -1,8 +1,7 @@
 #version 450
-
 #extension GL_EXT_buffer_reference : require
 
-layout(location = 1) out vec3 outColor;
+layout(location = 0) out vec3 outColor;
 
 struct Vertex {
     vec3 position;
@@ -27,14 +26,13 @@ layout(buffer_reference, std430) readonly buffer VertexBuffer {
 
 layout(push_constant) uniform constants {	
     mat4 worldTransform;
-    VertexBuffer meshVertexBuffer;
-} PushConstants;
+    VertexBuffer vertexBuffer;
+} push;
 
 void main() {	
-    Vertex v = PushConstants.meshVertexBuffer.vertices[gl_VertexIndex];
-    vec4 position = vec4(v.position, 1.0f);
+    Vertex v = push.vertexBuffer.vertices[gl_VertexIndex];
 
-    gl_Position = sceneData.viewproj * PushConstants.worldTransform * position;
+    gl_Position = sceneData.viewproj * push.worldTransform * vec4(v.position, 1.0f);
 
     outColor = v.color.xyz;
 }

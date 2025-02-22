@@ -2,15 +2,13 @@
 
 #include <span>
 #include "ignis/buffer.hpp"
-#include "math.hpp"
-
-// RGBA16 bit color
-struct Color {
-	uint16_t r, g, b, a;
-};
+#include "ignis/device.hpp"
+#include "ignis/fence.hpp"
+#include "renderer.hpp"
 
 struct Vertex {
-	vec3 position;
+	Vec3 position;
+	float padding;
 	Color color;
 };
 
@@ -18,22 +16,29 @@ typedef uint32_t Index;
 
 class Mesh {
 public:
-	Mesh(std::span<Vertex>, std::span<Index>) {};
+	Mesh(uint32_t verticesSize, uint32_t indicesSize);
 
 	void update(std::span<Vertex>, std::span<Index>);
 
-	const auto& getVertices() const { return vertices; }
-	const auto& getIndices() const { return indices; }
-	const auto& getIndexBuffer() const { return indexBuffer; }
+	void upload();
 
-	auto getVertexBufferAddress() const -> VkDeviceAddress {
-		return vertexBuffer->getDeviceAddress();
-	}
+	const auto& getVertices() const { return m_vertices; }
+	const auto& getIndices() const { return m_indices; }
 
-private:
-	std::span<Vertex> vertices;
-	std::span<Index> indices;
+	auto getIndexBuffer() -> ignis::Buffer&;
 
-	ignis::Buffer* vertexBuffer;
-	ignis::Buffer* indexBuffer;
+	auto getVertexBufferAddress() -> VkDeviceAddress;
+
+protected:
+	bool m_dirty = true;
+
+	ignis::Device* m_device;
+
+	std::vector<Vertex> m_vertices;
+	std::vector<Index> m_indices;
+
+	ignis::Buffer* m_vertexBuffer;
+	ignis::Buffer* m_indexBuffer;
+
+	ignis::Fence* m_waitForUpload;
 };
