@@ -3,15 +3,12 @@
 
 #include "window.hpp"
 #include "renderer.hpp"
-#include "utils.hpp"
 #include "mesh.hpp"
 #include "ignis/swapchain.hpp"
 
 Renderer* Renderer::g_instance = nullptr;
 
 Renderer::Renderer(const Window& window) {
-	PRINT("renderer initialization");
-
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions =
 		glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -144,8 +141,6 @@ void Renderer::draw(Mesh& mesh, WorldTransform transform) {
 }
 
 Renderer::~Renderer() {
-	PRINT("renderer cleanup");
-
 	for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++) {
 		delete frames[i].cmd;
 		delete frames[i].finishedRendering;
