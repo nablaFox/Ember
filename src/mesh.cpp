@@ -1,4 +1,5 @@
 #include "mesh.hpp"
+#include "renderer.hpp"
 
 Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize) {
 	m_vertices.resize(verticesSize);

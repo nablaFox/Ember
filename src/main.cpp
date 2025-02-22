@@ -1,10 +1,11 @@
+#include <chrono>
 #include <cmath>
 #include "window.hpp"
 #include "renderer.hpp"
 #include "mesh.hpp"
 
-constexpr int WINDOW_WIDTH = 1980;
-constexpr int WINDOW_HEIGHT = 1080;
+constexpr int WINDOW_WIDTH = 800;
+constexpr int WINDOW_HEIGHT = 600;
 
 struct Cube : Mesh {
 	static constexpr int verticesCount = 8;
@@ -117,8 +118,26 @@ int main(int argc, char* argv[]) {
 	Cube cube(1, {.b = 1});
 	cube.upload();
 
+	uint32_t fps = 0;
+	uint32_t frames = 0;
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime =
+		std::chrono::high_resolution_clock::now();
+
 	while (!window.shouldClose()) {
+		frames++;
+
+		if (std::chrono::duration_cast<std::chrono::seconds>(
+				std::chrono::high_resolution_clock::now() - lastTime)
+				.count() >= 1) {
+			fps = frames;
+			frames = 0;
+			lastTime = std::chrono::high_resolution_clock::now();
+		}
+
 		updateCamera(mainCamera, window);
+
+		std::cout << "FPS: " << fps << std::endl;
 
 		renderer.beginScene(mainCamera, sun);
 

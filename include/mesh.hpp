@@ -4,15 +4,9 @@
 #include "ignis/buffer.hpp"
 #include "ignis/device.hpp"
 #include "ignis/fence.hpp"
-#include "renderer.hpp"
+#include "types.hpp"
 
-struct Vertex {
-	Vec3 position;
-	float padding;
-	Color color;
-};
-
-typedef uint32_t Index;
+using namespace ignis;
 
 class Mesh {
 public:
@@ -37,8 +31,8 @@ protected:
 	std::vector<Vertex> m_vertices;
 	std::vector<Index> m_indices;
 
-	ignis::Buffer* m_vertexBuffer;
-	ignis::Buffer* m_indexBuffer;
+	Buffer* m_vertexBuffer;
+	Buffer* m_indexBuffer;
 
-	ignis::Fence* m_waitForUpload;
+	Fence* m_waitForUpload;
 };

@@ -34,8 +34,6 @@ Renderer::Renderer(const Window& window) {
 	m_depthImage = DepthImage::createDepthStencilImage(
 		m_device, {window.getWidth(), window.getHeight()});
 
-	m_cmd = new Command(*m_device);
-
 	m_drawAttachment = {
 		.drawImage = m_drawImage,
 		.loadAction = VK_ATTACHMENT_LOAD_OP_CLEAR,
@@ -71,13 +69,16 @@ Renderer::Renderer(const Window& window) {
 		.depthFormat = m_depthImage->getFormat(),
 	});
 
-	m_finishedRendering = new Semaphore(*m_device);
-	m_waitForRenderingCompletion = new Fence(*m_device, true);
+	for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++) {
+		frames[i].cmd = new Command(*m_device);
+		frames[i].finishedRendering = new Semaphore(*m_device);
+		frames[i].waitForRenderingCompletion = new Fence(*m_device, true);
+	}
 }
 
 void Renderer::beginScene(Camera camera, DirectionalLight sun, Color ambientColor) {
-	m_waitForRenderingCompletion->wait();
-	m_waitForRenderingCompletion->reset();
+	currFrame().waitForRenderingCompletion->wait();
+	currFrame().waitForRenderingCompletion->reset();
 
 	SceneData sceneData{
 		.viewproj = camera.getViewProjMatrix().transpose(),
@@ -87,62 +88,73 @@ void Renderer::beginScene(Camera camera, DirectionalLight sun, Color ambientColo
 
 	m_sceneDataUBO->writeData(&sceneData);
 
-	m_cmd->begin();
+	Command* cmd = currFrame().cmd;
 
-	m_cmd->bindPipeline(*m_pipeline);
+	cmd->begin();
 
-	m_cmd->bindUBO(*m_sceneDataUBO, 0, 0);
+	cmd->bindPipeline(*m_pipeline);
 
-	m_cmd->setViewport({0, 0, (float)m_drawImage->getExtent().width,
-						(float)m_drawImage->getExtent().height});
+	cmd->bindUBO(*m_sceneDataUBO, 0, 0);
 
-	m_cmd->setScissor(
+	cmd->setViewport({0, 0, (float)m_drawImage->getExtent().width,
+					  (float)m_drawImage->getExtent().height});
+
+	cmd->setScissor(
 		{0, 0, m_drawImage->getExtent().width, m_drawImage->getExtent().height});
 
-	m_cmd->beginRender(&m_drawAttachment, &m_depthAttachment);
+	cmd->beginRender(&m_drawAttachment, &m_depthAttachment);
 }
 
 void Renderer::endScene() {
-	m_cmd->endRendering();
+	Command* cmd = currFrame().cmd;
 
-	m_cmd->end();
+	cmd->endRendering();
+
+	cmd->end();
 
 	SubmitCmdInfo submitCmdInfo{
-		.command = m_cmd,
-		.signalSemaphores = {m_finishedRendering},
+		.command = cmd,
+		.signalSemaphores = {currFrame().finishedRendering},
 	};
 
 	m_device->submitCommands({std::move(submitCmdInfo)},
-							 *m_waitForRenderingCompletion);
+							 *currFrame().waitForRenderingCompletion);
 
 	m_swapchain->present({
 		.image = m_drawImage,
-		.waitSemaphores = {m_finishedRendering},
+		.waitSemaphores = {currFrame().finishedRendering},
 	});
+
+	m_currentFrame = (m_currentFrame + 1) % FRAMES_IN_FLIGHT;
 }
 
 void Renderer::draw(Mesh& mesh, WorldTransform transform) {
-	m_cmd->bindIndexBuffer(mesh.getIndexBuffer());
+	Command* cmd = currFrame().cmd;
+
+	cmd->bindIndexBuffer(mesh.getIndexBuffer());
 
 	m_pushConstants = {
 		.worldTransform = transform.getWorldMatrix().transpose(),
 		.verticesAddress = mesh.getVertexBufferAddress(),
 	};
 
-	m_cmd->pushConstants(m_pushConstants);
+	cmd->pushConstants(m_pushConstants);
 
-	m_cmd->draw(mesh.getIndices().size());
+	cmd->draw(mesh.getIndices().size());
 }
 
 Renderer::~Renderer() {
 	PRINT("renderer cleanup");
 
+	for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++) {
+		delete frames[i].cmd;
+		delete frames[i].finishedRendering;
+		delete frames[i].waitForRenderingCompletion;
+	}
+
 	delete m_swapchain;
-	delete m_finishedRendering;
-	delete m_waitForRenderingCompletion;
 	delete m_sceneDataUBO;
 	delete m_pipeline;
-	delete m_cmd;
 	delete m_drawImage;
 	delete m_depthImage;
 	delete m_device;
