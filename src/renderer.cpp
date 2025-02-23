@@ -21,7 +21,7 @@ Renderer::Renderer(const Window& window) {
 		.instanceExtensions = extensions,
 	});
 
-	// TEMP
+	// TEMP: ignis should expose a method to check if a queue exists
 	graphicsQueue = 0;
 	uploadQueue = 1;
 
@@ -67,7 +67,7 @@ Renderer::Renderer(const Window& window) {
 	});
 
 	for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++) {
-		frames[i].cmd = new Command(*m_device);
+		frames[i].cmd = new Command(*m_device, graphicsQueue);
 		frames[i].finishedRendering = new Semaphore(*m_device);
 		frames[i].waitForRenderingCompletion = new Fence(*m_device, true);
 	}

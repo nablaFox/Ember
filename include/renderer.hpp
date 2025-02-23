@@ -34,6 +34,8 @@ public:
 		return *g_instance;
 	}
 
+	~Renderer();
+
 public:
 	void beginScene(Camera camera,
 					DirectionalLight sun,
@@ -43,11 +45,10 @@ public:
 
 	void draw(Mesh&, WorldTransform);
 
+	uint32_t getGraphicsQueue() const { return graphicsQueue; }
+	uint32_t getUploadQueue() const { return uploadQueue; }
+
 	Device& getDevice() { return *m_device; }
-
-	~Renderer();
-
-	static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
 
 private:
 	Renderer(const Window&);
@@ -58,6 +59,8 @@ private:
 	Buffer* m_sceneDataUBO;
 	Pipeline* m_pipeline;
 	Swapchain* m_swapchain;
+
+	static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
 
 	struct FrameData {
 		Semaphore* finishedRendering;

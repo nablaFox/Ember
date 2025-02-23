@@ -1,5 +1,3 @@
-#pragma once
-
 #include "camera.hpp"
 
 void Camera::rotate(Rot rotation) {

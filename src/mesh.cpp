@@ -25,7 +25,7 @@ void Mesh::upload() {
 
 	m_waitForUpload->reset();
 
-	Command cmd(*m_device);
+	Command cmd(*m_device, Renderer::getInstance().getUploadQueue());
 
 	cmd.begin();
 
