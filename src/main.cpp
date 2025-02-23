@@ -2,55 +2,10 @@
 #include <cmath>
 #include "window.hpp"
 #include "renderer.hpp"
-#include "mesh.hpp"
+#include "shapes.hpp"
 
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
-
-struct Cube : Mesh {
-	static constexpr int verticesCount = 8;
-	static constexpr int indicesCount = 36;
-
-	Cube(float sideLength, Color color) : Mesh(verticesCount, indicesCount) {
-		for (uint32_t i = 0; i < 2; i++) {
-			float zShift = 0.5f - i;
-
-			m_vertices[0 + i * 4].position = {0.5f, -0.5f, zShift};
-			m_vertices[1 + i * 4].position = {-0.5f, -0.5f, zShift};
-			m_vertices[2 + i * 4].position = {-0.5f, 0.5f, zShift};
-			m_vertices[3 + i * 4].position = {0.5f, 0.5f, zShift};
-		}
-
-		for (uint32_t i = 0; i < 8; i++) {
-			m_vertices[i].color = color;
-			m_vertices[i].position *= sideLength;
-		}
-
-		m_indices = {
-			0, 1, 2, 2, 3, 0,  // Front face
-			4, 5, 6, 6, 7, 4,  // Back face
-			1, 5, 4, 4, 0, 1,  // Top face
-			3, 7, 6, 6, 2, 3,  // Bottom face
-			1, 2, 6, 6, 5, 1,  // Left face
-			0, 4, 7, 7, 3, 0,  // Right face
-		};
-	}
-};
-
-struct Square : Mesh {
-	Square(Color color) : Mesh(4, 6) {
-		m_vertices[0].position = {0.5, -0.5, 0.f};
-		m_vertices[1].position = {-0.5, -0.5, 0.f};
-		m_vertices[2].position = {-0.5, 0.5, 0.f};
-		m_vertices[3].position = {0.5, 0.5, 0.f};
-
-		for (auto& vertex : m_vertices) {
-			vertex.color = color;
-		}
-
-		m_indices = {0, 1, 2, 2, 3, 0};
-	}
-};
 
 auto updateCamera(Camera& camera, const Window& window) -> void {
 	static float previousMouseX = window.getMouseX();
@@ -112,9 +67,6 @@ int main(int argc, char* argv[]) {
 	mainCamera.fov = 60.f;
 	mainCamera.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT;
 
-	Square square({.r = 1});
-	square.upload();
-
 	Cube cube(1, {.b = 1});
 	cube.upload();
 
@@ -125,8 +77,12 @@ int main(int argc, char* argv[]) {
 
 		renderer.beginScene(mainCamera, sun);
 
-		renderer.draw(cube, {.translation = {1.5f, -0.5f, -3.f}});
-		renderer.draw(square, {.translation = {-2.5f, 0.5f, -2.f}});
+		WorldTransform cubeTransform{
+			.rotation = {.yaw = M_PI / 4},
+			.translation = {1.5f, -0.5f, -3.f},
+		};
+
+		renderer.draw(cube, cubeTransform);
 
 		renderer.endScene();
 
