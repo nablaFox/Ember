@@ -4,3 +4,4 @@ CPM_modules
 compile_commands.json
 .cache
 .clang-tidy
+*.spv

@@ -61,7 +61,7 @@ Renderer::Renderer(const Window& window) {
 
 	m_pipeline = new Pipeline({
 		.device = m_device,
-		.shaders = {"vertex.spv", "fragment.spv"},
+		.shaders = {"default.vert.spv", "default.frag.spv"},
 		.colorFormat = m_drawImage->getFormat(),
 		.depthFormat = m_depthImage->getFormat(),
 	});
@@ -133,7 +133,9 @@ void Renderer::draw(Mesh& mesh, WorldTransform transform) {
 	cmd->bindIndexBuffer(mesh.getIndexBuffer());
 
 	m_pushConstants = {
-		.worldTransform = transform.getWorldMatrix().transpose(),
+		.worldTransform = transform.getWorldMatrix()
+							  .transpose(),	 // CHECK we should probably adopt column
+											 // major order for performance
 		.verticesAddress = mesh.getVertexBufferAddress(),
 	};
 

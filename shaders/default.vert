@@ -1,13 +1,6 @@
 #version 450
 #extension GL_EXT_buffer_reference : require
 
-layout(location = 0) out vec3 outColor;
-
-struct Vertex {
-    vec3 position;
-    vec4 color;
-};
-
 struct DirectionalLight {
     vec3 direction;     
     vec3 color;     
@@ -19,7 +12,13 @@ layout(set = 0, binding = 0) uniform SceneData {
     DirectionalLight sun;
 } sceneData;
 
-// declares a pointer to a vertex buffer
+layout(location = 0) out vec3 outColor;
+
+struct Vertex {
+    vec3 position;
+    vec4 color;
+};
+
 layout(buffer_reference, std430) readonly buffer VertexBuffer { 
     Vertex vertices[];
 };

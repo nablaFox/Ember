@@ -1,4 +1,4 @@
 #!/bin/sh
 
-glslc shaders/vertex.vert -o shaders/vertex.spv
-glslc shaders/fragment.frag -o shaders/fragment.spv
+glslc shaders/default.vert -o shaders/default.vert.spv
+glslc shaders/default.frag -o shaders/default.frag.spv
