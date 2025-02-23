@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <chrono>
 #include "types.hpp"
 #include "mesh.hpp"
 #include "window.hpp"
@@ -50,6 +51,9 @@ public:
 
 	Device& getDevice() { return *m_device; }
 
+	float getFps() const { return m_fps; }
+	void updateFps();
+
 private:
 	Renderer(const Window&);
 
@@ -79,4 +83,9 @@ private:
 	DepthAttachment m_depthAttachment;
 
 	PushConstants m_pushConstants;
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> m_lastTime =
+		std::chrono::high_resolution_clock::now();
+
+	uint32_t m_fps{0};
 };

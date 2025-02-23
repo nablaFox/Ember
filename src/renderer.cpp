@@ -123,6 +123,8 @@ void Renderer::endScene() {
 	});
 
 	m_currentFrame = (m_currentFrame + 1) % FRAMES_IN_FLIGHT;
+
+	updateFps();
 }
 
 void Renderer::draw(Mesh& mesh, WorldTransform transform) {
@@ -138,6 +140,15 @@ void Renderer::draw(Mesh& mesh, WorldTransform transform) {
 	cmd->pushConstants(m_pushConstants);
 
 	cmd->draw(mesh.getIndices().size());
+}
+
+void Renderer::updateFps() {
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	float deltaTime = std::chrono::duration<float>(currentTime - m_lastTime).count();
+
+	m_lastTime = currentTime;
+
+	m_fps = 1 / deltaTime;
 }
 
 Renderer::~Renderer() {

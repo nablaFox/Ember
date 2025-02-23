@@ -118,26 +118,10 @@ int main(int argc, char* argv[]) {
 	Cube cube(1, {.b = 1});
 	cube.upload();
 
-	uint32_t fps = 0;
-	uint32_t frames = 0;
-
-	std::chrono::time_point<std::chrono::high_resolution_clock> lastTime =
-		std::chrono::high_resolution_clock::now();
-
 	while (!window.shouldClose()) {
-		frames++;
-
-		if (std::chrono::duration_cast<std::chrono::seconds>(
-				std::chrono::high_resolution_clock::now() - lastTime)
-				.count() >= 1) {
-			fps = frames;
-			frames = 0;
-			lastTime = std::chrono::high_resolution_clock::now();
-		}
+		auto currentTime = std::chrono::high_resolution_clock::now();
 
 		updateCamera(mainCamera, window);
-
-		std::cout << "FPS: " << fps << std::endl;
 
 		renderer.beginScene(mainCamera, sun);
 
@@ -145,5 +129,7 @@ int main(int argc, char* argv[]) {
 		renderer.draw(square, {.translation = {-2.5f, 0.5f, -2.f}});
 
 		renderer.endScene();
+
+		std::cout << "FPS: " << renderer.getFps() << std::endl;
 	}
 }
