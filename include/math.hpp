@@ -186,6 +186,8 @@ public:
 
 	Vec3(const Vec<float, 3>& v) : Vec<float, 3>(v) {}
 
+	Vec3(const Mat<float, 3, 1>& m) : Vec<float, 3>(m) {}
+
 	Vec3 cross(const Vec3& other) const {
 		return {
 			(*this)[1] * other[2] - (*this)[2] * other[1],

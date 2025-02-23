@@ -53,20 +53,24 @@ struct WorldTransform {
 		return getTransMatrix() * getScaleMatrix() * getRotMatrix();
 	}
 
-	Mat4 getTransMatrix() const {
-		return {
-			{1, 0, 0, translation[0]},
-			{0, 1, 0, translation[1]},
-			{0, 0, 1, translation[2]},
-			{0, 0, 0, 1},
-		};
-	}
+	Mat4 getTransMatrix() const { return getTransMatrix(translation); }
 
-	Mat4 getScaleMatrix() const {
+	Mat4 getScaleMatrix() const { return getScaleMatrix(scale); }
+
+	static Mat4 getScaleMatrix(float scale) {
 		return {
 			{scale, 0, 0, 0},
 			{0, scale, 0, 0},
 			{0, 0, scale, 0},
+			{0, 0, 0, 1},
+		};
+	}
+
+	static Mat4 getTransMatrix(Vec3 translation) {
+		return {
+			{1, 0, 0, translation[0]},
+			{0, 1, 0, translation[1]},
+			{0, 0, 1, translation[2]},
 			{0, 0, 0, 1},
 		};
 	}

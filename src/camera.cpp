@@ -20,9 +20,11 @@ void Camera::translate(Vec3 translation) {
 		cosf(-rot.yaw) * cosf(rot.pitch),
 	};
 
+	// CHECK
 	Vec3 right = forward.cross({0, 1, 0}).normalize();
 	right *= -1;
 
+	// CHECK
 	Vec3 up = right.cross(forward).normalize();
 	up *= -1;
 
@@ -31,16 +33,13 @@ void Camera::translate(Vec3 translation) {
 }
 
 Mat4 Camera::getViewMatrix() {
-	Mat4 viewTranslation = {
-		{1, 0, 0, -transform.translation[0]},
-		{0, 1, 0, -transform.translation[1]},
-		{0, 0, 1, -transform.translation[2]},
-		{0, 0, 0, 1},
-	};
+	Mat4 viewTranslation =
+		WorldTransform::getTransMatrix(transform.translation * -1);
 
-	Mat4 viewRotation = transform.getRotMatrix().transpose();
+	// CHECK shouldn't be transposed?
+	Mat4 viewRotation = transform.getRotMatrix();
 
-	return viewRotation.transpose() * viewTranslation;
+	return viewRotation * viewTranslation;
 }
 
 Mat4 Camera::getProjMatrix() {
