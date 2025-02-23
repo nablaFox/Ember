@@ -5,6 +5,8 @@
 struct Camera {
 	float fov = 90.f;
 	float aspect = 1.77f;
+	float near = 0.1f;
+	float far = 100.f;
 
 	WorldTransform transform{};
 

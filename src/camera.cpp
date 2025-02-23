@@ -43,9 +43,6 @@ Mat4 Camera::getViewMatrix() {
 }
 
 Mat4 Camera::getProjMatrix() {
-	const float near = 1.f;
-	const float far = 1e2f;
-
 	const float fovAngle = fov * M_PI / 180;
 
 	const float top = near * tanf(fovAngle / 2);
