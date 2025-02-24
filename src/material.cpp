@@ -2,15 +2,14 @@
 #include "types.hpp"
 #include "device.hpp"
 
-Material::Material(const char* fragShader,
-				   const char* vertShader,
+Material::Material(std::vector<std::string> shaders,
 				   uint32_t dataSize,
 				   void* initialData) {
 	auto device = EmberDevice::getDevice();
 
 	m_pipeline = new Pipeline({
 		.device = device,
-		.shaders = {vertShader, fragShader},
+		.shaders = std::move(shaders),
 		.colorFormat = drawColorFormat,
 		.depthFormat = depthAttachmentFormat,
 	});
@@ -19,19 +18,19 @@ Material::Material(const char* fragShader,
 		return;
 	}
 
-	m_ubo = Buffer::createUBO(device, dataSize, initialData);
+	m_params = Buffer::createUBO(device, dataSize, initialData);
 
 	// TEMP: in the future we may want to recycle freed handles
 	static uint32_t handleCounter = 1;
 	m_materialHandle = handleCounter++;
 
-	device->registerUBO(*m_ubo, m_materialHandle);
+	device->registerUBO(*m_params, m_materialHandle);
 }
 
 Material::~Material() {
 	delete m_pipeline;
 }
 
-void Material::updateData(void* data) {
-	m_ubo->writeData(data);
+void Material::updateParams(void* data) {
+	m_params->writeData(data);
 }

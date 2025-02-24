@@ -9,8 +9,7 @@ public:
 	virtual ~Material();
 
 	// will auto generate an ubo handle
-	Material(const char* fragShader,
-			 const char* vertShader,
+	Material(std::vector<std::string> shaders,
 			 uint32_t dataSize = 0,
 			 void* initialData = nullptr);
 
@@ -18,24 +17,26 @@ public:
 
 	auto& getPipeline() const { return *m_pipeline; }
 
-	auto updateData(void* data) -> void;
+	auto updateParams(void* data) -> void;
 
 private:
 	Pipeline* m_pipeline{nullptr};
-	Buffer* m_ubo{nullptr};
+	Buffer* m_params{nullptr};
 	uint32_t m_materialHandle{0};
 };
 
 template <typename T>
 class MaterialTemplate : public Material {
 public:
-	MaterialTemplate(const char* fragShader, const char* vertShader, T initialData)
-		: Material(fragShader, vertShader, sizeof(T), &initialData) {}
+	MaterialTemplate(std::vector<std::string> shaders, T initialData)
+		: Material(std::move(shaders), sizeof(T), &initialData) {}
 
-	auto updateData(T data) -> void { Material::updateData(&data); }
+	auto updateParams(T data) -> void { Material::updateParams(&data); }
 };
 
 inline Material defaultMaterial{
-	"default.frag.spv",
-	"default.vert.spv",
+	{
+		"default.frag.spv",
+		"default.vert.spv",
+	},
 };

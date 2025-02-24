@@ -72,7 +72,7 @@ auto main(int argc, char* argv[]) -> int {
 	};
 
 	MaterialTemplate<TestMaterialData> testMaterial(
-		"floor.frag.spv", "default.vert.spv", {.r = 0.f, .g = 0.f, .b = 0.f});
+		{"floor.frag.spv", "default.vert.spv"}, {.r = 0.f, .g = 0.f, .b = 0.f});
 
 	cube.setMaterial(&testMaterial);
 
@@ -82,20 +82,20 @@ auto main(int argc, char* argv[]) -> int {
 		renderer.beginScene(mainCamera, sun);
 
 		if (window.isKeyPressed(GLFW_KEY_R)) {
-			testMaterial.updateData({.r = 1.f, .g = 0.f, .b = 0.f});
+			testMaterial.updateParams({.r = 1.f, .g = 0.f, .b = 0.f});
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_G)) {
-			testMaterial.updateData({.r = 0.f, .g = 1.f, .b = 0.f});
+			testMaterial.updateParams({.r = 0.f, .g = 1.f, .b = 0.f});
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_B)) {
-			testMaterial.updateData({.r = 0.f, .g = 0.f, .b = 1.f});
+			testMaterial.updateParams({.r = 0.f, .g = 0.f, .b = 1.f});
 		}
 
 		// white
 		if (window.isKeyPressed(GLFW_KEY_W)) {
-			testMaterial.updateData({.r = 1.f, .g = 1.f, .b = 1.f});
+			testMaterial.updateParams({.r = 1.f, .g = 1.f, .b = 1.f});
 		}
 
 		WorldTransform cubeTransform{
