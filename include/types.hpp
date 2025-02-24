@@ -85,5 +85,6 @@ struct DirectionalLight {
 	Color color;
 };
 
-inline constexpr ignis::ColorFormat colorFormat = ignis::ColorFormat::RGBA16;
-inline constexpr ignis::DepthFormat depthFormat = ignis::DepthFormat::D32_SFLOAT;
+inline constexpr ignis::ColorFormat drawColorFormat = ignis::ColorFormat::RGBA16;
+inline constexpr ignis::DepthFormat depthAttachmentFormat =
+	ignis::DepthFormat::D32_SFLOAT;

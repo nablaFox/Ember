@@ -30,7 +30,9 @@ Renderer::Renderer(const Window& window) {
 		.storeAction = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 	};
 
-	m_sceneDataUBO = Buffer::createUBO<SceneData>(device, 1);
+	m_sceneDataUBO = Buffer::createUBO(device, sizeof(SceneData));
+
+	device->registerUBO(*m_sceneDataUBO, 0);
 
 	VkSurfaceKHR surface;
 
@@ -44,13 +46,6 @@ Renderer::Renderer(const Window& window) {
 		.extent = {window.getWidth(), window.getHeight()},
 		.surface = surface,
 		.presentMode = VK_PRESENT_MODE_MAILBOX_KHR,
-	});
-
-	m_pipeline = new Pipeline({
-		.device = device,
-		.shaders = {"default.vert.spv", "default.frag.spv"},
-		.colorFormat = m_drawImage->getFormat(),
-		.depthFormat = m_depthImage->getFormat(),
 	});
 
 	for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; i++) {
@@ -72,21 +67,9 @@ void Renderer::beginScene(Camera camera, DirectionalLight sun, Color ambientColo
 
 	m_sceneDataUBO->writeData(&sceneData);
 
-	Command* cmd = currFrame().cmd;
+	currFrame().cmd->begin();
 
-	cmd->begin();
-
-	cmd->bindPipeline(*m_pipeline);
-
-	cmd->bindUBO(*m_sceneDataUBO, 0, 0);
-
-	cmd->setViewport({0, 0, (float)m_drawImage->getExtent().width,
-					  (float)m_drawImage->getExtent().height});
-
-	cmd->setScissor(
-		{0, 0, m_drawImage->getExtent().width, m_drawImage->getExtent().height});
-
-	cmd->beginRender(&m_drawAttachment, &m_depthAttachment);
+	currFrame().cmd->beginRender(&m_drawAttachment, &m_depthAttachment);
 }
 
 void Renderer::endScene() {
@@ -117,6 +100,15 @@ void Renderer::endScene() {
 void Renderer::draw(Mesh& mesh, WorldTransform transform) {
 	Command* cmd = currFrame().cmd;
 
+	// TEMP: in the future we may want to group draw calls by material
+	cmd->bindPipeline(mesh.getMaterial().getPipeline());
+
+	cmd->setViewport({0, 0, (float)m_drawImage->getExtent().width,
+					  (float)m_drawImage->getExtent().height});
+
+	cmd->setScissor(
+		{0, 0, m_drawImage->getExtent().width, m_drawImage->getExtent().height});
+
 	cmd->bindIndexBuffer(mesh.getIndexBuffer());
 
 	m_pushConstants = {
@@ -124,6 +116,7 @@ void Renderer::draw(Mesh& mesh, WorldTransform transform) {
 							  .transpose(),	 // CHECK we should probably adopt column
 											 // major order for performance
 		.verticesAddress = mesh.getVertexBufferAddress(),
+		.materialHandle = mesh.getMaterial().getHandle(),
 	};
 
 	cmd->pushConstants(m_pushConstants);
@@ -149,7 +142,6 @@ Renderer::~Renderer() {
 
 	delete m_swapchain;
 	delete m_sceneDataUBO;
-	delete m_pipeline;
 	delete m_drawImage;
 	delete m_depthImage;
 }

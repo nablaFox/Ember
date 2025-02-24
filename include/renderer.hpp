@@ -19,6 +19,7 @@ struct SceneData {
 struct PushConstants {
 	Mat4 worldTransform;
 	VkDeviceAddress verticesAddress;
+	uint32_t materialHandle;
 };
 
 class Renderer {
@@ -42,7 +43,6 @@ private:
 	ColorImage* m_drawImage;
 	DepthImage* m_depthImage;
 	Buffer* m_sceneDataUBO;
-	Pipeline* m_pipeline;
 	Swapchain* m_swapchain;
 
 	static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
