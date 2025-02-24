@@ -60,7 +60,7 @@ void Renderer::beginScene(Camera camera, DirectionalLight sun, Color ambientColo
 	currFrame().waitForRenderingCompletion->reset();
 
 	SceneData sceneData{
-		.viewproj = camera.getViewProjMatrix().transpose(),
+		.viewproj = camera.getViewProjMatrix(),
 		.ambientColor = ambientColor,
 		.sun = sun,
 	};
@@ -103,8 +103,12 @@ void Renderer::draw(Mesh& mesh, WorldTransform transform) {
 	// TEMP: in the future we may want to group draw calls by material
 	cmd->bindPipeline(mesh.getMaterial().getPipeline());
 
-	cmd->setViewport({0, 0, (float)m_drawImage->getExtent().width,
-					  (float)m_drawImage->getExtent().height});
+	cmd->setViewport({
+		.width = (float)m_drawImage->getExtent().width,
+		.height = (float)m_drawImage->getExtent().height,
+		.minDepth = 0,	// TODO handle this in ignis
+		.maxDepth = 1,	// TODO handle this in ignis
+	});
 
 	cmd->setScissor(
 		{0, 0, m_drawImage->getExtent().width, m_drawImage->getExtent().height});
@@ -112,9 +116,7 @@ void Renderer::draw(Mesh& mesh, WorldTransform transform) {
 	cmd->bindIndexBuffer(mesh.getIndexBuffer());
 
 	m_pushConstants = {
-		.worldTransform = transform.getWorldMatrix()
-							  .transpose(),	 // CHECK we should probably adopt column
-											 // major order for performance
+		.worldTransform = transform.getWorldMatrix(),
 		.verticesAddress = mesh.getVertexBufferAddress(),
 		.materialHandle = mesh.getMaterial().getHandle(),
 	};

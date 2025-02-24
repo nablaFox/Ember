@@ -17,22 +17,28 @@ public:
 	Mat(std::initializer_list<std::initializer_list<T>> list) {
 		assert(list.size() == Rows && "Incorrect number of rows");
 
-		auto it = elements.begin();
+		auto rowIt = list.begin();
 
-		for (auto row : list) {
-			assert(row.size() == Cols && "Incorrect number of cols");
-			for (auto val : row) {
-				*it++ = val;
+		for (std::size_t i = 0; i < Rows; i++) {
+			assert(rowIt->size() == Cols && "Incorrect number of columns");
+
+			auto colIt = rowIt->begin();
+
+			for (std::size_t j = 0; j < Cols; j++) {
+				(*this)(i, j) = *colIt;
+				colIt++;
 			}
+
+			rowIt++;
 		}
 	}
 
 	T& operator()(std::size_t row, std::size_t col) {
-		return elements[row * Cols + col];
+		return elements[col * Rows + row];
 	}
 
 	const T& operator()(std::size_t row, std::size_t col) const {
-		return elements[row * Cols + col];
+		return elements[col * Rows + row];
 	}
 
 	void print() const {
