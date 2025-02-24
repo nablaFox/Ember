@@ -10,8 +10,10 @@ Material::Material(std::vector<std::string> shaders,
 	m_pipeline = new Pipeline({
 		.device = device,
 		.shaders = std::move(shaders),
-		.colorFormat = drawColorFormat,
+		.colorFormat = drawAttachmentColorFormat,
 		.depthFormat = depthAttachmentFormat,
+		.cullMode = VK_CULL_MODE_NONE,
+		.sampleCount = msaSampleCount,
 	});
 
 	if (dataSize == 0) {

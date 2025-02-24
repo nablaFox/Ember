@@ -4,8 +4,8 @@
 #include "shapes.hpp"
 #include "device.hpp"
 
-constexpr int WINDOW_WIDTH = 800;
-constexpr int WINDOW_HEIGHT = 600;
+constexpr int WINDOW_WIDTH = 1920;
+constexpr int WINDOW_HEIGHT = 1080;
 
 #define WHITE_COLOR {.r = 1, .g = 1, .b = 1}
 

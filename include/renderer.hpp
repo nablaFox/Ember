@@ -41,7 +41,9 @@ public:
 
 private:
 	ColorImage* m_drawImage;
+	ColorImage* m_resolvedDrawImage;
 	DepthImage* m_depthImage;
+
 	Buffer* m_sceneDataUBO;
 	Swapchain* m_swapchain;
 

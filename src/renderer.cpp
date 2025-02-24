@@ -10,13 +10,27 @@
 Renderer::Renderer(const Window& window) {
 	auto device = EmberDevice::getDevice();
 
-	// TODO: ignis should allow for specifying the color format
-	m_drawImage =
-		ColorImage::createDrawImage(device, {window.getWidth(), window.getHeight()});
+	m_drawImage = ColorImage::createDrawImage({
+		.device = device,
+		.extent = {window.getWidth(), window.getHeight()},
+		.format = drawAttachmentColorFormat,
+		.sampleCount = msaSampleCount,
+	});
 
-	// TODO: ignis should allow for the depth format
-	m_depthImage = DepthImage::createDepthStencilImage(
-		device, {window.getWidth(), window.getHeight()});
+	// PONDER maybe we could add a "createResolvedDrawImage" utility in ignis
+	m_resolvedDrawImage = ColorImage::createDrawImage({
+		.device = device,
+		.extent = {window.getWidth(), window.getHeight()},
+		.format = drawAttachmentColorFormat,
+		.sampleCount = VK_SAMPLE_COUNT_1_BIT,
+	});
+
+	m_depthImage = DepthImage::createDepthImage({
+		.device = device,
+		.extent = {window.getWidth(), window.getHeight()},
+		.format = depthAttachmentFormat,
+		.sampleCount = msaSampleCount,
+	});
 
 	m_drawAttachment = {
 		.drawImage = m_drawImage,
@@ -77,6 +91,15 @@ void Renderer::endScene() {
 
 	cmd->endRendering();
 
+	cmd->transitionImageLayout(*m_drawImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	cmd->transitionImageLayout(*m_resolvedDrawImage,
+							   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	cmd->resolveImage(*m_drawImage, *m_resolvedDrawImage);
+
+	cmd->transitionToOptimalLayout(*m_drawImage);
+	cmd->transitionToOptimalLayout(*m_resolvedDrawImage);
+
 	cmd->end();
 
 	SubmitCmdInfo submitCmdInfo{
@@ -88,7 +111,7 @@ void Renderer::endScene() {
 		{std::move(submitCmdInfo)}, *currFrame().waitForRenderingCompletion);
 
 	m_swapchain->present({
-		.image = m_drawImage,
+		.srcImage = m_resolvedDrawImage,
 		.waitSemaphores = {currFrame().finishedRendering},
 	});
 
@@ -145,5 +168,6 @@ Renderer::~Renderer() {
 	delete m_swapchain;
 	delete m_sceneDataUBO;
 	delete m_drawImage;
+	delete m_resolvedDrawImage;
 	delete m_depthImage;
 }

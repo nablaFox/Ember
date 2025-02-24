@@ -14,7 +14,7 @@ add_executable(Ember ${EMBER_SRC})
 CPMAddPackage(
   NAME Ignis
   GITHUB_REPOSITORY nablaFox/Ignis
-  GIT_TAG bindless
+  GIT_TAG main
 )
 
 find_package(glfw3 REQUIRED)
