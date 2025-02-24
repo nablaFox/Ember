@@ -7,6 +7,8 @@
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
 
+#define WHITE_COLOR {.r = 1, .g = 1, .b = 1}
+
 auto updateCamera(Camera& camera, const Window& window) -> void {
 	static float previousMouseX = window.getMouseX();
 	static float previousMouseY = window.getMouseY();
@@ -26,33 +28,27 @@ auto updateCamera(Camera& camera, const Window& window) -> void {
 
 	constexpr float cameraSpeed = 0.1f;
 
-	Vec3 translation{};
+	Vec3& position = camera.transform.position;
+	float yaw = -camera.transform.rotation.yaw;
+
+	Vec3 playerForward = Vec3{sinf(yaw), 0, cosf(yaw)} * -1;
+	Vec3 playerRight = {cosf(yaw), 0, -sinf(yaw)};
 
 	if (window.isKeyPressed(GLFW_KEY_W)) {
-		translation[0] -= cameraSpeed;
+		position += playerForward * cameraSpeed;
 	}
 
 	if (window.isKeyPressed(GLFW_KEY_S)) {
-		translation[0] += cameraSpeed;
+		position -= playerForward * cameraSpeed;
 	}
 
 	if (window.isKeyPressed(GLFW_KEY_D)) {
-		translation[1] += cameraSpeed;
+		position += playerRight * cameraSpeed;
 	}
 
 	if (window.isKeyPressed(GLFW_KEY_A)) {
-		translation[1] -= cameraSpeed;
+		position -= playerRight * cameraSpeed;
 	}
-
-	if (window.isKeyPressed(GLFW_KEY_SPACE)) {
-		translation[2] += cameraSpeed;
-	}
-
-	if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-		translation[2] -= cameraSpeed;
-	}
-
-	camera.translate(translation);
 }
 
 auto main(int argc, char* argv[]) -> int {
@@ -64,46 +60,23 @@ auto main(int argc, char* argv[]) -> int {
 
 	mainCamera.fov = 60.f;
 	mainCamera.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT;
+	mainCamera.transform.position = {0, 1, 0};
 
 	Cube cube(1, {.b = 1});
 
-	struct TestMaterialData {
-		float r, g, b;
-	};
-
-	MaterialTemplate<TestMaterialData> testMaterial(
-		{"floor.frag.spv", "default.vert.spv"}, {.r = 0.f, .g = 0.f, .b = 0.f});
-
-	cube.setMaterial(&testMaterial);
+	Floor floor(WHITE_COLOR);
 
 	while (!window.shouldClose()) {
 		updateCamera(mainCamera, window);
 
 		renderer.beginScene(mainCamera, sun);
 
-		if (window.isKeyPressed(GLFW_KEY_R)) {
-			testMaterial.updateParams({.r = 1.f, .g = 0.f, .b = 0.f});
-		}
-
-		if (window.isKeyPressed(GLFW_KEY_G)) {
-			testMaterial.updateParams({.r = 0.f, .g = 1.f, .b = 0.f});
-		}
-
-		if (window.isKeyPressed(GLFW_KEY_B)) {
-			testMaterial.updateParams({.r = 0.f, .g = 0.f, .b = 1.f});
-		}
-
-		// white
-		if (window.isKeyPressed(GLFW_KEY_W)) {
-			testMaterial.updateParams({.r = 1.f, .g = 1.f, .b = 1.f});
-		}
-
-		WorldTransform cubeTransform{
-			.rotation = {.yaw = M_PI / 4},
-			.translation = {1.5f, -0.5f, -3.f},
-		};
-
-		renderer.draw(cube, cubeTransform);
+		renderer.draw(cube, {.position = {0, 0.5, -2}});
+		renderer.draw(floor, {
+								 .scale = 1000,
+								 .rotation = {.pitch = -M_PI / 2},
+								 .position = {0, 0, -2},
+							 });
 
 		renderer.endScene();
 	}

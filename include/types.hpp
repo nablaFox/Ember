@@ -49,13 +49,13 @@ typedef uint32_t Index;
 struct WorldTransform {
 	float scale = 1;
 	Rot rotation = {0, 0, 0};
-	Vec3 translation = {0, 0, 0};
+	Vec3 position = {0, 0, 0};
 
 	Mat4 getWorldMatrix() const {
 		return getTransMatrix() * getScaleMatrix() * getRotMatrix();
 	}
 
-	Mat4 getTransMatrix() const { return getTransMatrix(translation); }
+	Mat4 getTransMatrix() const { return getTransMatrix(position); }
 
 	Mat4 getScaleMatrix() const { return getScaleMatrix(scale); }
 

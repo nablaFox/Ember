@@ -47,3 +47,23 @@ struct Cube : Mesh {
 		};
 	}
 };
+
+// TEMP this (probably) sucks
+// an approach with effects and compute shaders would be better
+struct Floor : Mesh {
+	using FloorMaterial = MaterialTemplate<Color>;
+
+	Floor(Color color) : Mesh(4, 6) {
+		m_material =
+			new FloorMaterial({"floor.vert.spv", "default.frag.spv"}, color);
+
+		m_indices = {0, 1, 2, 0, 2, 3};
+
+		m_vertices[0].position = {1, 1, 0.f};
+		m_vertices[1].position = {-1, 1, 0.f};
+		m_vertices[2].position = {-1, -1, 0.f};
+		m_vertices[3].position = {1, -1, 0.f};
+	}
+
+	~Floor() { delete m_material; }
+};

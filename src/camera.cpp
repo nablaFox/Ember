@@ -11,30 +11,8 @@ void Camera::rotate(Rot rotation) {
 	}
 }
 
-void Camera::translate(Vec3 translation) {
-	Rot rot = transform.rotation;
-
-	Vec3 forward = {
-		sinf(-rot.yaw) * cosf(rot.pitch),
-		sinf(rot.pitch),
-		cosf(-rot.yaw) * cosf(rot.pitch),
-	};
-
-	// CHECK
-	Vec3 right = forward.cross({0, 1, 0}).normalize();
-	right *= -1;
-
-	// CHECK
-	Vec3 up = right.cross(forward).normalize();
-	up *= -1;
-
-	transform.translation +=
-		forward * translation[0] + right * translation[1] + up * translation[2];
-}
-
 Mat4 Camera::getViewMatrix() {
-	Mat4 viewTranslation =
-		WorldTransform::getTransMatrix(transform.translation * -1);
+	Mat4 viewTranslation = WorldTransform::getTransMatrix(transform.position * -1);
 
 	// CHECK shouldn't be transposed?
 	Mat4 viewRotation = transform.getRotMatrix();

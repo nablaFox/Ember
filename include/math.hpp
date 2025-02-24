@@ -84,6 +84,14 @@ public:
 		return *this;
 	}
 
+	Mat& operator-=(const Mat& other) {
+		for (std::size_t i = 0; i < Rows * Cols; i++) {
+			elements[i] -= other.elements[i];
+		}
+
+		return *this;
+	}
+
 	Mat& operator*=(float scalar) {
 		for (std::size_t i = 0; i < Rows * Cols; i++) {
 			elements[i] *= scalar;
