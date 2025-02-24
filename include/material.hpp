@@ -30,7 +30,7 @@ template <typename T>
 class MaterialTemplate : public Material {
 public:
 	MaterialTemplate(const char* fragShader, const char* vertShader, T initialData)
-		: Material(fragShader, vertShader, &initialData, sizeof(T)) {}
+		: Material(fragShader, vertShader, sizeof(T), &initialData) {}
 
 	auto updateData(T data) -> void { Material::updateData(&data); }
 };

@@ -27,6 +27,8 @@ public:
 
 	auto getVertexBufferAddress() -> VkDeviceAddress;
 
+	auto setMaterial(Material* material) -> void { m_material = material; }
+
 protected:
 	bool m_dirty = true;
 

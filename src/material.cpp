@@ -1,5 +1,4 @@
 #include "material.hpp"
-#include <cassert>
 #include "types.hpp"
 #include "device.hpp"
 
@@ -22,10 +21,11 @@ Material::Material(const char* fragShader,
 
 	m_ubo = Buffer::createUBO(device, dataSize, initialData);
 
-	// TEMP generate handle
-	uint32_t handle = 0;
+	// TEMP: in the future we may want to recycle freed handles
+	static uint32_t handleCounter = 1;
+	m_materialHandle = handleCounter++;
 
-	device->registerUBO(*m_ubo, handle);
+	device->registerUBO(*m_ubo, m_materialHandle);
 }
 
 Material::~Material() {

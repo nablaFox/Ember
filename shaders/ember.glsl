@@ -22,7 +22,7 @@
 
 struct DirectionalLight {
     vec3 direction;     
-    vec3 color;     
+    vec4 color;     
 };
 
 struct Vertex {
