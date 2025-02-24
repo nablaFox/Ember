@@ -1,16 +1,16 @@
 #include "mesh.hpp"
-#include "renderer.hpp"
+#include "device.hpp"
 
 Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize) {
+	auto device = EmberDevice::getDevice();
+
 	m_vertices.resize(verticesSize);
 	m_indices.resize(indicesSize);
 
-	m_device = &Renderer::getInstance().getDevice();
+	m_indexBuffer = Buffer::createIndexBuffer32(device, indicesSize);
+	m_vertexBuffer = Buffer::createVertexBuffer<Vertex>(device, verticesSize);
 
-	m_indexBuffer = Buffer::createIndexBuffer32(m_device, indicesSize);
-	m_vertexBuffer = Buffer::createVertexBuffer<Vertex>(m_device, verticesSize);
-
-	m_waitForUpload = new Fence(*m_device);
+	m_waitForUpload = new Fence(*device);
 }
 
 void Mesh::update(std::span<Vertex> newVertices, std::span<Index> newIndices) {
@@ -23,9 +23,11 @@ void Mesh::upload() {
 		return;
 	}
 
+	auto device = EmberDevice::getDevice();
+
 	m_waitForUpload->reset();
 
-	Command cmd(*m_device, Renderer::getInstance().getUploadQueue());
+	Command cmd(*device);
 
 	cmd.begin();
 
@@ -34,7 +36,7 @@ void Mesh::upload() {
 
 	cmd.end();
 
-	m_device->submitCommands({{&cmd}}, *m_waitForUpload);
+	device->submitCommands({{&cmd}}, *m_waitForUpload);
 
 	m_waitForUpload->wait();
 

@@ -1,8 +1,8 @@
-#include <chrono>
 #include <cmath>
 #include "window.hpp"
 #include "renderer.hpp"
 #include "shapes.hpp"
+#include "device.hpp"
 
 constexpr int WINDOW_WIDTH = 800;
 constexpr int WINDOW_HEIGHT = 600;
@@ -55,11 +55,9 @@ auto updateCamera(Camera& camera, const Window& window) -> void {
 	camera.translate(translation);
 }
 
-int main(int argc, char* argv[]) {
+auto main(int argc, char* argv[]) -> int {
 	Window window("Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
-	Renderer::init(window);
-
-	Renderer& renderer = Renderer::getInstance();
+	Renderer renderer(window);
 
 	Camera mainCamera;
 	DirectionalLight sun;
@@ -68,11 +66,8 @@ int main(int argc, char* argv[]) {
 	mainCamera.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT;
 
 	Cube cube(1, {.b = 1});
-	cube.upload();
 
 	while (!window.shouldClose()) {
-		auto currentTime = std::chrono::high_resolution_clock::now();
-
 		updateCamera(mainCamera, window);
 
 		renderer.beginScene(mainCamera, sun);
@@ -85,7 +80,5 @@ int main(int argc, char* argv[]) {
 		renderer.draw(cube, cubeTransform);
 
 		renderer.endScene();
-
-		std::cout << "FPS: " << renderer.getFps() << std::endl;
 	}
 }

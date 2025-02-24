@@ -23,18 +23,7 @@ struct PushConstants {
 
 class Renderer {
 public:
-	static Renderer* g_instance;
-
-	static void init(const Window& window) { g_instance = new Renderer(window); }
-
-	static Renderer& getInstance() {
-		if (g_instance == nullptr) {
-			assert("Renderer not initialized");
-		}
-
-		return *g_instance;
-	}
-
+	Renderer(const Window&);
 	~Renderer();
 
 public:
@@ -46,18 +35,10 @@ public:
 
 	void draw(Mesh&, WorldTransform);
 
-	uint32_t getGraphicsQueue() const { return graphicsQueue; }
-	uint32_t getUploadQueue() const { return uploadQueue; }
-
-	Device& getDevice() { return *m_device; }
-
 	float getFps() const { return m_fps; }
 	void updateFps();
 
 private:
-	Renderer(const Window&);
-
-	Device* m_device;
 	ColorImage* m_drawImage;
 	DepthImage* m_depthImage;
 	Buffer* m_sceneDataUBO;
@@ -75,9 +56,6 @@ private:
 	uint32_t m_currentFrame{0};
 
 	FrameData& currFrame() { return frames[m_currentFrame % FRAMES_IN_FLIGHT]; }
-
-	uint32_t graphicsQueue;
-	uint32_t uploadQueue;
 
 	DrawAttachment m_drawAttachment;
 	DepthAttachment m_depthAttachment;

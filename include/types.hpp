@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include "math.hpp"
+#include "ignis/color_image.hpp"
+#include "ignis/depth_image.hpp"
 
 struct Rot {
 	float yaw{0}, pitch{0}, roll{0};
@@ -82,3 +84,6 @@ struct DirectionalLight {
 	Vec3 direction;
 	Color color;
 };
+
+inline constexpr ignis::ColorFormat colorFormat = ignis::ColorFormat::RGBA16;
+inline constexpr ignis::DepthFormat depthFormat = ignis::DepthFormat::D32_SFLOAT;

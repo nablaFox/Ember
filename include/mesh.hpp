@@ -26,8 +26,6 @@ public:
 protected:
 	bool m_dirty = true;
 
-	ignis::Device* m_device;
-
 	std::vector<Vertex> m_vertices;
 	std::vector<Index> m_indices;
 
