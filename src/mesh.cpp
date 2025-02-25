@@ -1,8 +1,7 @@
 #include "mesh.hpp"
 #include "device.hpp"
-#include "default_materials.hpp"
 
-Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize, Material* material) {
+Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize) {
 	auto device = EmberDevice::getDevice();
 
 	m_vertices.resize(verticesSize);
@@ -13,8 +12,6 @@ Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize, Material* material) {
 		Buffer::createVertexBuffer(device, verticesSize * sizeof(Vertex));
 
 	m_waitForUpload = new Fence(*device);
-
-	m_material = material != nullptr ? material : &defaultMaterial;
 }
 
 void Mesh::update(std::span<Vertex> newVertices, std::span<Index> newIndices) {

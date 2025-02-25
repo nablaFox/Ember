@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <chrono>
+#include "material.hpp"
 #include "types.hpp"
 #include "mesh.hpp"
 #include "window.hpp"
@@ -34,7 +35,7 @@ public:
 
 	void endScene();
 
-	void draw(Mesh&, WorldTransform);
+	void draw(Mesh&, WorldTransform, const Material* = nullptr);
 
 	float getFps() const { return m_fps; }
 

@@ -3,7 +3,7 @@
 #include "mesh.hpp"
 
 struct Square : Mesh {
-	Square(Material* material = nullptr) : Mesh(4, 6, material) {
+	Square() : Mesh(4, 6) {
 		m_vertices[0] = {
 			.position = {0.5, -0.5, 0},
 			.uv = {1, 0},
@@ -29,7 +29,7 @@ struct Square : Mesh {
 };
 
 struct Cube : Mesh {
-	Cube(Material* material = nullptr) : Mesh(8, 36, nullptr) {
+	Cube() : Mesh(8, 36) {
 		for (uint32_t i = 0; i < 2; i++) {
 			float zShift = 0.5f - i;
 

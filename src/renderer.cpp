@@ -1,3 +1,4 @@
+#include "default_materials.hpp"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -119,11 +120,13 @@ void Renderer::endScene() {
 	updateFps();
 }
 
-void Renderer::draw(Mesh& mesh, WorldTransform transform) {
+void Renderer::draw(Mesh& mesh, WorldTransform transform, const Material* material) {
 	Command* cmd = currFrame().cmd;
 
-	// TEMP: in the future we may want to group draw calls by material
-	cmd->bindPipeline(mesh.getMaterial().getPipeline());
+	const Material* materialToUse =
+		material != nullptr ? material : &defaultMaterial;
+
+	cmd->bindPipeline(materialToUse->getPipeline());
 
 	cmd->setViewport({
 		.width = (float)m_drawImage->getExtent().width,
@@ -140,7 +143,7 @@ void Renderer::draw(Mesh& mesh, WorldTransform transform) {
 	m_pushConstants = {
 		.worldTransform = transform.getWorldMatrix(),
 		.verticesAddress = mesh.getVertexBufferAddress(),
-		.materialHandle = mesh.getMaterial().getHandle(),
+		.materialHandle = materialToUse->getHandle(),
 	};
 
 	cmd->pushConstants(m_pushConstants);

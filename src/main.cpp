@@ -104,8 +104,8 @@ auto main(int argc, char* argv[]) -> int {
 		.lineThickness = 0.00001,
 	});
 
-	Square floor1(&gridMaterial1);
-	Square floor2(&gridMaterial2);
+	Square floor1;
+	Square floor2;
 
 	Cube cube;
 	cube.setColor(RED_COLOR);
@@ -120,17 +120,21 @@ auto main(int argc, char* argv[]) -> int {
 								.position = {2, 0.5, -4},
 							});
 
-		renderer.draw(floor1, {
-								  .scale = 1000,
-								  .pitch = -M_PI / 2,
-								  .position = {0, 0, -2},
-							  });
+		renderer.draw(floor1,
+					  {
+						  .scale = 1000,
+						  .pitch = -M_PI / 2,
+						  .position = {0, 0, -2},
+					  },
+					  &gridMaterial1);
 
-		renderer.draw(floor2, {
-								  .scale = 1000,
-								  .pitch = -M_PI / 2,
-								  .position = {0, 0, -2},
-							  });
+		renderer.draw(floor2,
+					  {
+						  .scale = 1000,
+						  .pitch = -M_PI / 2,
+						  .position = {0, 0, -2},
+					  },
+					  &gridMaterial2);
 
 		renderer.endScene();
 	}
