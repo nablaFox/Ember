@@ -15,6 +15,7 @@ void movePlayer(Camera& camera, const Window& window, float deltaTime) {
 
 	WorldTransform& transform = camera.transform;
 
+	// CHECK multiplying by deltaTime gives weird artifacts
 	transform.yaw += window.mouseDeltaX() * sensitivity;
 	transform.pitch += window.mouseDeltaY() * sensitivity;
 

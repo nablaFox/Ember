@@ -1,4 +1,5 @@
 # Ember
 
-Collection of demos realized with the intent to develop a better API for the
-[Ignis]() renderer library.
+C++ 20 simple graphics engine written with [Ignis](https://github.com/nablaFox/Ignis).
+
+![Screenshot](screenshot.png)

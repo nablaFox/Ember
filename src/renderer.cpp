@@ -1,4 +1,3 @@
-#include "default_materials.hpp"
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -6,6 +5,7 @@
 #include "window.hpp"
 #include "renderer.hpp"
 #include "mesh.hpp"
+#include "default_materials.hpp"
 #include "ignis/swapchain.hpp"
 
 Renderer::Renderer(const Window& window) {
