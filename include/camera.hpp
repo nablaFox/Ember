@@ -9,12 +9,10 @@ struct Camera {
 	float far = 100.f;
 
 	Vec3 forward() const {
-		Rot rot = transform.rotation;
-
 		Vec3 res = {
-			sinf(-rot.yaw) * cosf(rot.pitch),
-			sinf(rot.pitch),
-			cosf(-rot.yaw) * cosf(rot.pitch),
+			sinf(-transform.yaw) * cosf(transform.pitch),
+			sinf(transform.pitch),
+			cosf(-transform.yaw) * cosf(transform.pitch),
 		};
 
 		return res * -1;
@@ -26,7 +24,7 @@ struct Camera {
 
 	WorldTransform transform{};
 
-	void rotate(Rot rotation);
+	void rotate(float yaw, float pitch, float roll);
 
 	void translate(Vec3 translation);
 

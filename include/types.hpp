@@ -5,35 +5,6 @@
 #include "ignis/color_image.hpp"
 #include "ignis/depth_image.hpp"
 
-struct Rot {
-	float yaw{0}, pitch{0}, roll{0};
-
-	Mat4 getRotMatrix() const {
-		Mat4 yawMat = {
-			{cosf(yaw), 0, sinf(yaw), 0},
-			{0, 1, 0, 0},
-			{-sinf(yaw), 0, cosf(yaw), 0},
-			{0, 0, 0, 1},
-		};
-
-		Mat4 pitchMat = {
-			{1, 0, 0, 0},
-			{0, cosf(pitch), -sinf(pitch), 0},
-			{0, sinf(pitch), cosf(pitch), 0},
-			{0, 0, 0, 1},
-		};
-
-		Mat4 rollMat = {
-			{cosf(roll), -sinf(roll), 0, 0},
-			{sinf(roll), cosf(roll), 0, 0},
-			{0, 0, 1, 0},
-			{0, 0, 0, 1},
-		};
-
-		return pitchMat * yawMat * rollMat;
-	}
-};
-
 struct Color {
 	float r, g, b, a;
 };
@@ -48,7 +19,7 @@ typedef uint32_t Index;
 
 struct WorldTransform {
 	float scale = 1;
-	Rot rotation = {0, 0, 0};
+	float yaw = 0, pitch = 0, roll = 0;
 	Vec3 position = {0, 0, 0};
 
 	Mat4 getWorldMatrix() const {
@@ -77,7 +48,36 @@ struct WorldTransform {
 		};
 	}
 
-	Mat4 getRotMatrix() const { return rotation.getRotMatrix(); }
+	Mat4 getYawMatrix() const {
+		return {
+			{cosf(yaw), 0, sinf(yaw), 0},
+			{0, 1, 0, 0},
+			{-sinf(yaw), 0, cosf(yaw), 0},
+			{0, 0, 0, 1},
+		};
+	}
+
+	Mat4 getPitchMatrix() const {
+		return {
+			{1, 0, 0, 0},
+			{0, cosf(pitch), -sinf(pitch), 0},
+			{0, sinf(pitch), cosf(pitch), 0},
+			{0, 0, 0, 1},
+		};
+	}
+
+	Mat4 getRollMatrix() const {
+		return {
+			{cosf(roll), -sinf(roll), 0, 0},
+			{sinf(roll), cosf(roll), 0, 0},
+			{0, 0, 1, 0},
+			{0, 0, 0, 1},
+		};
+	}
+
+	Mat4 getRotMatrix() const {
+		return getPitchMatrix() * getYawMatrix() * getRollMatrix();
+	}
 };
 
 struct DirectionalLight {

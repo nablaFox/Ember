@@ -1,16 +1,5 @@
 #include "camera.hpp"
 
-void Camera::rotate(Rot rotation) {
-	transform.rotation.yaw += rotation.yaw;
-	transform.rotation.pitch += rotation.pitch;
-
-	if (transform.rotation.pitch > M_PI / 2) {
-		transform.rotation.pitch = M_PI / 2;
-	} else if (transform.rotation.pitch < -M_PI / 2) {
-		transform.rotation.pitch = -M_PI / 2;
-	}
-}
-
 Mat4 Camera::getViewMatrix() {
 	Mat4 viewTranslation = WorldTransform::getTransMatrix(transform.position * -1);
 
