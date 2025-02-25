@@ -11,18 +11,12 @@ constexpr int WINDOW_HEIGHT = 1080;
 void movePlayer(Camera& camera, const Window& window, float deltaTime) {
 	static float flyAround = false;
 
-	constexpr float sensitivity = 5.f;
+	constexpr double sensitivity = 0.001f;
 
 	WorldTransform& transform = camera.transform;
 
-	static float targetYaw = transform.yaw;
-	static float targetPitch = transform.pitch;
-
-	targetYaw += window.mouseDeltaX() * sensitivity * deltaTime;
-	targetPitch += window.mouseDeltaY() * sensitivity * deltaTime;
-
-	camera.transform.yaw = lerp(transform.yaw, targetYaw, 0.5);
-	camera.transform.pitch = lerp(transform.pitch, targetPitch, 0.5);
+	transform.yaw += window.mouseDeltaX() * sensitivity;
+	transform.pitch += window.mouseDeltaY() * sensitivity;
 
 	if (transform.pitch > M_PI / 2) {
 		transform.pitch = M_PI / 2;
@@ -88,7 +82,7 @@ struct Floor {
 			  .lineThickness = 0.00001,
 		  })),
 		  m_subGridMaterial(gridMaterialTemplate.create({
-			  .color = color - Color::RGBA(0, 0, 0, 30),
+			  .color = color * 0.8,
 			  .lines = 1000 * 2,
 			  .lineThickness = 0.00001,
 		  })) {}
@@ -123,7 +117,6 @@ auto main(int argc, char* argv[]) -> int {
 	Renderer renderer(window);
 
 	Camera playerCamera{
-		.fov = 60.f,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
 		.transform = {.position = {0, 1, 0}},
 	};
@@ -131,9 +124,9 @@ auto main(int argc, char* argv[]) -> int {
 	DirectionalLight sun;
 
 	Cube cube;
-	cube.setColor(RED_COLOR);
+	cube.setColor(BLUE);
 
-	Floor floor(Color::RGBA(167, 152, 220, 80));
+	Floor floor(PURPLE.setAlpha(0.3));
 
 	while (!window.shouldClose()) {
 		movePlayer(playerCamera, window, renderer.getDeltatime());

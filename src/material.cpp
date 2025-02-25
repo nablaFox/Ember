@@ -18,7 +18,7 @@ Material::Material(CreateInfo info) {
 		.enableDepthWrite = true,
 	};
 
-	if (info.transparent) {
+	if (info.transparency) {
 		pipelineInfo.enableDepthWrite = false;
 		pipelineInfo.blendEnable = true;
 		pipelineInfo.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;

@@ -11,7 +11,7 @@ public:
 	struct CreateInfo {
 		std::vector<std::string> shaders;
 		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
-		bool transparent{false};
+		bool transparency{false};
 		uint32_t paramsSize{0};
 		const void* paramsData{nullptr};
 	};
