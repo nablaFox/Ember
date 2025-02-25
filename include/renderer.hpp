@@ -65,7 +65,7 @@ private:
 
 	uint32_t m_currentFrame{0};
 
-	FrameData& currFrame() { return frames[m_currentFrame % FRAMES_IN_FLIGHT]; }
+	auto& currFrame() const { return frames[m_currentFrame % FRAMES_IN_FLIGHT]; }
 
 	DrawAttachment m_drawAttachment;
 	DepthAttachment m_depthAttachment;

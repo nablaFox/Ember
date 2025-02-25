@@ -11,6 +11,14 @@ struct Color {
 	static Color RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 		return {r / 255.f, g / 255.f, b / 255.f, a / 255.f};
 	}
+
+	Color operator+(const Color& other) const {
+		return {r + other.r, g + other.g, b + other.b, a + other.a};
+	}
+
+	Color operator-(const Color& other) const {
+		return {r - other.r, g - other.g, b - other.b, a - other.a};
+	}
 };
 
 struct Vertex {

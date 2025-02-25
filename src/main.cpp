@@ -80,6 +80,44 @@ void movePlayer(Camera& camera, const Window& window, float deltaTime) {
 	}
 }
 
+struct Floor {
+	Floor(Color color)
+		: m_mainGridMaterial(gridMaterialTemplate.create({
+			  .color = color,
+			  .lines = 1000,
+			  .lineThickness = 0.00001,
+		  })),
+		  m_subGridMaterial(gridMaterialTemplate.create({
+			  .color = color - Color::RGBA(0, 0, 0, 30),
+			  .lines = 1000 * 2,
+			  .lineThickness = 0.00001,
+		  })) {}
+
+	void draw(Renderer& renderer, float height) {
+		renderer.draw(m_mainGrid,
+					  {
+						  .scale = 1000,
+						  .pitch = -M_PI / 2,
+						  .position = {0, height, 0},
+					  },
+					  &m_mainGridMaterial);
+
+		renderer.draw(m_subGrid,
+					  {
+						  .scale = 1000,
+						  .pitch = -M_PI / 2,
+						  .position = {0, height, 0},
+					  },
+					  &m_subGridMaterial);
+	}
+
+private:
+	Material m_mainGridMaterial;
+	Material m_subGridMaterial;
+	Square m_mainGrid;
+	Square m_subGrid;
+};
+
 auto main(int argc, char* argv[]) -> int {
 	Window window("Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
 	Renderer renderer(window);
@@ -92,49 +130,19 @@ auto main(int argc, char* argv[]) -> int {
 
 	DirectionalLight sun;
 
-	Material gridMaterial1 = gridMaterialTemplate.create({
-		.color = Color::RGBA(167, 152, 220, 80),
-		.lines = 1000,
-		.lineThickness = 0.00001,
-	});
-
-	Material gridMaterial2 = gridMaterialTemplate.create({
-		.color = Color::RGBA(167, 152, 220, 30),
-		.lines = 1000 * 2,
-		.lineThickness = 0.00001,
-	});
-
-	Square floor1;
-	Square floor2;
-
 	Cube cube;
 	cube.setColor(RED_COLOR);
+
+	Floor floor(Color::RGBA(167, 152, 220, 80));
 
 	while (!window.shouldClose()) {
 		movePlayer(playerCamera, window, renderer.getDeltatime());
 
 		renderer.beginScene(playerCamera, sun);
 
-		renderer.draw(cube, {
-								.yaw = M_PI / 4,
-								.position = {2, 0.5, -4},
-							});
+		renderer.draw(cube, {.yaw = M_PI / 4, .position = {2, 0.5, -4}});
 
-		renderer.draw(floor1,
-					  {
-						  .scale = 1000,
-						  .pitch = -M_PI / 2,
-						  .position = {0, 0, -2},
-					  },
-					  &gridMaterial1);
-
-		renderer.draw(floor2,
-					  {
-						  .scale = 1000,
-						  .pitch = -M_PI / 2,
-						  .position = {0, 0, -2},
-					  },
-					  &gridMaterial2);
+		floor.draw(renderer, 0);
 
 		renderer.endScene();
 	}
