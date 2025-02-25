@@ -14,10 +14,9 @@ Renderer::Renderer(const Window& window) {
 		.device = device,
 		.extent = {window.getWidth(), window.getHeight()},
 		.format = drawAttachmentColorFormat,
-		.sampleCount = msaSampleCount,
+		.sampleCount = EmberDevice::getSampleCount(),
 	});
 
-	// PONDER maybe we could add a "createResolvedDrawImage" utility in ignis
 	m_resolvedDrawImage = ColorImage::createDrawImage({
 		.device = device,
 		.extent = {window.getWidth(), window.getHeight()},
@@ -29,7 +28,7 @@ Renderer::Renderer(const Window& window) {
 		.device = device,
 		.extent = {window.getWidth(), window.getHeight()},
 		.format = depthAttachmentFormat,
-		.sampleCount = msaSampleCount,
+		.sampleCount = EmberDevice::getSampleCount(),
 	});
 
 	m_drawAttachment = {

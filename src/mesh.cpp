@@ -13,8 +13,7 @@ Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize, Material* material) {
 
 	m_waitForUpload = new Fence(*device);
 
-	if (m_material == nullptr)
-		m_material = &defaultMaterial;
+	m_material = material != nullptr ? material : &defaultMaterial;
 }
 
 void Mesh::update(std::span<Vertex> newVertices, std::span<Index> newIndices) {

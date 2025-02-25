@@ -37,6 +37,13 @@ public:
 	void draw(Mesh&, WorldTransform);
 
 	float getFps() const { return m_fps; }
+
+	auto getDeltatime() const {
+		return std::chrono::duration<float>(
+				   std::chrono::high_resolution_clock::now() - m_lastTime)
+			.count();
+	};
+
 	void updateFps();
 
 private:

@@ -19,6 +19,14 @@ public:
 
 	void upload();
 
+	void setColor(Color color) {
+		for (auto& vertex : m_vertices) {
+			vertex.color = color;
+		}
+
+		m_dirty = true;
+	}
+
 	const auto& getVertices() const { return m_vertices; }
 	const auto& getIndices() const { return m_indices; }
 	auto& getMaterial() const { return *m_material; }

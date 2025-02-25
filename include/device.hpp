@@ -24,11 +24,15 @@ public:
 		return *g_instance;
 	}
 
-	static ignis::Device* getDevice() { return get().m_device; }
+	static auto getDevice() -> ignis::Device* { return get().m_device; }
 
-	static uint32_t getGraphicsQueue() { return get().m_graphicsQueue; }
+	static auto getGraphicsQueue() -> uint32_t { return get().m_graphicsQueue; }
 
-	static uint32_t getUploadQueue() { return get().m_uploadQueue; }
+	static auto getUploadQueue() -> uint32_t { return get().m_uploadQueue; }
+
+	static auto getSampleCount() -> VkSampleCountFlagBits {
+		return get().m_device->getMaxSampleCount();
+	}
 
 private:
 	EmberDevice() {

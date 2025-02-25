@@ -7,12 +7,18 @@
 
 struct Color {
 	float r, g, b, a;
+
+	static Color RGBA(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+		return {r / 255.f, g / 255.f, b / 255.f, a / 255.f};
+	}
 };
 
 struct Vertex {
 	Vec3 position;
 	float padding;
 	Color color;
+	Vec2 uv;
+	float padding2[2];
 };
 
 typedef uint32_t Index;
@@ -90,4 +96,6 @@ inline constexpr ignis::ColorFormat drawAttachmentColorFormat =
 inline constexpr ignis::DepthFormat depthAttachmentFormat =
 	ignis::DepthFormat::D32_SFLOAT;
 
-inline constexpr VkSampleCountFlagBits msaSampleCount = VK_SAMPLE_COUNT_4_BIT;
+#define WHITE_COLOR {.r = 1, .g = 1, .b = 1}
+#define RED_COLOR {.r = 1, .g = 0, .b = 0}
+#define GREEN_COLOR {.r = 0, .g = 1, .b = 0}

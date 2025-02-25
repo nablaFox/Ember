@@ -4,15 +4,13 @@
 #include "ember.glsl"
 
 layout(location = 0) out vec3 outColor;
-
-DEF_MATERIAL({
-	vec4 planeColor;
-});
+layout(location = 1) out vec2 outUV;
 
 void main() {	
     Vertex v = obj.vertexBuffer.vertices[gl_VertexIndex];
 
     gl_Position = SCENE.viewproj * obj.worldTransform * vec4(v.position, 1.0f);
 
-    outColor = MATERIAL.planeColor.xyz;
+    outColor = v.color.xyz;
+	outUV = v.uv;
 }

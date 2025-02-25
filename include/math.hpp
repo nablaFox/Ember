@@ -210,3 +210,10 @@ public:
 		};
 	}
 };
+
+using Vec2 = Vec<float, 2>;
+
+template <typename T>
+T lerp(const T& a, const T& b, float t) {
+	return a + (b - a) * t;
+}

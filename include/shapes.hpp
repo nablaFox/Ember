@@ -1,28 +1,35 @@
 #pragma once
 
-#include "types.hpp"
 #include "mesh.hpp"
 
 struct Square : Mesh {
-	Square(Color color) : Mesh(4, 6) {
-		m_vertices[0].position = {0.5, -0.5, 0.f};
-		m_vertices[1].position = {-0.5, -0.5, 0.f};
-		m_vertices[2].position = {-0.5, 0.5, 0.f};
-		m_vertices[3].position = {0.5, 0.5, 0.f};
+	Square(Material* material = nullptr) : Mesh(4, 6, material) {
+		m_vertices[0] = {
+			.position = {0.5, -0.5, 0},
+			.uv = {1, 0},
+		};
 
-		for (auto& vertex : m_vertices) {
-			vertex.color = color;
-		}
+		m_vertices[1] = {
+			.position = {-0.5, -0.5, 0},
+			.uv = {0, 0},
+		};
+
+		m_vertices[2] = {
+			.position = {-0.5, 0.5, 0},
+			.uv = {0, 1},
+		};
+
+		m_vertices[3] = {
+			.position = {0.5, 0.5, 0},
+			.uv = {1, 1},
+		};
 
 		m_indices = {0, 1, 2, 2, 3, 0};
 	}
 };
 
 struct Cube : Mesh {
-	static constexpr int verticesCount = 8;
-	static constexpr int indicesCount = 36;
-
-	Cube(float sideLength, Color color) : Mesh(verticesCount, indicesCount) {
+	Cube(Material* material = nullptr) : Mesh(8, 36, nullptr) {
 		for (uint32_t i = 0; i < 2; i++) {
 			float zShift = 0.5f - i;
 
@@ -30,11 +37,6 @@ struct Cube : Mesh {
 			m_vertices[1 + i * 4].position = {-0.5f, -0.5f, zShift};
 			m_vertices[2 + i * 4].position = {-0.5f, 0.5f, zShift};
 			m_vertices[3 + i * 4].position = {0.5f, 0.5f, zShift};
-		}
-
-		for (uint32_t i = 0; i < 8; i++) {
-			m_vertices[i].color = color;
-			m_vertices[i].position *= sideLength;
 		}
 
 		m_indices = {
@@ -46,24 +48,4 @@ struct Cube : Mesh {
 			0, 4, 7, 7, 3, 0,  // Right face
 		};
 	}
-};
-
-// TEMP this (probably) sucks
-// an approach with effects and compute shaders would be better
-struct Floor : Mesh {
-	using FloorMaterial = MaterialTemplate<Color>;
-
-	Floor(Color color) : Mesh(4, 6) {
-		m_material =
-			new FloorMaterial({"floor.vert.spv", "default.frag.spv"}, color);
-
-		m_indices = {0, 1, 2, 0, 2, 3};
-
-		m_vertices[0].position = {1, 1, 0.f};
-		m_vertices[1].position = {-1, 1, 0.f};
-		m_vertices[2].position = {-1, -1, 0.f};
-		m_vertices[3].position = {1, -1, 0.f};
-	}
-
-	~Floor() { delete m_material; }
 };

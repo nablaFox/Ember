@@ -8,10 +8,15 @@ class Material {
 public:
 	virtual ~Material();
 
-	// will auto generate an ubo handle
-	Material(std::vector<std::string> shaders,
-			 uint32_t dataSize = 0,
-			 void* initialData = nullptr);
+	struct CreateInfo {
+		std::vector<std::string> shaders;
+		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
+		bool transparent{false};
+		uint32_t paramsSize{0};
+		const void* paramsData{nullptr};
+	};
+
+	Material(CreateInfo);
 
 	auto getHandle() const { return m_materialHandle; }
 
@@ -26,17 +31,32 @@ private:
 };
 
 template <typename T>
-class MaterialTemplate : public Material {
+class MaterialTemplate {
 public:
-	MaterialTemplate(std::vector<std::string> shaders, T initialData)
-		: Material(std::move(shaders), sizeof(T), &initialData) {}
+	struct CreateInfo {
+		std::vector<std::string> shaders;
+		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
+		bool transparent{false};
+	};
 
-	auto updateParams(T data) -> void { Material::updateParams(&data); }
+	MaterialTemplate(CreateInfo info) : m_info(info) {}
+
+	Material create(T data) {
+		auto material = Material({
+			m_info.shaders,
+			m_info.polygonMode,
+			m_info.transparent,
+			sizeof(T),
+			&data,
+		});
+
+		return material;
+	}
+
+private:
+	CreateInfo m_info;
 };
 
-inline Material defaultMaterial{
-	{
-		"default.frag.spv",
-		"default.vert.spv",
-	},
-};
+inline Material defaultMaterial({
+	.shaders = {"ember/default.frag.spv", "ember/default.vert.spv"},
+});

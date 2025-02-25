@@ -2,25 +2,37 @@
 #include "types.hpp"
 #include "device.hpp"
 
-Material::Material(std::vector<std::string> shaders,
-				   uint32_t dataSize,
-				   void* initialData) {
+Material::Material(CreateInfo info) {
 	auto device = EmberDevice::getDevice();
 
-	m_pipeline = new Pipeline({
+	Pipeline::CreateInfo pipelineInfo{
 		.device = device,
-		.shaders = std::move(shaders),
+		.shaders = info.shaders,
 		.colorFormat = drawAttachmentColorFormat,
 		.depthFormat = depthAttachmentFormat,
 		.cullMode = VK_CULL_MODE_NONE,
-		.sampleCount = msaSampleCount,
-	});
+		.polygonMode = info.polygonMode,
+		.sampleCount = EmberDevice::getSampleCount(),
+		.sampleShadingEnable = true,  // TEMP
+		.enableDepthTest = true,
+		.enableDepthWrite = true,
+	};
 
-	if (dataSize == 0) {
+	if (info.transparent) {
+		pipelineInfo.enableDepthWrite = false;
+		pipelineInfo.blendEnable = true;
+		pipelineInfo.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+		pipelineInfo.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		pipelineInfo.colorBlendOp = VK_BLEND_OP_ADD;
+	}
+
+	m_pipeline = new Pipeline(pipelineInfo);
+
+	if (info.paramsSize == 0) {
 		return;
 	}
 
-	m_params = Buffer::createUBO(device, dataSize, initialData);
+	m_params = Buffer::createUBO(device, info.paramsSize, info.paramsData);
 
 	// TEMP: in the future we may want to recycle freed handles
 	static uint32_t handleCounter = 1;

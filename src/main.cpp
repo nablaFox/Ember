@@ -7,11 +7,10 @@
 constexpr int WINDOW_WIDTH = 1920;
 constexpr int WINDOW_HEIGHT = 1080;
 
-#define WHITE_COLOR {.r = 1, .g = 1, .b = 1}
-
-auto updateCamera(Camera& camera, const Window& window) -> void {
+void movePlayer(Camera& camera, const Window& window, float deltaTime) {
 	static float previousMouseX = window.getMouseX();
 	static float previousMouseY = window.getMouseY();
+	static float flyAround = false;
 
 	float deltaX = window.getMouseX() - previousMouseX;
 	float deltaY = window.getMouseY() - previousMouseY;
@@ -19,20 +18,43 @@ auto updateCamera(Camera& camera, const Window& window) -> void {
 	previousMouseX = window.getMouseX();
 	previousMouseY = window.getMouseY();
 
-	constexpr float sensitivity = 0.005f;
+	constexpr float sensitivity = 5.f;
 
-	camera.rotate({
-		.yaw = deltaX * sensitivity,
-		.pitch = deltaY * sensitivity,
-	});
+	WorldTransform& transform = camera.transform;
+
+	transform.yaw += deltaX * sensitivity * deltaTime;
+	transform.pitch += deltaY * sensitivity * deltaTime;
+
+	if (transform.pitch > M_PI / 2) {
+		transform.pitch = M_PI / 2;
+	} else if (transform.pitch < -M_PI / 2) {
+		transform.pitch = -M_PI / 2;
+	}
 
 	constexpr float cameraSpeed = 0.1f;
 
-	Vec3& position = camera.transform.position;
-	float yaw = -camera.transform.rotation.yaw;
+	Vec3& position = transform.position;
+	float yaw = -transform.yaw;
 
-	Vec3 playerForward = Vec3{sinf(yaw), 0, cosf(yaw)} * -1;
-	Vec3 playerRight = {cosf(yaw), 0, -sinf(yaw)};
+	const Vec3 playerForward =
+		flyAround ? camera.forward() : Vec3{sinf(yaw), 0, cosf(yaw)} * -1;
+
+	const Vec3 playerRight =
+		flyAround ? camera.right() : Vec3{cosf(yaw), 0, -sinf(yaw)};
+
+	const Vec3 up = flyAround ? camera.up() : Vec3{0, 0, 0};
+
+	if (window.isKeyPressed(GLFW_KEY_0)) {
+		position = {0, 1, 0};
+	}
+
+	if (window.isKeyPressed(GLFW_KEY_F)) {
+		flyAround = true;
+	}
+
+	if (window.isKeyPressed(GLFW_KEY_G)) {
+		flyAround = false;
+	}
 
 	if (window.isKeyPressed(GLFW_KEY_W)) {
 		position += playerForward * cameraSpeed;
@@ -49,35 +71,81 @@ auto updateCamera(Camera& camera, const Window& window) -> void {
 	if (window.isKeyPressed(GLFW_KEY_A)) {
 		position -= playerRight * cameraSpeed;
 	}
+
+	if (window.isKeyPressed(GLFW_KEY_SPACE)) {
+		position += up * cameraSpeed;
+	}
+
+	if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+		position -= up * cameraSpeed;
+	}
 }
 
 auto main(int argc, char* argv[]) -> int {
 	Window window("Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
 	Renderer renderer(window);
 
-	Camera mainCamera;
+	Camera playerCamera{
+		.fov = 60.f,
+		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
+		.transform = {.position = {0, 1, 0}},
+	};
+
 	DirectionalLight sun;
 
-	mainCamera.fov = 60.f;
-	mainCamera.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT;
-	mainCamera.transform.position = {0, 1, 0};
+	struct GridMaterialParams {
+		Color color;
+		float lines;
+		float lineThickness;
+	};
 
-	Cube cube(1, {.b = 1});
+	MaterialTemplate<GridMaterialParams> gridMaterialTemplate({
+		.shaders = {"grid.frag.spv", "default.vert.spv"},
+		.transparent = true,
+	});
 
-	Floor floor(WHITE_COLOR);
+	Material gridMaterial1 = gridMaterialTemplate.create({
+		.color = Color::RGBA(167, 152, 220, 80),
+		.lines = 1000,
+		.lineThickness = 0.00001,
+	});
+
+	Material gridMaterial2 = gridMaterialTemplate.create({
+		.color = Color::RGBA(167, 152, 220, 30),
+		.lines = 1000 * 2,
+		.lineThickness = 0.00001,
+	});
+
+	Square floor1(&gridMaterial1);
+	Square floor2(&gridMaterial2);
+
+	Cube cube;
+	cube.setColor(RED_COLOR);
 
 	while (!window.shouldClose()) {
-		updateCamera(mainCamera, window);
+		movePlayer(playerCamera, window, renderer.getDeltatime());
 
-		renderer.beginScene(mainCamera, sun);
+		renderer.beginScene(playerCamera, sun);
 
-		renderer.draw(cube, {.position = {0, 0.5, -2}});
-		renderer.draw(floor, {
-								 .scale = 1000,
-								 .rotation = {.pitch = -M_PI / 2},
-								 .position = {0, 0, -2},
-							 });
+		renderer.draw(cube, {
+								.yaw = M_PI / 4,
+								.position = {2, 0.5, -4},
+							});
+
+		renderer.draw(floor1, {
+								  .scale = 1000,
+								  .pitch = -M_PI / 2,
+								  .position = {0, 0, -2},
+							  });
+
+		renderer.draw(floor2, {
+								  .scale = 1000,
+								  .pitch = -M_PI / 2,
+								  .position = {0, 0, -2},
+							  });
 
 		renderer.endScene();
 	}
+
+	return 0;
 }
