@@ -8,22 +8,20 @@ constexpr int WINDOW_WIDTH = 1920;
 constexpr int WINDOW_HEIGHT = 1080;
 
 void movePlayer(Camera& camera, const Window& window, float deltaTime) {
-	static float previousMouseX = window.getMouseX();
-	static float previousMouseY = window.getMouseY();
 	static float flyAround = false;
-
-	float deltaX = window.getMouseX() - previousMouseX;
-	float deltaY = window.getMouseY() - previousMouseY;
-
-	previousMouseX = window.getMouseX();
-	previousMouseY = window.getMouseY();
 
 	constexpr float sensitivity = 5.f;
 
 	WorldTransform& transform = camera.transform;
 
-	transform.yaw += deltaX * sensitivity * deltaTime;
-	transform.pitch += deltaY * sensitivity * deltaTime;
+	static float targetYaw = transform.yaw;
+	static float targetPitch = transform.pitch;
+
+	targetYaw += window.mouseDeltaX() * sensitivity * deltaTime;
+	targetPitch += window.mouseDeltaY() * sensitivity * deltaTime;
+
+	camera.transform.yaw = lerp(transform.yaw, targetYaw, 0.5);
+	camera.transform.pitch = lerp(transform.pitch, targetPitch, 0.5);
 
 	if (transform.pitch > M_PI / 2) {
 		transform.pitch = M_PI / 2;

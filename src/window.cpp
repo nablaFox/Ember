@@ -37,3 +37,21 @@ auto Window::getMouseY() const -> double {
 	glfwGetCursorPos(m_window, &x, &y);
 	return y;
 }
+
+auto Window::mouseDeltaX() const -> double {
+	static double previousMouseX = getMouseX();
+	float toReturn = getMouseX() - previousMouseX;
+
+	previousMouseX = getMouseX();
+
+	return toReturn;
+}
+
+auto Window::mouseDeltaY() const -> double {
+	static double previousMouseY = getMouseY();
+	float toReturn = getMouseY() - previousMouseY;
+
+	previousMouseY = getMouseY();
+
+	return toReturn;
+}

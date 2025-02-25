@@ -17,6 +17,8 @@ public:
 
 	auto getMouseX() const -> double;
 	auto getMouseY() const -> double;
+	auto mouseDeltaX() const -> double;
+	auto mouseDeltaY() const -> double;
 
 	auto getWindow() const -> GLFWwindow* { return m_window; }
 
