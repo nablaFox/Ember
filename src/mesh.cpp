@@ -1,5 +1,6 @@
 #include "mesh.hpp"
 #include "device.hpp"
+#include "default_materials.hpp"
 
 Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize, Material* material) {
 	auto device = EmberDevice::getDevice();

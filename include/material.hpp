@@ -41,7 +41,7 @@ public:
 
 	MaterialTemplate(CreateInfo info) : m_info(info) {}
 
-	Material create(T data) {
+	Material create(T data) const {
 		auto material = Material({
 			m_info.shaders,
 			m_info.polygonMode,
@@ -56,7 +56,3 @@ public:
 private:
 	CreateInfo m_info;
 };
-
-inline Material defaultMaterial({
-	.shaders = {"ember/default.frag.spv", "ember/default.vert.spv"},
-});

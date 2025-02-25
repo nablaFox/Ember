@@ -3,6 +3,7 @@
 #include "renderer.hpp"
 #include "shapes.hpp"
 #include "device.hpp"
+#include "default_materials.hpp"
 
 constexpr int WINDOW_WIDTH = 1920;
 constexpr int WINDOW_HEIGHT = 1080;
@@ -90,17 +91,6 @@ auto main(int argc, char* argv[]) -> int {
 	};
 
 	DirectionalLight sun;
-
-	struct GridMaterialParams {
-		Color color;
-		float lines;
-		float lineThickness;
-	};
-
-	MaterialTemplate<GridMaterialParams> gridMaterialTemplate({
-		.shaders = {"grid.frag.spv", "default.vert.spv"},
-		.transparent = true,
-	});
 
 	Material gridMaterial1 = gridMaterialTemplate.create({
 		.color = Color::RGBA(167, 152, 220, 80),

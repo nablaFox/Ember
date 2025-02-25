@@ -1,7 +1,7 @@
 #version 450
 #extension GL_GOOGLE_include_directive : require
 
-#include "ember/ember.glsl"
+#include "ember.glsl"
 
 layout (location = 0) out vec4 outColor;
 layout (location = 1) in vec2 uv;
