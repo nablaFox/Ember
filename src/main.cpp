@@ -117,7 +117,10 @@ auto main(int argc, char* argv[]) -> int {
 	Window window("Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
 	Renderer renderer(window);
 
+	window.caputureMouse(true);
+
 	Camera playerCamera{
+		.fov = 70,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
 		.transform = {.position = {0, 1, 0}},
 	};
@@ -127,25 +130,35 @@ auto main(int argc, char* argv[]) -> int {
 	Cube cube;
 	cube.setColor(BLUE);
 
+	Sphere sphere;
+	sphere.setColor(BLUE * 0.08);
+
+	Sphere sphere2;
+	sphere2.setColor(GREEN);
+
 	Floor floor(PURPLE.setAlpha(0.3));
 
-	Circle circle;
-	circle.setColor(RED);
-
-	Sphere sphere;
-	sphere.setColor(PURPLE);
+	Material gridMaterialTest = gridMaterialTemplate.create(
+		{
+			.color = BLUE,
+			.lines = 20,
+			.lineThickness = 0.005,
+		},
+		{.transparency = false});
 
 	while (!window.shouldClose()) {
 		movePlayer(playerCamera, window, renderer.getDeltatime());
 
 		renderer.beginScene(playerCamera, sun);
 
-		renderer.draw(cube, {.yaw = M_PI / 4, .position = {2, 0.5, -4}});
+		renderer.draw(cube, {.yaw = M_PI / 4, .position = {-2.5, 0.5, -5}});
+
+		renderer.draw(sphere,
+					  {.scale = 0.5, .pitch = M_PI / 2, .position = {1, 0.5, -3}},
+					  &gridMaterialTest);
+		renderer.draw(sphere2, {.position = {2, 3, -8}}, &pointMaterial);
 
 		floor.draw(renderer, 0);
-
-		renderer.draw(circle, {.position = {0, 0, -3}});
-		renderer.draw(sphere, {.position = {2, 0, -8}}, &pointMaterial);
 
 		renderer.endScene();
 	}

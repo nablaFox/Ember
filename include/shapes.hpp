@@ -113,5 +113,15 @@ struct Sphere : Mesh {
 		for (int i = 0; i < m_indices.size(); i++) {
 			m_indices[i] = indices[i];
 		}
+
+		// uv coordinates
+		for (uint32_t i = 0; i <= precision; i++) {
+			for (uint32_t j = 0; j <= precision; j++) {
+				float u = (float)j / precision;
+				float v = (float)i / precision;
+
+				m_vertices[i * (precision + 1) + j].uv = {u, v};
+			}
+		}
 	}
 };

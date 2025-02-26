@@ -20,5 +20,5 @@ struct GridMaterialParams {
 
 inline const MaterialTemplate<GridMaterialParams> gridMaterialTemplate({
 	.shaders = {"ember/grid.frag.spv", "ember/default.vert.spv"},
-	.transparent = true,
+	.transparency = true,
 });

@@ -8,8 +8,6 @@ Window::Window(const char* windowName, uint32_t width, uint32_t height)
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	m_window = glfwCreateWindow(width, height, windowName, nullptr, nullptr);
-
-	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 Window::~Window() {

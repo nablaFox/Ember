@@ -20,6 +20,11 @@ public:
 	auto mouseDeltaX() const -> double;
 	auto mouseDeltaY() const -> double;
 
+	auto caputureMouse(bool capture) const {
+		glfwSetInputMode(m_window, GLFW_CURSOR,
+						 capture ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+	}
+
 	auto getWindow() const -> GLFWwindow* { return m_window; }
 
 private:

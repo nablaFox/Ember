@@ -36,7 +36,7 @@ public:
 	struct CreateInfo {
 		std::vector<std::string> shaders;
 		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
-		bool transparent{false};
+		bool transparency{false};
 	};
 
 	MaterialTemplate(CreateInfo info) : m_info(info) {}
@@ -45,7 +45,19 @@ public:
 		auto material = Material({
 			m_info.shaders,
 			m_info.polygonMode,
-			m_info.transparent,
+			m_info.transparency,
+			sizeof(T),
+			&data,
+		});
+
+		return material;
+	}
+
+	Material create(T data, CreateInfo overwriteInfo) const {
+		auto material = Material({
+			overwriteInfo.shaders.empty() ? m_info.shaders : overwriteInfo.shaders,
+			overwriteInfo.polygonMode,
+			overwriteInfo.transparency,
 			sizeof(T),
 			&data,
 		});
