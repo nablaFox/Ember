@@ -5,6 +5,11 @@
 Material::Material(CreateInfo info) {
 	auto device = EmberDevice::getDevice();
 
+	if (info.polygonMode != VK_POLYGON_MODE_FILL &&
+		!device->isFeatureEnabled("FillModeNonSolid")) {
+		info.polygonMode = VK_POLYGON_MODE_FILL;
+	}
+
 	Pipeline::CreateInfo pipelineInfo{
 		.device = device,
 		.shaders = info.shaders,
@@ -13,7 +18,7 @@ Material::Material(CreateInfo info) {
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.sampleCount = EmberDevice::getSampleCount(),
-		.sampleShadingEnable = true,  // TEMP
+		.sampleShadingEnable = device->isFeatureEnabled("SampleRateShading"),
 		.enableDepthTest = true,
 		.enableDepthWrite = true,
 	};

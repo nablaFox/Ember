@@ -129,6 +129,12 @@ auto main(int argc, char* argv[]) -> int {
 
 	Floor floor(PURPLE.setAlpha(0.3));
 
+	Circle circle;
+	circle.setColor(RED);
+
+	Sphere sphere;
+	sphere.setColor(PURPLE);
+
 	while (!window.shouldClose()) {
 		movePlayer(playerCamera, window, renderer.getDeltatime());
 
@@ -137,6 +143,9 @@ auto main(int argc, char* argv[]) -> int {
 		renderer.draw(cube, {.yaw = M_PI / 4, .position = {2, 0.5, -4}});
 
 		floor.draw(renderer, 0);
+
+		renderer.draw(circle, {.position = {0, 0, -3}});
+		renderer.draw(sphere, {.position = {2, 0, -8}}, &pointMaterial);
 
 		renderer.endScene();
 	}

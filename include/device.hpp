@@ -49,6 +49,7 @@ private:
 			.shadersFolder = "build/shaders",
 			.extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME},
 			.instanceExtensions = extensions,
+			.optionalFeatures = {"FillModeNonSolid", "SampleRateShading"},
 		});
 
 		// TEMP

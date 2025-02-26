@@ -10,6 +10,8 @@ class Mesh {
 public:
 	Mesh(uint32_t verticesCount, uint32_t indicesCount);
 
+	// Note: meshes are static in vertices/indices size
+	// will be copied only the size of already allocated member vector
 	void update(std::span<Vertex>, std::span<Index>);
 
 	void upload();
