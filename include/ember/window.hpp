@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan_core.h>
 
+namespace ember {
+
 class Window {
 public:
 	Window(const char* windowName, uint32_t width, uint32_t height);
@@ -37,3 +39,5 @@ public:
 	Window& operator=(const Window&) = default;
 	Window& operator=(Window&&) = delete;
 };
+
+}  // namespace ember

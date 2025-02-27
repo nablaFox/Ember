@@ -7,6 +7,8 @@
 #include <ios>
 #include <iostream>
 
+namespace ember {
+
 template <typename T, std::size_t Rows, std::size_t Cols>
 class Mat {
 public:
@@ -222,3 +224,5 @@ template <typename T>
 T square(T num) {
 	return num * num;
 }
+
+}  // namespace ember

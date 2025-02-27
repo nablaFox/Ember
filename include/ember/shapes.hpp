@@ -2,6 +2,8 @@
 
 #include "mesh.hpp"
 
+namespace ember {
+
 struct Square : Mesh {
 	Square() : Mesh(4, 6) {
 		m_vertices[0] = {
@@ -170,3 +172,5 @@ struct Sphere : Mesh {
 };
 
 // TODO: maybe also an icosphere variant?
+
+};	// namespace ember

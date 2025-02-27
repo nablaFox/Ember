@@ -2,6 +2,8 @@
 
 #include "types.hpp"
 
+namespace ember {
+
 struct Camera {
 	float fov = 90.f;
 	float aspect = 1.77f;
@@ -55,3 +57,5 @@ struct Camera {
 
 	Mat4 getViewProjMatrix() { return getProjMatrix() * getViewMatrix(); }
 };
+
+};	// namespace ember

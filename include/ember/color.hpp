@@ -1,5 +1,7 @@
 #include <cstdint>
 
+namespace ember {
+
 struct Color {
 	float r, g, b, a;
 
@@ -32,3 +34,5 @@ inline Color GREEN = Color::RGB(125, 215, 93);
 inline Color BLUE = Color::RGB(110, 150, 252);
 
 inline Color PURPLE = Color::RGB(167, 152, 220);
+
+};	// namespace ember

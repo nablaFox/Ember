@@ -9,6 +9,7 @@
 #include "ignis/swapchain.hpp"
 
 using namespace ignis;
+using namespace ember;
 
 Renderer::Renderer(const Window& window) {
 	auto device = EmberDevice::getDevice();

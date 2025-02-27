@@ -2,6 +2,8 @@
 
 #include "ignis/ignis.hpp"
 
+namespace ember {
+
 class Material {
 public:
 	virtual ~Material();
@@ -66,3 +68,5 @@ public:
 private:
 	CreateInfo m_info;
 };
+
+};	// namespace ember

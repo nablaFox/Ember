@@ -2,6 +2,7 @@
 #include "device.hpp"
 
 using namespace ignis;
+using namespace ember;
 
 Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize) {
 	auto device = EmberDevice::getDevice();

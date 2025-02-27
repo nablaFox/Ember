@@ -4,6 +4,8 @@
 #include "ember/shapes.hpp"
 #include "ember/renderer.hpp"
 
+using namespace ember;
+
 struct FirstPersonCamera {
 	struct CreateInfo {
 		float fov{90.f};

@@ -7,6 +7,8 @@
 // with a folder "ember" containing all the ember shaders
 // (which kinda sucks)
 
+namespace ember {
+
 inline Material defaultMaterial({
 	.shaders = {"ember/default.frag.spv", "ember/default.vert.spv"},
 });
@@ -26,3 +28,5 @@ inline const MaterialTemplate<GridMaterialParams> gridMaterialTemplate({
 	.shaders = {"ember/grid.frag.spv", "ember/default.vert.spv"},
 	.transparency = true,
 });
+
+}  // namespace ember

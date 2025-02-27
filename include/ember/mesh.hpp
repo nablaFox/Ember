@@ -4,6 +4,8 @@
 #include "types.hpp"
 #include "ignis/ignis.hpp"
 
+namespace ember {
+
 class Mesh {
 public:
 	Mesh(uint32_t verticesCount, uint32_t indicesCount);
@@ -40,3 +42,5 @@ protected:
 
 	ignis::Fence* m_waitForUpload{nullptr};
 };
+
+}  // namespace ember

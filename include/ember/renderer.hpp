@@ -9,6 +9,8 @@
 #include "camera.hpp"
 #include "ignis/ignis.hpp"
 
+namespace ember {
+
 struct SceneData {
 	Mat4 viewproj;
 	Color ambientColor;
@@ -79,3 +81,5 @@ private:
 
 	uint32_t m_fps{0};
 };
+
+}  // namespace ember

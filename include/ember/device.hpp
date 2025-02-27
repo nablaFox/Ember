@@ -6,6 +6,8 @@
 // Note: we don't have a singleton device in ignis
 // because in the future we will support multiple devices
 
+namespace ember {
+
 struct EmberDevice {
 public:
 	static EmberDevice* g_instance;
@@ -70,3 +72,5 @@ public:
 };
 
 inline EmberDevice* EmberDevice::g_instance = nullptr;
+
+}  // namespace ember

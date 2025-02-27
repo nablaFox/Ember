@@ -6,6 +6,8 @@
 #include "ignis/depth_image.hpp"
 #include "color.hpp"
 
+namespace ember {
+
 struct Vertex {
 	Vec3 position;
 	float padding;
@@ -92,3 +94,5 @@ inline constexpr VkClearColorValue EMBER_CLEAR_COLOR =
 	VkClearColorValue{0.02f, 0.02f, 0.02f, 1};
 
 inline constexpr const char* EMBER_SHADERS_FOLDER = "shaders";
+
+};	// namespace ember
