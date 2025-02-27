@@ -1,5 +1,6 @@
 #include <GLFW/glfw3.h>
 #include <cassert>
+#include "types.hpp"
 #include "ignis/device.hpp"
 
 // Note: we don't have a singleton device in ignis
@@ -46,7 +47,7 @@ private:
 											glfwExtensions + glfwExtensionCount);
 
 		m_device = new ignis::Device({
-			.shadersFolder = "build/shaders",
+			.shadersFolder = EMBER_SHADERS_FOLDER,
 			.extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME},
 			.instanceExtensions = extensions,
 			.optionalFeatures = {"FillModeNonSolid", "SampleRateShading"},

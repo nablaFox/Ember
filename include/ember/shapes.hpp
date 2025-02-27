@@ -89,18 +89,24 @@ struct Cube : Mesh {
 // TODO: maybe a non-textured variant with just 8 vertices?
 
 struct Circle : Mesh {
-	Circle(uint32_t vertices = 100) : Mesh(vertices + 1, 3 * vertices) {
+	Circle(uint32_t vertices = 100) : Mesh(vertices + 1, 3 * vertices - 1) {
 		for (uint32_t i = 0; i <= vertices; i++) {
 			float angle = (float)i / vertices * 2 * M_PI;
 			float x = cosf(angle);
 			float y = sinf(angle);
-			m_vertices[i] = Vertex{.position = {x, y, 0}};
+			float u = 0.5f + 0.5f * x;
+			float v = 0.5f + 0.5f * y;
+
+			m_vertices[i] = Vertex{
+				.position = {x, y, 0},
+				.uv = {u, v},
+			};
 		}
 
 		std::vector<Index> indices;
 		indices.reserve(m_indices.size());
 
-		for (uint32_t i = 0; i < vertices; i++) {
+		for (uint32_t i = 0; i < vertices - 1; i++) {
 			indices.push_back(i);
 			indices.push_back(i + 1);
 			indices.push_back(vertices);

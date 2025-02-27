@@ -3,6 +3,10 @@
 #include "types.hpp"
 #include "material.hpp"
 
+// Note: we are assuming the user has a folder "shaders"
+// with a folder "ember" containing all the ember shaders
+// (which kinda sucks)
+
 inline Material defaultMaterial({
 	.shaders = {"ember/default.frag.spv", "ember/default.vert.spv"},
 });

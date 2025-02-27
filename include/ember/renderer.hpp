@@ -29,6 +29,7 @@ public:
 	~Renderer();
 
 public:
+	// TODO: add BeginSceneInfo struct
 	void beginScene(Camera camera,
 					DirectionalLight sun,
 					Color ambientColor = Color{});

@@ -23,6 +23,8 @@ struct Color {
 
 inline Color WHITE = Color{.r = 1, .g = 1, .b = 1, .a = 1};
 
+inline Color BLACK = Color{.r = 0, .g = 0, .b = 0, .a = 1};
+
 inline Color RED = Color::RGB(231, 47, 69);
 
 inline Color GREEN = Color::RGB(125, 215, 93);
