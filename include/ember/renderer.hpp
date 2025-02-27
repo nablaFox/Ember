@@ -30,9 +30,12 @@ public:
 
 public:
 	// TODO: add BeginSceneInfo struct
-	void beginScene(Camera camera,
-					DirectionalLight sun,
-					Color ambientColor = Color{});
+	struct SceneInfo {
+		DirectionalLight sun{};
+		Color ambientColor{};
+	};
+
+	void beginScene(Camera camera, SceneInfo sceneInfo);
 
 	void endScene();
 

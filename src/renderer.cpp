@@ -70,14 +70,14 @@ Renderer::Renderer(const Window& window) {
 	}
 }
 
-void Renderer::beginScene(Camera camera, DirectionalLight sun, Color ambientColor) {
+void Renderer::beginScene(Camera camera, SceneInfo sceneInfo) {
 	currFrame().waitForRenderingCompletion->wait();
 	currFrame().waitForRenderingCompletion->reset();
 
 	SceneData sceneData{
 		.viewproj = camera.getViewProjMatrix(),
-		.ambientColor = ambientColor,
-		.sun = sun,
+		.ambientColor = sceneInfo.ambientColor,
+		.sun = sceneInfo.sun,
 	};
 
 	m_sceneDataUBO->writeData(&sceneData);

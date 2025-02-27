@@ -1,24 +1,18 @@
 #include <cmath>
-#include "window.hpp"
-#include "renderer.hpp"
 #include "shared.hpp"
 
 constexpr int WINDOW_WIDTH = 1920;
 constexpr int WINDOW_HEIGHT = 1080;
 
 auto main(int argc, char* argv[]) -> int {
-	Window window("Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
+	Window window("Basic Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
 	Renderer renderer(window);
-
-	window.caputureMouse(true);
 
 	FirstPersonCamera playerCamera({
 		.fov = 70,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
 		.position = {0, 1, 0},
 	});
-
-	DirectionalLight sun;
 
 	OutlinedCube cube;
 
@@ -38,8 +32,10 @@ auto main(int argc, char* argv[]) -> int {
 		},
 		{.transparency = false});
 
+	window.caputureMouse(true);
+
 	while (!window.shouldClose()) {
-		renderer.beginScene(playerCamera.camera, sun);
+		renderer.beginScene(playerCamera.camera, {});
 
 		playerCamera.update(window, renderer.getDeltatime());
 
