@@ -9,6 +9,8 @@
 
 namespace ember {
 
+// TODO: it should be more explicit and controlled by the user the creation of
+// default materials
 inline Material defaultMaterial({
 	.shaders = {"ember/default.frag.spv", "ember/default.vert.spv"},
 });

@@ -94,12 +94,12 @@ struct Floor {
 		: m_mainGridMaterial(gridMaterialTemplate.create({
 			  .color = color,
 			  .lines = 1000,
-			  .lineThickness = 0.00001,
+			  .lineThickness = 0.00002,
 		  })),
 		  m_subGridMaterial(gridMaterialTemplate.create({
 			  .color = color * 0.8,
 			  .lines = 1000 * 2,
-			  .lineThickness = 0.00001,
+			  .lineThickness = 0.00002,
 		  })) {}
 
 	void draw(Renderer& renderer, float height = 0) {
