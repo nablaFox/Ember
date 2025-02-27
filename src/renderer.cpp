@@ -8,6 +8,8 @@
 #include "default_materials.hpp"
 #include "ignis/swapchain.hpp"
 
+using namespace ignis;
+
 Renderer::Renderer(const Window& window) {
 	auto device = EmberDevice::getDevice();
 

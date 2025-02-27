@@ -4,8 +4,6 @@
 #include "types.hpp"
 #include "ignis/ignis.hpp"
 
-using namespace ignis;
-
 class Mesh {
 public:
 	Mesh(uint32_t verticesCount, uint32_t indicesCount);
@@ -37,8 +35,8 @@ protected:
 	std::vector<Vertex> m_vertices;
 	std::vector<Index> m_indices;
 
-	Buffer* m_vertexBuffer{nullptr};
-	Buffer* m_indexBuffer{nullptr};
+	ignis::Buffer* m_vertexBuffer{nullptr};
+	ignis::Buffer* m_indexBuffer{nullptr};
 
-	Fence* m_waitForUpload{nullptr};
+	ignis::Fence* m_waitForUpload{nullptr};
 };

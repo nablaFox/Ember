@@ -2,8 +2,6 @@
 
 #include "ignis/ignis.hpp"
 
-using namespace ignis;
-
 class Material {
 public:
 	virtual ~Material();
@@ -25,8 +23,8 @@ public:
 	auto updateParams(void* data) -> void;
 
 private:
-	Pipeline* m_pipeline{nullptr};
-	Buffer* m_params{nullptr};
+	ignis::Pipeline* m_pipeline{nullptr};
+	ignis::Buffer* m_params{nullptr};
 	uint32_t m_materialHandle{0};
 };
 

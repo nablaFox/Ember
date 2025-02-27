@@ -2,6 +2,8 @@
 #include "types.hpp"
 #include "device.hpp"
 
+using namespace ignis;
+
 Material::Material(CreateInfo info) {
 	auto device = EmberDevice::getDevice();
 

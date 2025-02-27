@@ -9,8 +9,6 @@
 #include "camera.hpp"
 #include "ignis/ignis.hpp"
 
-using namespace ignis;
-
 struct SceneData {
 	Mat4 viewproj;
 	Color ambientColor;
@@ -52,27 +50,27 @@ public:
 	void updateFps();
 
 private:
-	ColorImage* m_drawImage;
-	ColorImage* m_resolvedDrawImage;
-	DepthImage* m_depthImage;
+	ignis::ColorImage* m_drawImage;
+	ignis::ColorImage* m_resolvedDrawImage;
+	ignis::DepthImage* m_depthImage;
 
-	Buffer* m_sceneDataUBO;
-	Swapchain* m_swapchain;
+	ignis::Buffer* m_sceneDataUBO;
+	ignis::Swapchain* m_swapchain;
 
 	static constexpr uint32_t FRAMES_IN_FLIGHT = 2;
 
 	struct FrameData {
-		Semaphore* finishedRendering;
-		Fence* waitForRenderingCompletion;
-		Command* cmd;
+		ignis::Semaphore* finishedRendering;
+		ignis::Fence* waitForRenderingCompletion;
+		ignis::Command* cmd;
 	} frames[FRAMES_IN_FLIGHT];
 
 	uint32_t m_currentFrame{0};
 
 	auto& currFrame() const { return frames[m_currentFrame % FRAMES_IN_FLIGHT]; }
 
-	DrawAttachment m_drawAttachment;
-	DepthAttachment m_depthAttachment;
+	ignis::DrawAttachment m_drawAttachment;
+	ignis::DepthAttachment m_depthAttachment;
 
 	PushConstants m_pushConstants;
 
