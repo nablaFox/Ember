@@ -84,7 +84,9 @@ struct DirectionalLight {
 	Color color;
 };
 
-inline constexpr ignis::ColorFormat drawAttachmentColorFormat =
-	ignis::ColorFormat::RGBA16;
-inline constexpr ignis::DepthFormat depthAttachmentFormat =
+inline constexpr ignis::ColorFormat EMBER_COLOR_FORMAT = ignis::ColorFormat::RGBA16;
+inline constexpr ignis::DepthFormat EMBER_DEPTH_FORMAT =
 	ignis::DepthFormat::D32_SFLOAT;
+
+inline constexpr VkClearColorValue EMBER_CLEAR_COLOR =
+	VkClearColorValue{0.03f, 0.03f, 0.03f, 1};

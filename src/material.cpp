@@ -13,8 +13,8 @@ Material::Material(CreateInfo info) {
 	Pipeline::CreateInfo pipelineInfo{
 		.device = device,
 		.shaders = info.shaders,
-		.colorFormat = drawAttachmentColorFormat,
-		.depthFormat = depthAttachmentFormat,
+		.colorFormat = EMBER_COLOR_FORMAT,
+		.depthFormat = EMBER_DEPTH_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.sampleCount = EmberDevice::getSampleCount(),

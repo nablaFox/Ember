@@ -75,8 +75,8 @@ struct Circle : Mesh {
 };
 
 struct Sphere : Mesh {
-	Sphere(uint32_t precision = 100)
-		: Mesh(square(precision + 1) + 1, 6 * square(precision)) {
+	Sphere(uint32_t precision = 50)
+		: Mesh(square(precision + 1), 6 * square(precision)) {
 		for (uint32_t i = 0; i <= precision; i++) {
 			float phi = (float)i / precision * 2 * M_PI;  // Azimuthal angle [0, 2π]
 			for (uint32_t j = 0; j <= precision; j++) {

@@ -14,21 +14,21 @@ Renderer::Renderer(const Window& window) {
 	m_drawImage = ColorImage::createDrawImage({
 		.device = device,
 		.extent = {window.getWidth(), window.getHeight()},
-		.format = drawAttachmentColorFormat,
+		.format = EMBER_COLOR_FORMAT,
 		.sampleCount = EmberDevice::getSampleCount(),
 	});
 
 	m_resolvedDrawImage = ColorImage::createDrawImage({
 		.device = device,
 		.extent = {window.getWidth(), window.getHeight()},
-		.format = drawAttachmentColorFormat,
+		.format = EMBER_COLOR_FORMAT,
 		.sampleCount = VK_SAMPLE_COUNT_1_BIT,
 	});
 
 	m_depthImage = DepthImage::createDepthImage({
 		.device = device,
 		.extent = {window.getWidth(), window.getHeight()},
-		.format = depthAttachmentFormat,
+		.format = EMBER_DEPTH_FORMAT,
 		.sampleCount = EmberDevice::getSampleCount(),
 	});
 
@@ -36,6 +36,7 @@ Renderer::Renderer(const Window& window) {
 		.drawImage = m_drawImage,
 		.loadAction = VK_ATTACHMENT_LOAD_OP_CLEAR,
 		.storeAction = VK_ATTACHMENT_STORE_OP_STORE,
+		.clearColor = EMBER_CLEAR_COLOR,
 	};
 
 	m_depthAttachment = {
