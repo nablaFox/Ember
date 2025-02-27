@@ -128,7 +128,6 @@ auto main(int argc, char* argv[]) -> int {
 	DirectionalLight sun;
 
 	Cube cube;
-	cube.setColor(BLUE);
 
 	Sphere sphere;
 	sphere.setColor(BLUE * 0.08);
@@ -151,7 +150,8 @@ auto main(int argc, char* argv[]) -> int {
 
 		renderer.beginScene(playerCamera, sun);
 
-		renderer.draw(cube, {.yaw = M_PI / 4, .position = {-2.5, 0.5, -5}});
+		renderer.draw(cube, {.yaw = M_PI / 4, .position = {-2.5, 0.5, -5}},
+					  &gridMaterialTest);
 
 		renderer.draw(sphere,
 					  {.scale = 0.5, .pitch = M_PI / 2, .position = {1, 0.5, -3}},

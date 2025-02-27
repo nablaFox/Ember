@@ -29,26 +29,64 @@ struct Square : Mesh {
 };
 
 struct Cube : Mesh {
-	Cube() : Mesh(8, 36) {
-		for (uint32_t i = 0; i < 2; i++) {
-			float zShift = 0.5f - i;
+	Cube() : Mesh(24, 36) {
+		for (uint32_t j = 0; j < 3; j++) {
+			for (uint32_t i = 0; i < 2; i++) {
+				float zShift = 0.5f - i;
+				uint32_t base = i * 4 + 8 * j;
 
-			m_vertices[0 + i * 4].position = {0.5f, -0.5f, zShift};
-			m_vertices[1 + i * 4].position = {-0.5f, -0.5f, zShift};
-			m_vertices[2 + i * 4].position = {-0.5f, 0.5f, zShift};
-			m_vertices[3 + i * 4].position = {0.5f, 0.5f, zShift};
+				m_vertices[base + 0].position = {0.5f, -0.5f, zShift};
+				m_vertices[base + 1].position = {-0.5f, -0.5f, zShift};
+				m_vertices[base + 2].position = {-0.5f, 0.5f, zShift};
+				m_vertices[base + 3].position = {0.5f, 0.5f, zShift};
+			}
 		}
 
+		// front and back
+		for (uint32_t face = 0; face < 2; ++face) {
+			uint32_t offset = face * 4;
+			m_vertices[offset + 0].uv = {1.0f, 0.0f};
+			m_vertices[offset + 1].uv = {0.0f, 0.0f};
+			m_vertices[offset + 2].uv = {0.0f, 1.0f};
+			m_vertices[offset + 3].uv = {1.0f, 1.0f};
+		}
+
+		// bottom
+		m_vertices[8].uv = {0.0f, 1.0f};
+		m_vertices[9].uv = {0.0f, 0.0f};
+		m_vertices[13].uv = {1.0f, 0.0f};
+		m_vertices[12].uv = {1.0f, 1.0f};
+
+		// top
+		m_vertices[10].uv = {0.0f, 1.0f};
+		m_vertices[14].uv = {0.0f, 0.0f};
+		m_vertices[15].uv = {1.0f, 0.0f};
+		m_vertices[11].uv = {1.0f, 1.0f};
+
+		// right
+		m_vertices[16].uv = {0.0f, 1.0f};
+		m_vertices[20].uv = {0.0f, 0.0f};
+		m_vertices[23].uv = {1.0f, 0.0f};
+		m_vertices[19].uv = {1.0f, 1.0f};
+
+		// left
+		m_vertices[17].uv = {0.0f, 1.0f};
+		m_vertices[18].uv = {0.0f, 0.0f};
+		m_vertices[22].uv = {1.0f, 0.0f};
+		m_vertices[21].uv = {1.0f, 1.0f};
+
 		m_indices = {
-			0, 1, 2, 2, 3, 0,  // Front face
-			4, 5, 6, 6, 7, 4,  // Back face
-			1, 5, 4, 4, 0, 1,  // Top face
-			3, 7, 6, 6, 2, 3,  // Bottom face
-			1, 2, 6, 6, 5, 1,  // Left face
-			0, 4, 7, 7, 3, 0,  // Right face
+			0,	1,	2,	2,	3,	0,	 // Front
+			4,	5,	6,	6,	7,	4,	 // Back
+			10, 14, 15, 15, 11, 10,	 // Top
+			8,	9,	13, 13, 12, 8,	 // Bottom
+			16, 20, 23, 23, 19, 16,	 // Right
+			17, 18, 22, 22, 21, 17	 // Left
 		};
 	}
 };
+
+// TODO: maybe a non-textured variant with just 8 vertices?
 
 struct Circle : Mesh {
 	Circle(uint32_t vertices = 100) : Mesh(vertices + 1, 3 * vertices) {
@@ -75,7 +113,7 @@ struct Circle : Mesh {
 };
 
 struct Sphere : Mesh {
-	Sphere(uint32_t precision = 50)
+	Sphere(uint32_t precision = 100)
 		: Mesh(square(precision + 1), 6 * square(precision)) {
 		for (uint32_t i = 0; i <= precision; i++) {
 			float phi = (float)i / precision * 2 * M_PI;  // Azimuthal angle [0, 2π]
@@ -114,7 +152,6 @@ struct Sphere : Mesh {
 			m_indices[i] = indices[i];
 		}
 
-		// uv coordinates
 		for (uint32_t i = 0; i <= precision; i++) {
 			for (uint32_t j = 0; j <= precision; j++) {
 				float u = (float)j / precision;
@@ -125,3 +162,5 @@ struct Sphere : Mesh {
 		}
 	}
 };
+
+// TODO: maybe also an icosphere variant?
