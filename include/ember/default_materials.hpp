@@ -20,6 +20,11 @@ inline Material pointMaterial({
 	.polygonMode = VK_POLYGON_MODE_POINT,
 });
 
+inline Material lineMaterial({
+	.shaders = {"ember/default.frag.spv", "ember/default.vert.spv"},
+	.polygonMode = VK_POLYGON_MODE_LINE,
+});
+
 struct GridMaterialParams {
 	Color color;
 	float lines;

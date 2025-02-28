@@ -12,7 +12,8 @@ public:
 
 	// Note: meshes are static in vertices/indices size
 	// will be copied only the size of already allocated member vector
-	void update(std::span<Vertex>, std::span<Index>);
+	void updateVertices(std::span<Vertex> vertices);
+	void updateIndices(std::span<Index> indices);
 
 	void upload();
 

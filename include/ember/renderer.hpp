@@ -39,7 +39,7 @@ public:
 
 	void endScene();
 
-	void draw(Mesh&, WorldTransform, const Material* = nullptr);
+	void draw(Mesh&, WorldTransform = {}, const Material* = nullptr);
 
 	float getFps() const { return m_fps; }
 

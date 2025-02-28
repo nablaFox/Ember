@@ -17,8 +17,17 @@ Mesh::Mesh(uint32_t verticesSize, uint32_t indicesSize) {
 	m_waitForUpload = new Fence(*device);
 }
 
-void Mesh::update(std::span<Vertex> newVertices, std::span<Index> newIndices) {
+void Mesh::updateVertices(std::span<Vertex> newVertices) {
+	assert(newVertices.size() == m_vertices.size());
+
 	m_vertices.assign(newVertices.begin(), newVertices.end());
+	m_dirty = true;
+}
+
+void Mesh::updateIndices(std::span<Index> newIndices) {
+	assert(newIndices.size() == m_indices.size());
+
+	m_indices.assign(newIndices.begin(), newIndices.end());
 	m_dirty = true;
 }
 

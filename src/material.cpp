@@ -20,6 +20,7 @@ Material::Material(CreateInfo info) {
 		.depthFormat = EMBER_DEPTH_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
+		.lineWidth = info.lineWidth,
 		.sampleCount = EmberDevice::getSampleCount(),
 		.sampleShadingEnable = device->isFeatureEnabled("SampleRateShading"),
 		.enableDepthTest = true,

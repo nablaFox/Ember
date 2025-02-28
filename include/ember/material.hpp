@@ -11,6 +11,7 @@ public:
 	struct CreateInfo {
 		std::vector<std::string> shaders;
 		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
+		float lineWidth{1.0f};
 		bool transparency{false};
 		uint32_t paramsSize{0};
 		const void* paramsData{nullptr};
@@ -36,6 +37,7 @@ public:
 	struct CreateInfo {
 		std::vector<std::string> shaders;
 		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
+		float lineWidth{1.0f};
 		bool transparency{false};
 	};
 
@@ -43,11 +45,12 @@ public:
 
 	Material create(T data) const {
 		auto material = Material({
-			m_info.shaders,
-			m_info.polygonMode,
-			m_info.transparency,
-			sizeof(T),
-			&data,
+			.shaders = m_info.shaders,
+			.polygonMode = m_info.polygonMode,
+			.lineWidth = m_info.lineWidth,
+			.transparency = m_info.transparency,
+			.paramsSize = sizeof(T),
+			.paramsData = &data,
 		});
 
 		return material;
@@ -55,11 +58,11 @@ public:
 
 	Material create(T data, CreateInfo overwriteInfo) const {
 		auto material = Material({
-			overwriteInfo.shaders.empty() ? m_info.shaders : overwriteInfo.shaders,
-			overwriteInfo.polygonMode,
-			overwriteInfo.transparency,
-			sizeof(T),
-			&data,
+			.shaders = m_info.shaders,
+			.polygonMode = overwriteInfo.polygonMode,
+			.transparency = overwriteInfo.transparency,
+			.paramsSize = sizeof(T),
+			.paramsData = &data,
 		});
 
 		return material;
