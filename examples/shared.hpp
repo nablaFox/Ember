@@ -128,13 +128,18 @@ private:
 	Square m_subGrid;
 };
 
-// TODO: add cube outline material template
+struct OutlineMaterialParams {
+	Color color{BLACK};
+	float thickness{0.01};
+};
+
+const inline MaterialTemplate<OutlineMaterialParams> outlineMaterialTemplate({
+	.shaders = {"ember/default.vert.spv", "cube_outline.frag.spv"},
+});
 
 struct OutlinedBrick : Drawable {
 	OutlinedBrick(float width = 1, float height = 1, float depth = 1)
-		: m_outlineMaterial(Material({
-			  .shaders = {"ember/default.vert.spv", "cube_outline.frag.spv"},
-		  })),
+		: m_outlineMaterial(outlineMaterialTemplate.create({})),
 		  m_brick(width, height, depth) {
 		m_brick.setColor(WHITE);
 	}
