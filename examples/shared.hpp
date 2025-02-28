@@ -3,6 +3,7 @@
 #include "ember/default_materials.hpp"
 #include "ember/shapes.hpp"
 #include "ember/renderer.hpp"
+#include "physics.hpp"
 
 using namespace ember;
 
@@ -127,19 +128,32 @@ private:
 	Square m_subGrid;
 };
 
-struct OutlinedCube {
-	OutlinedCube()
+// TODO: add cube outline material template
+
+struct OutlinedBrick : Drawable {
+	OutlinedBrick(float width = 1, float height = 1, float depth = 1)
 		: m_outlineMaterial(Material({
 			  .shaders = {"ember/default.vert.spv", "cube_outline.frag.spv"},
-		  })) {
-		m_cube.setColor(WHITE);
+		  })),
+		  m_brick(width, height, depth) {
+		m_brick.setColor(WHITE);
 	}
 
-	void draw(Renderer& renderer, WorldTransform transform = {}) {
-		renderer.draw(m_cube, transform, &m_outlineMaterial);
+	void draw(Renderer& renderer, WorldTransform transform = {}) override {
+		renderer.draw(m_brick, transform, &m_outlineMaterial);
 	}
 
 private:
 	Material m_outlineMaterial;
-	Cube m_cube;
+	Brick m_brick;
 };
+
+inline void debug(Window& window, Renderer& renderer) {
+	if (window.isKeyPressed(GLFW_KEY_1)) {
+		std::cout << "FPS:" << renderer.getFps() << std::endl;
+	}
+
+	if (window.isKeyPressed(GLFW_KEY_2)) {
+		std::cout << "DeltaTime:" << renderer.getDeltaTime() << std::endl;
+	}
+}

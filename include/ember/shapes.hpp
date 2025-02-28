@@ -30,17 +30,18 @@ struct Square : Mesh {
 	}
 };
 
-struct Cube : Mesh {
-	Cube() : Mesh(24, 36) {
+struct Brick : Mesh {
+	Brick(float width, float height, float depth) : Mesh(24, 36) {
 		for (uint32_t j = 0; j < 3; j++) {
 			for (uint32_t i = 0; i < 2; i++) {
-				float zShift = 0.5f - i;
+				float zShift = (depth / 2.f) - i;
 				uint32_t base = i * 4 + 8 * j;
 
-				m_vertices[base + 0].position = {0.5f, -0.5f, zShift};
-				m_vertices[base + 1].position = {-0.5f, -0.5f, zShift};
-				m_vertices[base + 2].position = {-0.5f, 0.5f, zShift};
-				m_vertices[base + 3].position = {0.5f, 0.5f, zShift};
+				m_vertices[base + 0].position = {width / 2.f, -height / 2.f, zShift};
+				m_vertices[base + 1].position = {-width / 2.f, -height / 2.f,
+												 zShift};
+				m_vertices[base + 2].position = {-width / 2.f, height / 2.f, zShift};
+				m_vertices[base + 3].position = {width / 2.f, height / 2.f, zShift};
 			}
 		}
 
@@ -86,6 +87,10 @@ struct Cube : Mesh {
 			17, 18, 22, 22, 21, 17	 // Left
 		};
 	}
+};
+
+struct Cube : Brick {
+	Cube() : Brick(1, 1, 1) {}
 };
 
 // TODO: maybe a non-textured variant with just 8 vertices?
@@ -172,5 +177,4 @@ struct Sphere : Mesh {
 };
 
 // TODO: maybe also an icosphere variant?
-
 };	// namespace ember

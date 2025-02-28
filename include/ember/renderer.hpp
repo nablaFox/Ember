@@ -43,11 +43,7 @@ public:
 
 	float getFps() const { return m_fps; }
 
-	auto getDeltatime() const {
-		return std::chrono::duration<float>(
-				   std::chrono::high_resolution_clock::now() - m_lastTime)
-			.count();
-	};
+	auto getDeltaTime() const { return 1 / static_cast<float>(m_fps); };
 
 	void updateFps();
 

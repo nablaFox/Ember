@@ -1,4 +1,3 @@
-#include <cmath>
 #include "shared.hpp"
 
 constexpr int WINDOW_WIDTH = 1920;
@@ -28,7 +27,7 @@ auto main(int argc, char* argv[]) -> int {
 	Sphere sphere2;
 	sphere2.setColor(GREEN);
 
-	OutlinedCube cube;
+	OutlinedBrick brick;
 
 	Floor floor(PURPLE.setAlpha(0.3));
 
@@ -37,9 +36,9 @@ auto main(int argc, char* argv[]) -> int {
 	while (!window.shouldClose()) {
 		renderer.beginScene(playerCamera.camera, {});
 
-		playerCamera.update(window, renderer.getDeltatime());
+		playerCamera.update(window, renderer.getDeltaTime());
 
-		cube.draw(renderer, {.yaw = M_PI / 4, .position = {-2.5, 0.5, -5}});
+		brick.draw(renderer, {.yaw = M_PI / 4, .position = {-2.5, 0.5, -5}});
 
 		renderer.draw(sphere1,
 					  {.scale = 0.5, .pitch = M_PI / 2, .position = {1.5, 0.5, -5}},
