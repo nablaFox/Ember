@@ -23,6 +23,7 @@ inline Material pointMaterial({
 inline Material lineMaterial({
 	.shaders = {"ember/default.frag.spv", "ember/default.vert.spv"},
 	.polygonMode = VK_POLYGON_MODE_LINE,
+	.lineWidth = 3.0f,	// TODO: add dynamic line width in ignis
 });
 
 struct GridMaterialParams {

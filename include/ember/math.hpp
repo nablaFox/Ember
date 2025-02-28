@@ -116,6 +116,12 @@ public:
 		return matrix += other;
 	}
 
+	Mat operator-(const Mat& other) const {
+		Mat matrix = *this;
+
+		return matrix -= other;
+	}
+
 	Mat operator*(float scalar) const {
 		Mat matrix = *this;
 

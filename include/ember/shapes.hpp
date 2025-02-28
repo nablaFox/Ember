@@ -34,7 +34,7 @@ struct Brick : Mesh {
 	Brick(float width, float height, float depth) : Mesh(24, 36) {
 		for (uint32_t j = 0; j < 3; j++) {
 			for (uint32_t i = 0; i < 2; i++) {
-				float zShift = (depth / 2.f) - i;
+				float zShift = (depth / 2.f) - i * depth;
 				uint32_t base = i * 4 + 8 * j;
 
 				m_vertices[base + 0].position = {width / 2.f, -height / 2.f, zShift};
@@ -89,11 +89,11 @@ struct Brick : Mesh {
 	}
 };
 
+// TODO: maybe a non-textured variant with just 8 vertices?
+
 struct Cube : Brick {
 	Cube() : Brick(1, 1, 1) {}
 };
-
-// TODO: maybe a non-textured variant with just 8 vertices?
 
 struct Circle : Mesh {
 	Circle(uint32_t vertices = 100) : Mesh(vertices + 1, 3 * vertices - 1) {

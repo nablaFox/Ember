@@ -79,6 +79,16 @@ struct WorldTransform {
 	Mat4 getRotMatrix() const {
 		return getPitchMatrix() * getYawMatrix() * getRollMatrix();
 	}
+
+	// PONDER: maybe add a getSubMatrix method to Mat
+	Mat3 getRotationMat3() const {
+		Mat4 rot4 = getRotMatrix();
+		return {
+			{rot4(0, 0), rot4(0, 1), rot4(0, 2)},
+			{rot4(1, 0), rot4(1, 1), rot4(1, 2)},
+			{rot4(2, 0), rot4(2, 1), rot4(2, 2)},
+		};
+	}
 };
 
 struct DirectionalLight {

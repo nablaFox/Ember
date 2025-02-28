@@ -7,28 +7,29 @@
 
 using namespace ember;
 
-struct FirstPersonCamera {
+struct FirstPersonCamera : Camera {
 	struct CreateInfo {
-		float fov{90.f};
-		float aspect{1.77f};
-		Vec3 position{0, 0, 0};
+		float fov{70};
+		float aspect{1.77};
+		float near{0.1f};
+		float far{100.f};
+		float cameraSpeed{0.1f};
+		float sensitivity{0.001f};
+		float flyAround{false};
+		WorldTransform transform;
 	};
 
 	FirstPersonCamera(CreateInfo info)
-		: camera({
-			  .fov = info.fov,
-			  .aspect = info.aspect,
-			  .transform = {.position = info.position},
-		  }) {}
-
-	Camera camera;
+		: Camera(info.fov, info.aspect, info.near, info.far, info.transform),
+		  flyAround(info.flyAround),
+		  sensitivity(info.sensitivity),
+		  cameraSpeed(info.cameraSpeed) {}
 
 	float flyAround = false;
 	float sensitivity = 0.001f;
+	float cameraSpeed = 0.1f;
 
 	void update(Window& window, float deltaTime) {
-		WorldTransform& transform = camera.transform;
-
 		// CHECK multiplying by deltaTime gives weird artifacts
 		transform.yaw += window.mouseDeltaX() * sensitivity;
 		transform.pitch += window.mouseDeltaY() * sensitivity;
@@ -39,18 +40,16 @@ struct FirstPersonCamera {
 			transform.pitch = -M_PI / 2;
 		}
 
-		constexpr float cameraSpeed = 0.1f;
-
 		Vec3& position = transform.position;
 		float yaw = -transform.yaw;
 
 		const Vec3 playerForward =
-			flyAround ? camera.forward() : Vec3{sinf(yaw), 0, cosf(yaw)} * -1;
+			flyAround ? forward() : Vec3{sinf(yaw), 0, cosf(yaw)} * -1;
 
 		const Vec3 playerRight =
-			flyAround ? camera.right() : Vec3{cosf(yaw), 0, -sinf(yaw)};
+			flyAround ? right() : Vec3{cosf(yaw), 0, -sinf(yaw)};
 
-		const Vec3 up = flyAround ? camera.up() : Vec3{0, 0, 0};
+		const Vec3 up = flyAround ? this->up() : Vec3{0, 0, 0};
 
 		if (window.isKeyPressed(GLFW_KEY_0)) {
 			position = {0, 1, 0};
@@ -138,10 +137,24 @@ const inline MaterialTemplate<OutlineMaterialParams> outlineMaterialTemplate({
 });
 
 struct OutlinedBrick : Drawable {
-	OutlinedBrick(float width = 1, float height = 1, float depth = 1)
-		: m_outlineMaterial(outlineMaterialTemplate.create({})),
-		  m_brick(width, height, depth) {
-		m_brick.setColor(WHITE);
+	struct CreateInfo {
+		float width{1};
+		float height{1};
+		float depth{1};
+		Color color{WHITE};
+		Color borderColor{BLACK};
+		bool transparency{false};
+	};
+
+	OutlinedBrick(CreateInfo info)
+		: m_outlineMaterial(outlineMaterialTemplate.create(
+			  {
+				  .color = info.borderColor,
+				  .thickness = 0.01,
+			  },
+			  {.transparency = info.transparency})),
+		  m_brick(info.width, info.height, info.depth) {
+		m_brick.setColor(info.color);
 	}
 
 	void draw(Renderer& renderer, WorldTransform transform = {}) override {
@@ -153,12 +166,21 @@ private:
 	Brick m_brick;
 };
 
-inline void debug(Window& window, Renderer& renderer) {
+inline void debug(Window& window, Renderer& renderer, Camera& camera) {
 	if (window.isKeyPressed(GLFW_KEY_1)) {
 		std::cout << "FPS:" << renderer.getFps() << std::endl;
 	}
 
 	if (window.isKeyPressed(GLFW_KEY_2)) {
 		std::cout << "DeltaTime:" << renderer.getDeltaTime() << std::endl;
+	}
+
+	if (window.isKeyPressed(GLFW_KEY_3)) {
+		std::cout << "Camera Position:" << std::endl;
+		camera.transform.position.print();
+
+		std::cout << "Camera Yaw:" << camera.transform.yaw << std::endl;
+		std::cout << "Camera Pitch:" << camera.transform.pitch << std::endl;
+		std::cout << "Camera Roll:" << camera.transform.roll << std::endl;
 	}
 }

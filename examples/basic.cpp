@@ -10,7 +10,7 @@ auto main(int argc, char* argv[]) -> int {
 	FirstPersonCamera playerCamera({
 		.fov = 70,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
-		.position = {0, 1, 0},
+		.transform = {.position = {0, 1, 0}},
 	});
 
 	Material gridMaterial = gridMaterialTemplate.create(
@@ -27,14 +27,14 @@ auto main(int argc, char* argv[]) -> int {
 	Sphere sphere2;
 	sphere2.setColor(GREEN);
 
-	OutlinedBrick brick;
+	OutlinedBrick brick({});
 
 	Floor floor(PURPLE.setAlpha(0.3));
 
 	window.caputureMouse(true);
 
 	while (!window.shouldClose()) {
-		renderer.beginScene(playerCamera.camera, {});
+		renderer.beginScene(playerCamera, {});
 
 		playerCamera.update(window, renderer.getDeltaTime());
 

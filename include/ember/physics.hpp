@@ -10,31 +10,73 @@ struct Drawable {
 	virtual void draw(Renderer& renderer, WorldTransform transform) = 0;
 };
 
+struct AABB {
+	Vec3 min;
+	Vec3 max;
+
+	static AABB compute(const AABB localAABB, const WorldTransform& transform) {
+		Vec3 localCenter = (localAABB.min + localAABB.max) * 0.5f;
+		Vec3 halfSize = (localAABB.max - localAABB.min) / 2;
+
+		Vec3 center = transform.position + localCenter;
+
+		Mat3 rotation = transform.getRotationMat3();
+
+		Vec3 newHalfSize;
+
+		newHalfSize[0] = std::abs(rotation(0, 0)) * halfSize[0] +
+						 std::abs(rotation(0, 1)) * halfSize[1] +
+						 std::abs(rotation(0, 2)) * halfSize[2];
+
+		newHalfSize[1] = std::abs(rotation(1, 0)) * halfSize[0] +
+						 std::abs(rotation(1, 1)) * halfSize[1] +
+						 std::abs(rotation(1, 2)) * halfSize[2];
+
+		newHalfSize[2] = std::abs(rotation(2, 0)) * halfSize[0] +
+						 std::abs(rotation(2, 1)) * halfSize[1] +
+						 std::abs(rotation(2, 2)) * halfSize[2];
+
+		return {
+			.min = center - newHalfSize,
+			.max = center + newHalfSize,
+		};
+	}
+
+	// TEMP just for debug
+	std::array<Vec3, 8> getVertices() const {
+		float width = max[0] - min[0];
+		float height = max[1] - min[1];
+		float depth = max[2] - min[2];
+
+		Vec3 center = (max + min) / 2;
+
+		return {
+			Vec3{width / 2.f, -height / 2.f, -depth / 2.f} + center,
+			Vec3{-width / 2.f, -height / 2.f, -depth / 2.f} + center,
+			Vec3{-width / 2.f, height / 2.f, -depth / 2.f} + center,
+			Vec3{width / 2.f, height / 2.f, -depth / 2.f} + center,
+
+			Vec3{width / 2.f, -height / 2.f, depth / 2.f} + center,
+			Vec3{-width / 2.f, -height / 2.f, depth / 2.f} + center,
+			Vec3{-width / 2.f, height / 2.f, depth / 2.f} + center,
+			Vec3{width / 2.f, height / 2.f, depth / 2.f} + center,
+		};
+	}
+};
+
 struct PhysicalObject {
 	float mass{1};
 	Vec3 force{};
 	Vec3 acc{};
 	Vec3 vel{};
-	Vec3 pos{};
 
-	float roll{0};
-	float pitch{0};
-	float yaw{0};
+	WorldTransform transform;
 
-	float width{1};
-	float height{1};
-	float depth{1};
+	AABB aabb;
+
+	AABB getWorldAABB() const { return AABB::compute(aabb, transform); }
 
 	Drawable* shape{nullptr};
-
-	WorldTransform getWorldTransform() const {
-		return {
-			.yaw = yaw,
-			.pitch = pitch,
-			.roll = roll,
-			.position = pos,
-		};
-	}
 };
 
 using Constraint = std::function<void(PhysicalObject&)>;
@@ -50,8 +92,8 @@ public:
 		: m_pixelsPerMeter(info.pixelsPerMeter), m_timeStep(info.timeStep) {}
 
 	void addObject(PhysicalObject* object) {
-		object->pos *= m_pixelsPerMeter;
 		objects.push_back(object);
+		object->transform.position *= m_pixelsPerMeter;
 	}
 
 	void update(float dt) {
@@ -60,8 +102,6 @@ public:
 		}
 
 		m_timeAccumulator += dt;
-
-		updateBoundingBox();
 
 		while (m_timeAccumulator >= m_timeStep) {
 			integrate();
@@ -74,39 +114,7 @@ public:
 		for (auto& obj : objects) {
 			obj->acc = (m_globalForce + obj->force) / obj->mass;
 			obj->vel += obj->acc * m_timeStep;
-			obj->pos += obj->vel * m_timeStep * m_pixelsPerMeter;
-		}
-	}
-
-	void updateBoundingBox() {
-		for (auto& obj : objects) {
-			Mat3 rollRot = {
-				{std::abs(cosf(obj->roll)), std::abs(sinf(obj->roll)), 0},
-				{std::abs(sinf(obj->roll)), std::abs(cosf(obj->roll)), 0},
-				{0, 0, 1},
-			};
-
-			Mat3 pitchRot = {
-				{1, 0, 0},
-				{0, std::abs(cosf(obj->pitch)), std::abs(sinf(obj->pitch))},
-				{0, std::abs(sinf(obj->pitch)), std::abs(cosf(obj->pitch))},
-			};
-
-			Mat3 yawRot = {
-				{std::cosf(obj->yaw), 0, std::sinf(obj->yaw)},
-				{0, 1, 0},
-				{-std::sinf(obj->yaw), 0, std::cosf(obj->yaw)},
-			};
-
-			static Vec3 originalSize = {obj->width, obj->height, obj->depth};
-
-			Vec3 rotatedHeight = pitchRot * rollRot * originalSize;
-			Vec3 rotatedWidth = yawRot * rollRot * originalSize;
-			Vec3 rotatedDepth = yawRot * pitchRot * originalSize;
-
-			obj->width = rotatedWidth[0];
-			obj->height = rotatedHeight[1];
-			obj->depth = rotatedDepth[2];
+			obj->transform.position += obj->vel * m_timeStep * m_pixelsPerMeter;
 		}
 	}
 
@@ -122,7 +130,7 @@ public:
 		for (auto& obj : objects) {
 			assert(obj->shape != nullptr);
 
-			obj->shape->draw(renderer, obj->getWorldTransform());
+			obj->shape->draw(renderer, obj->transform);
 		}
 	}
 
