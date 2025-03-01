@@ -92,7 +92,7 @@ struct Brick : Mesh {
 // TODO: maybe a non-textured variant with just 8 vertices?
 
 struct Cube : Brick {
-	Cube() : Brick(1, 1, 1) {}
+	Cube(float sideLength = 1) : Brick(sideLength, sideLength, sideLength) {}
 };
 
 struct Circle : Mesh {

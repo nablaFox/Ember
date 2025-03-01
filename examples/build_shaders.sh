@@ -21,6 +21,6 @@ compile_shaders() {
   done
 }
 
-compile_shaders "../shaders/ember" "ember"
+compile_shaders "../shaders" "ember"
 
 compile_shaders "."

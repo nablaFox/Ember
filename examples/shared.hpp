@@ -3,7 +3,6 @@
 #include "ember/default_materials.hpp"
 #include "ember/shapes.hpp"
 #include "ember/renderer.hpp"
-#include "physics.hpp"
 
 using namespace ember;
 
@@ -27,6 +26,9 @@ struct FirstPersonCamera : Camera {
 
 	float flyAround = false;
 	float sensitivity = 0.001f;
+
+	// it isn't a speed;
+	// it should probably be "cameraMovementIncrement"
 	float cameraSpeed = 0.1f;
 
 	void update(Window& window, float deltaTime) {
@@ -64,27 +66,27 @@ struct FirstPersonCamera : Camera {
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_W)) {
-			position += playerForward * cameraSpeed;
+			position += playerForward * cameraSpeed * deltaTime;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_S)) {
-			position -= playerForward * cameraSpeed;
+			position -= playerForward * cameraSpeed * deltaTime;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_D)) {
-			position += playerRight * cameraSpeed;
+			position += playerRight * cameraSpeed * deltaTime;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_A)) {
-			position -= playerRight * cameraSpeed;
+			position -= playerRight * cameraSpeed * deltaTime;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_SPACE)) {
-			position += up * cameraSpeed;
+			position += up * cameraSpeed * deltaTime;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-			position -= up * cameraSpeed;
+			position -= up * cameraSpeed * deltaTime;
 		}
 	}
 };

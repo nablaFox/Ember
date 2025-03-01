@@ -38,6 +38,21 @@ auto Window::getMouseY() const -> double {
 	return y;
 }
 
+auto Window::isKeyClicked(int key) -> bool {
+	bool currentState = isKeyPressed(key);
+	bool wasPressed = false;
+
+	auto it = m_prevKeyStates.find(key);
+	if (it != m_prevKeyStates.end()) {
+		wasPressed = it->second;
+	}
+
+	bool clicked = currentState && !wasPressed;
+
+	m_prevKeyStates[key] = currentState;
+	return clicked;
+}
+
 auto Window::mouseDeltaX() const -> double {
 	static double previousMouseX = getMouseX();
 	float toReturn = getMouseX() - previousMouseX;

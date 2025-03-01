@@ -1,12 +1,13 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include "device.hpp"
-#include "window.hpp"
 #include "renderer.hpp"
+#include "camera.hpp"
+#include "window.hpp"
 #include "mesh.hpp"
 #include "default_materials.hpp"
-#include "ignis/swapchain.hpp"
+#include "types.hpp"
+#include "device.hpp"
 
 using namespace ignis;
 using namespace ember;

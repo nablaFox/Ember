@@ -10,6 +10,7 @@ auto main(int argc, char* argv[]) -> int {
 	FirstPersonCamera playerCamera({
 		.fov = 70,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
+		.cameraSpeed = 6.f,
 		.transform = {.position = {0, 1, 0}},
 	});
 

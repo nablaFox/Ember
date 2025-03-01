@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.hpp"
 #include "material.hpp"
+#include "color.hpp"
 
 // Note: we are assuming the user has a folder "shaders"
 // with a folder "ember" containing all the ember shaders

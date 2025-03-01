@@ -165,6 +165,10 @@ public:
 	Vec& normalize() {
 		float len = length();
 
+		if (len == 0) {
+			return *this;
+		}
+
 		for (std::size_t i = 0; i < Rows; i++) {
 			(*this)[i] /= len;
 		}

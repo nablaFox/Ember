@@ -5,7 +5,7 @@ layout (location = 0) out vec4 outColor;
 layout (location = 0) in vec4 inColor;
 layout (location = 1) in vec2 uv;
 
-#include "../../shaders/ember/ember.glsl"
+#include "../../shaders/ember.glsl"
 
 DEF_MATERIAL({
 	vec4 borderColor;

@@ -1,6 +1,9 @@
 #pragma once
 
-#include "ignis/ignis.hpp"
+#include <vector>
+#include <string>
+#include "ignis/buffer.hpp"
+#include "ignis/pipeline.hpp"
 
 namespace ember {
 

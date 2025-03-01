@@ -1,10 +1,23 @@
 #pragma once
 
 #include <span>
-#include "types.hpp"
-#include "ignis/ignis.hpp"
+#include <vector>
+#include "ignis/fence.hpp"
+#include "ignis/buffer.hpp"
+#include "color.hpp"
+#include "math.hpp"
 
 namespace ember {
+
+struct Vertex {
+	Vec3 position;
+	float padding;
+	Color color;
+	Vec2 uv;
+	float padding2[2];
+};
+
+typedef uint32_t Index;
 
 class Mesh {
 public:

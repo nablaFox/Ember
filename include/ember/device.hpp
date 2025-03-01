@@ -1,6 +1,5 @@
 #include <GLFW/glfw3.h>
 #include <cassert>
-#include "types.hpp"
 #include "ignis/device.hpp"
 
 // Note: we don't have a singleton device in ignis
@@ -38,27 +37,7 @@ public:
 	}
 
 private:
-	EmberDevice() {
-		glfwInit();
-
-		uint32_t glfwExtensionCount = 0;
-		const char** glfwExtensions =
-			glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-		std::vector<const char*> extensions(glfwExtensions,
-											glfwExtensions + glfwExtensionCount);
-
-		m_device = new ignis::Device({
-			.shadersFolder = EMBER_SHADERS_FOLDER,
-			.extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME},
-			.instanceExtensions = extensions,
-			.optionalFeatures = {"FillModeNonSolid", "SampleRateShading"},
-		});
-
-		// TEMP
-		m_graphicsQueue = 0;
-		m_uploadQueue = 0;
-	}
+	EmberDevice();
 
 	uint32_t m_graphicsQueue;
 	uint32_t m_uploadQueue;
@@ -70,7 +49,5 @@ public:
 	EmberDevice(EmberDevice&&) = delete;
 	EmberDevice& operator=(EmberDevice&&) = delete;
 };
-
-inline EmberDevice* EmberDevice::g_instance = nullptr;
 
 }  // namespace ember

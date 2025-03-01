@@ -2,14 +2,22 @@
 
 #include <cassert>
 #include <chrono>
-#include "material.hpp"
-#include "types.hpp"
-#include "mesh.hpp"
 #include "window.hpp"
-#include "camera.hpp"
+#include "math.hpp"
+#include "color.hpp"
 #include "ignis/ignis.hpp"
 
 namespace ember {
+
+class Mesh;
+class Material;
+struct Camera;
+struct WorldTransform;
+
+struct DirectionalLight {
+	Vec3 direction;
+	Color color;
+};
 
 struct SceneData {
 	Mat4 viewproj;
@@ -39,7 +47,7 @@ public:
 
 	void endScene();
 
-	void draw(Mesh&, WorldTransform = {}, const Material* = nullptr);
+	void draw(Mesh&, WorldTransform, const Material* = nullptr);
 
 	float getFps() const { return m_fps; }
 
@@ -76,6 +84,10 @@ private:
 		std::chrono::high_resolution_clock::now();
 
 	uint32_t m_fps{0};
+};
+
+struct Drawable {
+	void virtual draw(Renderer&, WorldTransform) = 0;
 };
 
 }  // namespace ember

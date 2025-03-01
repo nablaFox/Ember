@@ -1,6 +1,6 @@
 #include "material.hpp"
-#include "types.hpp"
 #include "device.hpp"
+#include "types.hpp"
 
 using namespace ignis;
 using namespace ember;

@@ -2,6 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan_core.h>
+#include <unordered_map>
 
 namespace ember {
 
@@ -16,6 +17,7 @@ public:
 	auto shouldClose() const -> bool;
 
 	auto isKeyPressed(int key) const -> bool;
+	auto isKeyClicked(int key) -> bool;
 
 	auto getMouseX() const -> double;
 	auto getMouseY() const -> double;
@@ -32,6 +34,8 @@ public:
 private:
 	GLFWwindow* m_window;
 	uint32_t m_width, m_height;
+
+	std::unordered_map<int, bool> m_prevKeyStates;
 
 public:
 	Window(const Window&) = default;

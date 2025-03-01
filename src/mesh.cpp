@@ -1,5 +1,6 @@
 #include "mesh.hpp"
 #include "device.hpp"
+#include "ignis/command.hpp"
 
 using namespace ignis;
 using namespace ember;
