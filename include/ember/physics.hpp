@@ -41,7 +41,14 @@ public:
 
 		while (m_timeAccumulator >= m_timeStep) {
 			integrate();
+			m_time += m_timeStep;
 			m_timeAccumulator -= m_timeStep;
+		}
+
+		m_time = m_time > 1000 ? 0 : m_time;
+
+		for (auto& obj : m_objects) {
+			obj->force = {};
 		}
 	}
 
@@ -63,6 +70,10 @@ public:
 
 	void applyGlobalForce(Vec3 force) { m_globalForce = std::move(force); }
 
+	float getSimulationTime() const { return m_time; }
+
+	float getSimultionStep() const { return m_timeStep; }
+
 protected:
 	std::vector<PhysicalObject*> m_objects;
 
@@ -73,6 +84,8 @@ protected:
 	float m_timeAccumulator{0};
 
 	float m_timeStep;
+
+	float m_time{0};
 };
 
 }  // namespace ember
