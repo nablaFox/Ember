@@ -17,7 +17,7 @@ auto main(int argc, char* argv[]) -> int {
 	Material gridMaterial = gridMaterialTemplate.create(
 		{
 			.color = BLUE,
-			.lines = 20,
+			.gridSpacing = 0.1,
 			.lineThickness = 0.005,
 		},
 		{.transparency = false});
@@ -30,7 +30,7 @@ auto main(int argc, char* argv[]) -> int {
 
 	OutlinedBrick brick({});
 
-	Floor floor(PURPLE.setAlpha(0.3));
+	Floor floor({.color = PURPLE.setAlpha(0.3)});
 
 	window.caputureMouse(true);
 

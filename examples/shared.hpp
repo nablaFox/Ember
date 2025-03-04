@@ -92,22 +92,30 @@ struct FirstPersonCamera : Camera {
 };
 
 struct Floor {
-	Floor(Color color)
+	static constexpr float floorScale = 1000;
+
+	struct CreateInfo {
+		Color color{};
+		float gridSize{1};
+		float lineThickness{0.02};
+	};
+
+	Floor(CreateInfo info)
 		: m_mainGridMaterial(gridMaterialTemplate.create({
-			  .color = color,
-			  .lines = 1000,
-			  .lineThickness = 0.00002,
+			  .color = info.color,
+			  .gridSpacing = info.gridSize / floorScale,
+			  .lineThickness = info.lineThickness / floorScale,
 		  })),
 		  m_subGridMaterial(gridMaterialTemplate.create({
-			  .color = color * 0.8,
-			  .lines = 1000 * 2,
-			  .lineThickness = 0.00002,
+			  .color = info.color * 0.8,
+			  .gridSpacing = info.gridSize / (floorScale * 2.f),
+			  .lineThickness = info.lineThickness / floorScale,
 		  })) {}
 
 	void draw(Renderer& renderer, float height = 0) {
 		renderer.draw(m_mainGrid,
 					  {
-						  .scale = 1000,
+						  .scale = floorScale,
 						  .pitch = -M_PI / 2,
 						  .position = {0, height, 0},
 					  },
@@ -115,7 +123,7 @@ struct Floor {
 
 		renderer.draw(m_subGrid,
 					  {
-						  .scale = 1000,
+						  .scale = floorScale,
 						  .pitch = -M_PI / 2,
 						  .position = {0, height, 0},
 					  },
@@ -166,6 +174,21 @@ struct OutlinedBrick : Drawable {
 private:
 	Material m_outlineMaterial;
 	Brick m_brick;
+};
+
+struct BoxShape : OutlinedBrick {
+	BoxShape(float dimension)
+		: OutlinedBrick({
+			  .width = dimension,
+			  .height = dimension,
+			  .depth = dimension,
+			  .color = PURPLE.setAlpha(0.1),
+			  .borderColor = BLACK.setAlpha(0.5),
+			  .transparency = true,
+		  }),
+		  dimension(dimension) {}
+
+	float dimension;
 };
 
 inline void debug(Window& window, Renderer& renderer, Camera& camera) {

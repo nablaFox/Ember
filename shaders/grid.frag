@@ -9,15 +9,14 @@ layout (location = 1) in vec2 uv;
 
 DEF_MATERIAL({
 	vec4 color;
-	float lines;
+	float gridSpacing;
 	float thickness;
 });
 
 void main() {
 	float halfThickness = MATERIAL.thickness * 0.5;
-	float gridSpacing = 1.0 / MATERIAL.lines;
-	float modX = mod(uv.x + halfThickness, gridSpacing);
-	float modY = mod(uv.y + halfThickness, gridSpacing);
+	float modX = mod(uv.x + halfThickness, MATERIAL.gridSpacing);
+	float modY = mod(uv.y + halfThickness, MATERIAL.gridSpacing);
 
 	if (min(modX, modY) < MATERIAL.thickness) {
 		outColor = MATERIAL.color;

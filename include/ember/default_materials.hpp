@@ -28,7 +28,7 @@ inline Material lineMaterial({
 
 struct GridMaterialParams {
 	Color color;
-	float lines;
+	float gridSpacing;
 	float lineThickness;
 };
 

@@ -4,7 +4,7 @@
 constexpr int WINDOW_WIDTH = 1000;
 constexpr int WINDOW_HEIGHT = 800;
 constexpr float GRAVITY = 9.81;
-constexpr float PIXELS_PER_METER = 5;
+constexpr float WU_PER_METER = 0.04;
 
 float kineticEnergy(float mass, float vel) {
 	return mass * square(vel) / 2;
@@ -19,31 +19,41 @@ auto main(int argc, char* argv[]) -> int {
 	Renderer renderer(window);
 
 	FirstPersonCamera playerCamera({
-		.fov = 70,
+		.fov = 90,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
-		.far = 500,
 		.cameraSpeed = 6.f,
-		.transform = {.position = {0, 0.5 * PIXELS_PER_METER, 3 * PIXELS_PER_METER}},
+		.transform = {.position = {0, 0.5, 3}},
 	});
 
 	Camera rocketCamera{
 		.fov = 70,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
-		.far = 500,
 		.transform = {.pitch = M_PI / 2},
 	};
 
-	Floor floor(PURPLE.setAlpha(0.3));
+	Camera* cameraToUse = &playerCamera;
 
-	window.caputureMouse(true);
+	Floor floor({.color = PURPLE.setAlpha(0.3)});
 
-	const float mass = 1100;
-	const float height = 300;
+	PhysicalSystem system({
+		.timeStep = 1.f / 120.f,
+		.worldUnitPerMeter = WU_PER_METER,
+	});
+
+	BoxShape boxShape(system.meterToWu(340));
+
+	const float mass = 11000;
+	const float height = system.meterToWu(300);
 	const float initialVelocity = 20;
-	const float rocketHeight = 2;
-	const float halfRocketHeight = rocketHeight * PIXELS_PER_METER / 2;
+	const float rocketHeight = 1.5;
+	const float rocketWidth = 0.75;
+	const float halfRocketHeight = rocketHeight / 2.f;
 
-	OutlinedBrick rocketShape({.width = 1, .height = rocketHeight});
+	OutlinedBrick rocketShape({
+		.width = rocketWidth,
+		.height = rocketHeight,
+		.depth = rocketWidth,
+	});
 
 	PhysicalObject rocket{
 		.mass = mass,
@@ -52,51 +62,36 @@ auto main(int argc, char* argv[]) -> int {
 		.shape = &rocketShape,
 	};
 
-	PhysicalSystem system({
-		.pixelsPerMeter = PIXELS_PER_METER,
-		.timeStep = 1.f / 1000,
-	});
-
 	system.addObject(&rocket);
+	system.applyGlobalForce({0, mass * -GRAVITY, 0});
 
 	std::chrono::high_resolution_clock::time_point lastTime =
 		std::chrono::high_resolution_clock::now();
 
-	system.applyGlobalForce({0, mass * -GRAVITY, 0});
+	bool hasLanded = false;
+	bool simulating = false;
 
-	float arrived = false;
+	window.caputureMouse(true);
 
-	Camera* cameraToUse = &playerCamera;
-
-	const float dForce =
-		decelerationForce(height - rocketHeight / 2.f, mass, initialVelocity);
+	const float dForce = decelerationForce(
+		system.wuToMeter(height - halfRocketHeight), mass, initialVelocity);
 
 	while (!window.shouldClose()) {
-		if (!arrived) {
+		// simulate
+		if (!hasLanded) {
 			rocket.force = {0, dForce, 0};
-			const float rocketHeight =
-				(rocket.transform.position[1] - halfRocketHeight) / PIXELS_PER_METER;
 
-			std::cout << "Height: " << rocketHeight << "m "
+			std::cout << "Height: "
+					  << (rocket.pos[1] - system.wuToMeter(halfRocketHeight)) << "m "
 					  << "Velocity: " << rocket.vel[1] << "m/s\n"
 					  << std::fixed << std::setprecision(2);
 
 			std::cout << "Contact in: "
-					  << rocket.vel[1] * mass / (mass * GRAVITY - dForce) << "s\n"
+					  << mass * rocket.vel[1] / (mass * GRAVITY - dForce) << "s\n"
 					  << std::endl;
 		}
 
-		system.update(renderer.getDeltaTime());
-
-		rocketCamera.transform.position = rocket.transform.position + Vec3{0, 0, 3};
-
-		if (rocket.transform.position[1] <= halfRocketHeight) {
-			rocket.transform.position[1] = halfRocketHeight;
-		}
-
-		if (rocket.vel[1] > -1e-4) {
-			arrived = true;
-
+		if (rocket.transform.position[1] <= halfRocketHeight && !hasLanded) {
 			std::cout << "Real fall time: "
 					  << std::chrono::duration<float>(
 							 std::chrono::high_resolution_clock::now() - lastTime)
@@ -107,20 +102,40 @@ auto main(int argc, char* argv[]) -> int {
 					  << "s\n";
 
 			std::cout << "Impact velocity: " << rocket.vel[1] << "m/s\n";
+
+			hasLanded = true;
 		}
 
+		if (rocket.transform.position[1] < halfRocketHeight) {
+			rocket.transform.position[1] = halfRocketHeight;
+			rocket.vel[1] = 0;
+		}
+
+		if (simulating)
+			system.update(renderer.getDeltaTime());
+
+		rocketCamera.transform.position =
+			rocket.transform.position + Vec3{0, 0, 0.5};
+		playerCamera.update(window, renderer.getDeltaTime());
+
+		// input
 		if (window.isKeyClicked(GLFW_KEY_TAB)) {
 			cameraToUse =
 				cameraToUse == &rocketCamera ? &playerCamera : &rocketCamera;
 		}
 
-		playerCamera.update(window, renderer.getDeltaTime());
+		if (window.isKeyClicked(GLFW_KEY_ENTER)) {
+			simulating = true;
+		}
 
+		// render
 		renderer.beginScene(*cameraToUse, {});
 
 		system.draw(renderer);
 
 		floor.draw(renderer);
+
+		boxShape.draw(renderer, {.position = {0, boxShape.dimension / 2, 0}});
 
 		renderer.endScene();
 

@@ -1,5 +1,4 @@
 #include "shared.hpp"
-#include "ember/transform.hpp"
 #include "ember/physics.hpp"
 
 constexpr int WINDOW_WIDTH = 1920;
@@ -69,32 +68,24 @@ struct AABB {
 
 struct BoundedObject : PhysicalObject {
 	AABB aabb;
-	AABB getWorldAABB() const { return AABB::compute(aabb, transform); }
+	AABB getWorldAABB() { return AABB::compute(aabb, transform); }
 };
 
-class BoxSystem : PhysicalSystem {
+class BoxSystem : public PhysicalSystem {
 public:
 	struct CreateInfo {
 		float dimension{1};
-		float pixelsPerMeter{5};
+		float worldUnitPerMeter{1};
 		Vec3 position{0, 0, 0};
 		Vec3 gravity{0, -9.8, 0};
-		Color wallColor{PURPLE.setAlpha(0.1)};
-		Color borderColor{BLACK.setAlpha(0.5)};
 	};
 
 	BoxSystem(CreateInfo info)
-		: PhysicalSystem({.pixelsPerMeter = info.pixelsPerMeter}),
-		  m_box({
-			  .color = info.wallColor,
-			  .borderColor = info.borderColor,
-			  .transparency = true,
-		  }),
-		  m_transform({
-			  .scale = info.pixelsPerMeter * info.dimension,
-			  .position = info.position * info.pixelsPerMeter,
-		  }),
-		  m_boxAABB({-0.5, -0.5, -0.5}, {0.5, 0.5, 0.5}),
+		: PhysicalSystem({.worldUnitPerMeter = info.worldUnitPerMeter}),
+		  m_box(info.dimension),
+		  m_transform({.position = info.position}),
+		  m_boxAABB({-info.dimension / 2, -info.dimension / 2, -info.dimension / 2},
+					{info.dimension / 2, info.dimension / 2, info.dimension / 2}),
 		  m_dimension(info.dimension) {
 		applyGlobalForce(info.gravity);
 	}
@@ -109,13 +100,15 @@ public:
 				if (objAABB.min[axis] < boxAABB.min[axis]) {
 					object->transform.position[axis] +=
 						boxAABB.min[axis] - objAABB.min[axis];
-					object->vel[axis] = 0;
+
+					object->vel[axis] *= -0.2;
 				}
 
 				if (objAABB.max[axis] > boxAABB.max[axis]) {
 					object->transform.position[axis] -=
 						objAABB.max[axis] - boxAABB.max[axis];
-					object->vel[axis] = 0;
+
+					object->vel[axis] *= -0.2;
 				}
 			}
 		}
@@ -134,7 +127,7 @@ public:
 	}
 
 private:
-	OutlinedBrick m_box;
+	BoxShape m_box;
 	AABB m_boxAABB;
 	WorldTransform m_transform;
 	float m_dimension;
@@ -187,27 +180,28 @@ auto main(int argc, char* argv[]) -> int {
 	Window window("Basic Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
 	Renderer renderer(window);
 
-	constexpr float pixelsPerMeter = 5;
-	constexpr float boxDimension = 5;
+	constexpr float boxDimension = 10;
 
 	FirstPersonCamera playerCamera({
 		.fov = 90,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
-		.cameraSpeed = 1.4f * pixelsPerMeter,  // walking speed of a person in m/s
+		.cameraSpeed = 7.f,
 		.flyAround = true,
-		.transform = {.position = {1, 17, 28}},
+		.transform = {.position = {0, 4.5, 11}},
 	});
 
-	Floor floor(PURPLE.setAlpha(0.3));
+	Floor floor({
+		.color = PURPLE.setAlpha(0.3),
+	});
 
-	BoxSystem box({
+	BoxSystem boxSystem({
 		.dimension = boxDimension,
-		.pixelsPerMeter = pixelsPerMeter,
-		.position = {0, boxDimension / 2, 0},
+		.position = {0, boxDimension / 2.f, 0},
+		.gravity = {0, -9.8, 0},
 	});
 
 	OutlinedBrick brick({
-		.width = 1,	 // dimensions in meters
+		.width = 1,
 		.height = 0.5,
 		.depth = 0.5,
 	});
@@ -217,30 +211,18 @@ auto main(int argc, char* argv[]) -> int {
 	};
 
 	boundedObject.shape = &brick;
+	boundedObject.transform.scale = 2;
+
+	boxSystem.addObject(&boundedObject);
 
 	BoundingVolume objectBoundingVolume(&boundedObject);
-
-	box.addObject(&boundedObject);
 
 	window.caputureMouse(true);
 
 	while (!window.shouldClose()) {
-		renderer.beginScene(playerCamera, {});
-
-		floor.draw(renderer);
-
-		box.draw(renderer);
-
-		objectBoundingVolume.draw(renderer);
-
-		box.update(renderer.getDeltaTime());
-
-		playerCamera.update(window, renderer.getDeltaTime());
-
-		renderer.endScene();
-
 		if (window.isKeyClicked(GLFW_KEY_T)) {
-			boundedObject.transform.position[1] = boxDimension * pixelsPerMeter;
+			boundedObject.transform.position[1] =
+				boxDimension - boundedObject.getWorldAABB().max[1] / 2;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_P)) {
@@ -255,23 +237,36 @@ auto main(int argc, char* argv[]) -> int {
 			boundedObject.transform.roll += 0.01;
 		}
 
-		const float speed = 1 * pixelsPerMeter * renderer.getDeltaTime();
+		const float speed = 2 * renderer.getDeltaTime();
 
 		if (window.isKeyPressed(GLFW_KEY_LEFT)) {
-			boundedObject.transform.position[0] -= speed;
+			boundedObject.vel[0] -= speed;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_RIGHT)) {
-			boundedObject.transform.position[0] += speed;
+			boundedObject.vel[0] += speed;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_DOWN)) {
-			boundedObject.transform.position[2] += speed;
+			boundedObject.vel[2] += speed;
 		}
 
 		if (window.isKeyPressed(GLFW_KEY_UP)) {
-			boundedObject.transform.position[2] -= speed;
+			boundedObject.vel[2] -= speed;
 		}
+
+		playerCamera.update(window, renderer.getDeltaTime());
+		boxSystem.update(renderer.getDeltaTime());
+
+		renderer.beginScene(playerCamera, {});
+
+		floor.draw(renderer);
+
+		objectBoundingVolume.draw(renderer);
+
+		boxSystem.draw(renderer);
+
+		renderer.endScene();
 
 		debug(window, renderer, playerCamera);
 	}
