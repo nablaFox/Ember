@@ -37,7 +37,6 @@ public:
 	~Renderer();
 
 public:
-	// TODO: add BeginSceneInfo struct
 	struct SceneInfo {
 		DirectionalLight sun{};
 		Color ambientColor{};

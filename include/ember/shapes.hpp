@@ -30,6 +30,7 @@ struct Square : Mesh {
 	}
 };
 
+// TODO: maybe a non-textured variant with just 8 vertices?
 struct Brick : Mesh {
 	Brick(float width, float height, float depth) : Mesh(24, 36) {
 		for (uint32_t j = 0; j < 3; j++) {
@@ -89,8 +90,6 @@ struct Brick : Mesh {
 	}
 };
 
-// TODO: maybe a non-textured variant with just 8 vertices?
-
 struct Cube : Brick {
 	Cube(float sideLength = 1) : Brick(sideLength, sideLength, sideLength) {}
 };
@@ -125,6 +124,7 @@ struct Circle : Mesh {
 	}
 };
 
+// TODO: maybe also an icosphere variant?
 struct Sphere : Mesh {
 	Sphere(uint32_t precision = 100)
 		: Mesh(square(precision + 1), 6 * square(precision)) {
@@ -176,5 +176,19 @@ struct Sphere : Mesh {
 	}
 };
 
-// TODO: maybe also an icosphere variant?
+struct Pyramid : Mesh {
+	Pyramid(float height = 1, float sideLength = 1) : Mesh(5, 18) {
+		m_vertices[0].position = {0, height, 0};
+
+		m_vertices[1].position = {sideLength / 2, 0, sideLength / 2};
+		m_vertices[2].position = {-sideLength / 2, 0, sideLength / 2};
+		m_vertices[3].position = {-sideLength / 2, 0, -sideLength / 2};
+		m_vertices[4].position = {sideLength / 2, 0, -sideLength / 2};
+
+		m_indices = {
+			0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1, 1, 2, 3, 1, 3, 4,
+		};
+	}
+};
+
 };	// namespace ember

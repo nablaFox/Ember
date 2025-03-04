@@ -14,6 +14,37 @@ float decelerationForce(float height, float mass, float vel) {
 	return (mass * GRAVITY) + (kineticEnergy(mass, vel) / height);
 }
 
+struct RocketShape : Drawable {
+	RocketShape(float width, float height)
+		: m_rocketBody({
+			  .width = width,
+			  .height = height,
+			  .depth = width,
+		  }),
+		  m_rocketWidth(width),
+		  m_rocketHeight(height),
+		  m_rocketNose(height / 3, width * 1.2) {
+		m_rocketNose.setColor(RED);
+	}
+
+	void draw(Renderer& renderer, WorldTransform transform = {}) override {
+		m_rocketBody.draw(renderer, transform);
+
+		renderer.draw(m_rocketNose, {.position = transform.position +
+												 Vec3{0, m_rocketHeight / 2, 0}});
+	}
+
+	float width() const { return m_rocketWidth; }
+	float height() const { return m_rocketHeight; }
+
+private:
+	float m_rocketHeight;
+	float m_rocketWidth;
+
+	OutlinedBrick m_rocketBody;
+	Pyramid m_rocketNose;
+};
+
 auto main(int argc, char* argv[]) -> int {
 	Window window("Basic Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
 	Renderer renderer(window);
@@ -22,7 +53,7 @@ auto main(int argc, char* argv[]) -> int {
 		.fov = 90,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
 		.cameraSpeed = 6.f,
-		.transform = {.position = {0, 0.5, 3}},
+		.transform = {.position = {0, 2, 11}},
 	});
 
 	Camera rocketCamera{
@@ -49,17 +80,13 @@ auto main(int argc, char* argv[]) -> int {
 	const float rocketWidth = 0.75;
 	const float halfRocketHeight = rocketHeight / 2.f;
 
-	OutlinedBrick rocketShape({
-		.width = rocketWidth,
-		.height = rocketHeight,
-		.depth = rocketWidth,
-	});
+	RocketShape rocketShapeTest(rocketWidth, rocketHeight);
 
 	PhysicalObject rocket{
 		.mass = mass,
 		.vel = {0, -initialVelocity, 0},
 		.transform = {.position = {0, height, 0}},
-		.shape = &rocketShape,
+		.shape = &rocketShapeTest,
 	};
 
 	system.addObject(&rocket);
