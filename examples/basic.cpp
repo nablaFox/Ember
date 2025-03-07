@@ -4,7 +4,13 @@ constexpr int WINDOW_WIDTH = 1920;
 constexpr int WINDOW_HEIGHT = 1080;
 
 auto main(int argc, char* argv[]) -> int {
-	Window window("Basic Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
+	Window window({
+		.windowName = "Basic Ember",
+		.width = WINDOW_WIDTH,
+		.height = WINDOW_HEIGHT,
+		.captureMouse = true,
+	});
+
 	Renderer renderer(window);
 
 	FirstPersonCamera playerCamera({
@@ -31,8 +37,6 @@ auto main(int argc, char* argv[]) -> int {
 	OutlinedBrick brick({});
 
 	Floor floor({.color = PURPLE.setAlpha(0.3)});
-
-	window.caputureMouse(true);
 
 	while (!window.shouldClose()) {
 		renderer.beginScene(playerCamera, {});

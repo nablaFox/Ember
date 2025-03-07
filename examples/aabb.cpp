@@ -177,7 +177,13 @@ private:
 };
 
 auto main(int argc, char* argv[]) -> int {
-	Window window("Basic Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
+	Window window({
+		.windowName = "AABB Demo",
+		.width = WINDOW_WIDTH,
+		.height = WINDOW_HEIGHT,
+		.captureMouse = true,
+	});
+
 	Renderer renderer(window);
 
 	constexpr float boxDimension = 10;
@@ -216,8 +222,6 @@ auto main(int argc, char* argv[]) -> int {
 	boxSystem.addObject(&boundedObject);
 
 	BoundingVolume objectBoundingVolume(&boundedObject);
-
-	window.caputureMouse(true);
 
 	while (!window.shouldClose()) {
 		if (window.isKeyClicked(GLFW_KEY_T)) {

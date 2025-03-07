@@ -46,7 +46,13 @@ private:
 };
 
 auto main(int argc, char* argv[]) -> int {
-	Window window("Basic Ember", WINDOW_WIDTH, WINDOW_HEIGHT);
+	Window window({
+		.windowName = "Rocket Demo",
+		.width = WINDOW_WIDTH,
+		.height = WINDOW_HEIGHT,
+		.captureMouse = true,
+	});
+
 	Renderer renderer(window);
 
 	FirstPersonCamera playerCamera({
@@ -75,7 +81,7 @@ auto main(int argc, char* argv[]) -> int {
 
 	const float mass = 11000;
 	const float height = system.meterToWu(300);
-	const float initialVelocity = 20;
+	const float initialVelocity = 40;
 	const float rocketHeight = 1.5;
 	const float rocketWidth = 0.75;
 	const float halfRocketHeight = rocketHeight / 2.f;
@@ -97,8 +103,6 @@ auto main(int argc, char* argv[]) -> int {
 
 	bool hasLanded = false;
 	bool simulating = false;
-
-	window.caputureMouse(true);
 
 	const float dForce = decelerationForce(
 		system.wuToMeter(height - halfRocketHeight), mass, initialVelocity);

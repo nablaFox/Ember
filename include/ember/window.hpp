@@ -8,7 +8,14 @@ namespace ember {
 
 class Window {
 public:
-	Window(const char* windowName, uint32_t width, uint32_t height);
+	struct CreateInfo {
+		const char* windowName{"Window"};
+		uint32_t width{0};
+		uint32_t height{0};
+		bool captureMouse{false};
+	};
+
+	Window(CreateInfo);
 	~Window();
 
 	auto getWidth() const -> uint32_t { return m_width; }
@@ -24,10 +31,7 @@ public:
 	auto mouseDeltaX() const -> double;
 	auto mouseDeltaY() const -> double;
 
-	auto caputureMouse(bool capture) const {
-		glfwSetInputMode(m_window, GLFW_CURSOR,
-						 capture ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-	}
+	auto captureMouse(bool caputre) const -> void;
 
 	auto getWindow() const -> GLFWwindow* { return m_window; }
 
