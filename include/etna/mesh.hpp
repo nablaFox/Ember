@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include "device.hpp"
 #include "ignis/types.hpp"
 #include "math.hpp"
 #include "color.hpp"
@@ -21,6 +22,8 @@ struct Vertex {
 typedef uint32_t Index;
 
 class _Mesh {
+	friend class Engine;
+
 public:
 	struct CreateInfo {
 		std::vector<Vertex> vertices;
@@ -28,19 +31,19 @@ public:
 	};
 
 	struct CreateInfo2 {
-		BufferId vertexBuffer;
-		size_t vertexBufferOffset;
-		BufferId indexBuffer;
-		size_t indexBufferOffset;
+		BufferId vertexBuffer{IGNIS_INVALID_BUFFER_ID};
+		BufferId indexBuffer{IGNIS_INVALID_BUFFER_ID};
+		size_t firstIndex{0};
+		size_t indexCount{0};  // 0 means all
 	};
 
-	~_Mesh();
+	~_Mesh();  // if no engine it will do nothing
 
 private:
-	_Mesh(const Engine, const CreateInfo&);
-	_Mesh(const Engine, const CreateInfo2&);
+	_Mesh(const Engine*, const CreateInfo&);
+	_Mesh(const CreateInfo2&);
 
-	const Engine& engine;
+	ignis::Device* m_device;
 
 	BufferId vertexBuffer;
 	BufferId indexBuffer;

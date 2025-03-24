@@ -1,6 +1,7 @@
 #pragma once
 
-#include "ignis/image.hpp"
+#include <optional>
+#include "ignis/command.hpp"
 
 namespace etna {
 
@@ -8,11 +9,11 @@ class RenderTarget {
 	friend class Engine;
 
 public:
-	// usage(s) will be inferred
+	// usage(s) and load/store ops will be inferred
 	struct CreateInfo {
 		VkExtent2D extent;
-		ignis::ColorFormat colorFormat;
-		ignis::DepthFormat depthFormat;
+		bool hasColor{true};
+		bool hasDepth{true};
 		uint32_t samples{1};
 	};
 
@@ -20,18 +21,15 @@ public:
 
 	~RenderTarget();
 
-	auto getDrawImage() const { return m_drawImage; }
+	auto getDrawAttachment() const { return m_drawAttachment; }
 
-	auto getDepthImage() const { return m_depthImage; }
-
-	auto getResolvedImage() const { return m_resolvedImage; }
+	auto getDepthAttachment() const { return m_depthAttachment; }
 
 	auto getExtent() const { return m_creationInfo.extent; }
 
 protected:
-	ignis::Image* m_drawImage{nullptr};
-	ignis::Image* m_depthImage{nullptr};
-	ignis::Image* m_resolvedImage{nullptr};
+	std::optional<ignis::DrawAttachment> m_drawAttachment;
+	std::optional<ignis::DepthAttachment> m_depthAttachment;
 
 	CreateInfo m_creationInfo;
 };

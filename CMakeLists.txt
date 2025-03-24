@@ -35,9 +35,9 @@ if(NOT ETNA_BUILD_EXAMPLES)
 	return()
 endif()
 
-file(GLOB ETNA_SRC "examples/*.cpp")
+file(GLOB EXAMPLES_SRC "examples/*.cpp")
 
-foreach(ETNA_SRC ${EXAMPLES_SRC})
+foreach(EXAMPLE_SRC ${EXAMPLES_SRC})
 	get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)
 	add_executable(${EXAMPLE_NAME} ${EXAMPLE_SRC})
 	target_link_libraries(${EXAMPLE_NAME} PRIVATE etna)
