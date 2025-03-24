@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace ember {
+namespace etna {
 
 struct Color {
 	float r, g, b, a;
@@ -37,4 +37,4 @@ inline Color BLUE = Color::RGB(110, 150, 252);
 
 inline Color PURPLE = Color::RGB(167, 152, 220);
 
-};	// namespace ember
+};	// namespace etna

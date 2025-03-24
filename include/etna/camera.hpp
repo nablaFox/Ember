@@ -2,14 +2,14 @@
 
 #include "transform.hpp"
 
-namespace ember {
+namespace etna {
 
 struct Camera {
-	float fov = 90.f;
-	float aspect = 1.77f;
-	float near = 0.1f;
-	float far = 100.f;
-	WorldTransform transform{};
+	float fov{90.f};
+	float aspect{1.77f};
+	float near{0.1f};
+	float far{100.f};
+	Transform transform;
 
 	Vec3 forward() const {
 		Vec3 res = {
@@ -30,8 +30,7 @@ struct Camera {
 	void translate(Vec3 translation);
 
 	Mat4 getViewMatrix() {
-		Mat4 viewTranslation =
-			WorldTransform::getTransMatrix(transform.position * -1);
+		Mat4 viewTranslation = Transform::getTransMatrix(transform.position * -1);
 
 		// CHECK shouldn't be transposed?
 		Mat4 viewRotation = transform.getRotMatrix();
@@ -57,4 +56,4 @@ struct Camera {
 	Mat4 getViewProjMatrix() { return getProjMatrix() * getViewMatrix(); }
 };
 
-};	// namespace ember
+}  // namespace etna

@@ -1,13 +1,12 @@
 #pragma once
 
+#include <iomanip>
 #include <array>
 #include <cassert>
 #include <cmath>
-#include <iomanip>
-#include <ios>
 #include <iostream>
 
-namespace ember {
+namespace etna {
 
 template <typename T, std::size_t Rows, std::size_t Cols>
 class Mat {
@@ -235,4 +234,4 @@ T square(T num) {
 	return num * num;
 }
 
-}  // namespace ember
+}  // namespace etna

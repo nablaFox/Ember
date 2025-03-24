@@ -2,12 +2,12 @@
 
 #include "math.hpp"
 
-namespace ember {
+namespace etna {
 
-struct WorldTransform {
-	float scale = 1;
-	float yaw = 0, pitch = 0, roll = 0;
-	Vec3 position = {0, 0, 0};
+struct Transform {
+	float scale{1.f};
+	float yaw{0}, pitch{0}, roll{0};
+	Vec3 position{0, 0, 0};
 
 	Mat4 getWorldMatrix() const {
 		return getTransMatrix() * getScaleMatrix() * getRotMatrix();
@@ -77,4 +77,4 @@ struct WorldTransform {
 	}
 };
 
-}  // namespace ember
+}  // namespace etna
