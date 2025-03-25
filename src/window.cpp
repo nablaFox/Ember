@@ -117,7 +117,6 @@ double Window::mouseDeltaY() {
 
 void Window::swapBuffers() {
 	Image& swapchainImage = m_swapchain->acquireNextImage(m_imageAvailable);
-
 	Image& resolvedImage = *m_resolvedImage;
 
 	m_blitCmd->begin();

@@ -1,8 +1,7 @@
 #pragma once
 
 #include "ignis/command.hpp"
-#include "configs.hpp"
-#include "image.hpp"
+#include "engine.hpp"
 
 namespace etna {
 
@@ -10,7 +9,7 @@ class RenderTarget {
 public:
 	struct CreateInfo {
 		VkExtent2D extent;
-		VkClearColorValue clearColor{ETNA_CLEAR_COLOR};
+		VkClearColorValue clearColor{Engine::ETNA_CLEAR_COLOR};
 		// TODO: bool hasColor{true};
 		bool hasDepth{true};
 		uint32_t samples{1};
@@ -22,6 +21,8 @@ public:
 
 	// PONDER: maybe is the resolved image that is useful to be returned
 	auto getDrawImage() const { return m_drawAttachment.drawImage; }
+
+	auto getResolvedImage() const { return m_resolvedImage; }
 
 	ignis::Image* getDepthImage() const {
 		if (!m_depthAttachment)

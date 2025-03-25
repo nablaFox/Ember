@@ -2,7 +2,7 @@
 
 using namespace etna;
 
-Mesh utils::createSphere(uint32_t precision) {
+Mesh utils::createSphere(Color color, uint32_t precision) {
 	uint32_t vertexCount = square(precision + 1);
 	uint32_t indexCount = 6 * square(precision);
 
@@ -19,7 +19,10 @@ Mesh utils::createSphere(uint32_t precision) {
 			float y = sinf(theta) * sinf(phi);
 			float z = cosf(theta);
 
-			vertices[i * (precision + 1) + j] = Vertex{.position = {x, y, z}};
+			vertices[i * (precision + 1) + j] = Vertex{
+				.position = {x, y, z},
+				.color = color,
+			};
 		}
 	}
 
@@ -55,7 +58,10 @@ Mesh utils::createSphere(uint32_t precision) {
 	}));
 }
 
-Mesh utils::createTexturedBrick(float width, float height, float depth) {
+Mesh utils::createTexturedBrick(float width,
+								float height,
+								float depth,
+								Color color) {
 	std::vector<Vertex> vertices(24);
 
 	for (uint32_t j = 0; j < 3; j++) {
@@ -103,6 +109,10 @@ Mesh utils::createTexturedBrick(float width, float height, float depth) {
 	vertices[22].uv = {1.0f, 0.0f};
 	vertices[21].uv = {1.0f, 1.0f};
 
+	for (auto& vertex : vertices) {
+		vertex.color = color;
+	}
+
 	std::vector<Index> indices = {
 		0,	1,	2,	2,	3,	0,	 // Front
 		4,	5,	6,	6,	7,	4,	 // Back
@@ -116,4 +126,44 @@ Mesh utils::createTexturedBrick(float width, float height, float depth) {
 		.vertices = std::move(vertices),
 		.indices = std::move(indices),
 	}));
+}
+
+Mesh utils::createRectangle(float width, float height, Color color) {
+	std::vector<Vertex> vertices;
+	vertices.resize(4);
+
+	vertices[0] = {
+		.position = {0.5, -0.5, 0},
+		.uv = {1, 0},
+	};
+
+	vertices[1] = {
+		.position = {-0.5, -0.5, 0},
+		.uv = {0, 0},
+	};
+
+	vertices[2] = {
+		.position = {-0.5, 0.5, 0},
+		.uv = {0, 1},
+	};
+
+	vertices[3] = {
+		.position = {0.5, 0.5, 0},
+		.uv = {1, 1},
+	};
+
+	for (auto& vertex : vertices) {
+		vertex.color = color;
+	}
+
+	std::vector<Index> indices = {0, 1, 2, 2, 3, 0};
+
+	return std::shared_ptr<_Mesh>(new _Mesh({
+		.vertices = std::move(vertices),
+		.indices = std::move(indices),
+	}));
+}
+
+Mesh utils::createQuad(Color color) {
+	return createRectangle(1, 1, color);
 }

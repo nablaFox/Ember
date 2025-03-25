@@ -5,13 +5,13 @@ using namespace etna;
 using namespace ignis;
 
 Scene::Scene() {
-	for (uint32_t i{0}; i < ETNA_FRAMES_IN_FLIGHT; i++) {
+	for (uint32_t i{0}; i < Engine::ETNA_FRAMES_IN_FLIGHT; i++) {
 		m_sceneDataBuffers[i] = Engine::getDevice().createSSBO(sizeof(SceneData));
 	}
 }
 
 Scene::~Scene() {
-	for (uint32_t i{0}; i < ETNA_FRAMES_IN_FLIGHT; i++) {
+	for (uint32_t i{0}; i < Engine::ETNA_FRAMES_IN_FLIGHT; i++) {
 		Engine::getDevice().destroyBuffer(m_sceneDataBuffers[i]);
 	}
 }

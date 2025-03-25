@@ -26,9 +26,8 @@ int main(int argc, char* argv[]) {
 
 	Scene scene;
 
-	SceneNode sphere = scene.addMesh(utils::createSphere(), {});
-
-	// SceneConfigs sceneConfigs
+	SceneNode sphere = scene.addMesh(utils::createQuad(),
+									 {.pitch = M_PI / 2, .position = {0, 0, -1}});
 
 	while (!window.shouldClose()) {
 		engine.beginFrame();
@@ -38,6 +37,8 @@ int main(int argc, char* argv[]) {
 		engine.endFrame();
 
 		window.swapBuffers();
+
+		playerCamera.update(window, 0.016f);
 	}
 
 	return 0;

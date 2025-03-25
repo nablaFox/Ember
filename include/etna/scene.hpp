@@ -4,7 +4,7 @@
 #include "material.hpp"
 #include "mesh.hpp"
 #include "transform.hpp"
-#include "configs.hpp"
+#include "engine.hpp"
 
 namespace etna {
 
@@ -42,7 +42,7 @@ private:
 	// TODO: in the future a graph
 	std::vector<SceneNode> m_nodes;
 
-	ignis::BufferId m_sceneDataBuffers[ETNA_FRAMES_IN_FLIGHT];
+	ignis::BufferId m_sceneDataBuffers[Engine::ETNA_FRAMES_IN_FLIGHT];
 };
 
 }  // namespace etna

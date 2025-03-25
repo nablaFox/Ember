@@ -17,7 +17,7 @@ _Material::_Material(const CreateInfo& info) {
 	PipelineCreateInfo pipelineInfo{
 		.device = &device,
 		.shaders = std::move(info.shaders),
-		.colorFormat = ETNA_COLOR_FORMAT,
+		.colorFormat = Engine::ETNA_COLOR_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
@@ -30,7 +30,7 @@ _Material::_Material(const CreateInfo& info) {
 #endif
 
 	if (info.enableDepthTest) {
-		pipelineInfo.depthFormat = ETNA_DEPTH_FORMAT;
+		pipelineInfo.depthFormat = Engine::ETNA_DEPTH_FORMAT;
 		pipelineInfo.enableDepthTest = true;
 		pipelineInfo.enableDepthWrite = true;
 	}

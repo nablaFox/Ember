@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include "ignis/types.hpp"
+#include "ignis/buffer.hpp"
 #include "math.hpp"
 #include "color.hpp"
 
@@ -29,9 +30,9 @@ public:
 
 	~_Mesh();
 
-	auto indexCount() const { return m_indexCount; }
+	uint32_t indexCount() const;
 
-	auto vertexCount() const { return m_vertexCount; }
+	uint32_t vertexCount() const;
 
 	auto getVertexBuffer() const { return m_vertexBuffer; }
 
@@ -39,10 +40,7 @@ public:
 
 private:
 	ignis::BufferId m_vertexBuffer{IGNIS_INVALID_BUFFER_ID};
-	ignis::BufferId m_indexBuffer{IGNIS_INVALID_BUFFER_ID};
-
-	uint32_t m_indexCount{0};
-	uint32_t m_vertexCount{0};
+	ignis::Buffer* m_indexBuffer{nullptr};
 
 public:
 	_Mesh(const _Mesh&) = delete;

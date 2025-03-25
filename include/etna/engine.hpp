@@ -2,8 +2,8 @@
 
 #include "mesh.hpp"
 #include "material.hpp"
+#include "ignis/image.hpp"
 #include "ignis/device.hpp"
-#include "configs.hpp"
 
 namespace etna {
 
@@ -37,11 +37,22 @@ public:
 
 	static ignis::Device& getDevice();
 
+	static VkQueue getGraphicsQueue();
+
+	static VkQueue getUploadQueue();
+
+	static constexpr uint32_t ETNA_FRAMES_IN_FLIGHT{2};
+
+	static constexpr ignis::ColorFormat ETNA_COLOR_FORMAT{
+		ignis::ColorFormat::RGBA16};
+
+	static constexpr ignis::DepthFormat ETNA_DEPTH_FORMAT{
+		ignis::DepthFormat::D32_SFLOAT};
+
+	static constexpr VkClearColorValue ETNA_CLEAR_COLOR{0.02f, 0.02f, 0.02f, 1};
+
 private:
 	_Material* m_defaultMaterial{nullptr};
-
-	uint32_t m_graphicsQueue{0};
-	uint32_t m_uploadQueue{0};
 
 	struct FrameData {
 		ignis::Fence* m_inFlight;
@@ -49,6 +60,7 @@ private:
 	} m_framesData[ETNA_FRAMES_IN_FLIGHT];
 
 	struct PushConstants {
+		Mat4 worldTransform;
 		ignis::BufferId vertices;
 		ignis::BufferId material;
 		ignis::BufferId sceneData;

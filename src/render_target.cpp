@@ -16,7 +16,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	Image* drawImage = new Image(device.createDrawAttachmentImage({
 		.width = info.extent.width,
 		.height = info.extent.height,
-		.format = ETNA_COLOR_FORMAT,
+		.format = Engine::ETNA_COLOR_FORMAT,
 		.sampleCount = static_cast<VkSampleCountFlagBits>(info.samples),
 	}));
 
@@ -31,26 +31,41 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 		m_resolvedImage = new Image(device.createDrawAttachmentImage({
 			.width = info.extent.width,
 			.height = info.extent.height,
-			.format = ETNA_COLOR_FORMAT,
+			.format = Engine::ETNA_COLOR_FORMAT,
 			.sampleCount = VK_SAMPLE_COUNT_1_BIT,
 		}));
 	}
 
-	if (!info.hasDepth)
-		return;
+	if (info.hasDepth) {
+		Image* depthImage = new Image(device.createDepthAttachmentImage({
+			.width = info.extent.width,
+			.height = info.extent.height,
+			.format = Engine::ETNA_DEPTH_FORMAT,
+			.sampleCount = static_cast<VkSampleCountFlagBits>(info.samples),
+		}));
 
-	Image* depthImage = new Image(device.createDepthAttachmentImage({
-		.width = info.extent.width,
-		.height = info.extent.height,
-		.format = ETNA_DEPTH_FORMAT,
-		.sampleCount = static_cast<VkSampleCountFlagBits>(info.samples),
-	}));
+		m_depthAttachment = new DepthAttachment{
+			.depthImage = depthImage,
+			.loadAction = VK_ATTACHMENT_LOAD_OP_CLEAR,
+			.storeAction = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		};
+	}
 
-	m_depthAttachment = new DepthAttachment{
-		.depthImage = depthImage,
-		.loadAction = VK_ATTACHMENT_LOAD_OP_CLEAR,
-		.storeAction = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-	};
+	Command cmd({.device = device, .queue = Engine::getUploadQueue()});
+
+	cmd.begin();
+
+	cmd.transitionToOptimalLayout(*drawImage);
+	cmd.transitionToOptimalLayout(*m_resolvedImage);
+	cmd.transitionToOptimalLayout(*m_depthAttachment->depthImage);
+
+	cmd.end();
+
+	SubmitCmdInfo uploadCmdInfo{.command = cmd};
+
+	device.submitCommands({uploadCmdInfo}, nullptr);
+
+	device.waitIdle();
 }
 
 RenderTarget::~RenderTarget() {

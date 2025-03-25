@@ -11,13 +11,8 @@ using namespace etna;
 using namespace ignis;
 
 Device* g_device = nullptr;
-
-Device& Engine::getDevice() {
-	if (g_device != nullptr)
-		return *g_device;
-
-	throw std::runtime_error("Engine must be initialized to access the GPU device");
-}
+VkQueue g_graphicsQueue;
+VkQueue g_uploadQueue;
 
 Engine::Engine() {
 	glfwInit();
@@ -39,12 +34,16 @@ Engine::Engine() {
 	m_defaultMaterial =
 		new _Material({.shaders = {"default.vert.spv", "default.frag.spv"}});
 
+	// TODO: choose graphics & upload queues
+	g_graphicsQueue = g_device->getQueue(0);
+	g_uploadQueue = g_device->getQueue(0);
+
 	for (uint32_t i{0}; i < ETNA_FRAMES_IN_FLIGHT; i++) {
 		m_framesData[i].m_inFlight = new ignis::Fence(*g_device);
 
 		m_framesData[i].m_cmd = new ignis::Command({
 			.device = *g_device,
-			.queue = g_device->getQueue(m_graphicsQueue),
+			.queue = g_graphicsQueue,
 		});
 	}
 }
@@ -63,6 +62,29 @@ Engine::~Engine() {
 	delete g_device;
 }
 
+Device& Engine::getDevice() {
+	if (g_device != nullptr)
+		return *g_device;
+
+	throw std::runtime_error("Engine must be initialized to access the GPU device");
+}
+
+VkQueue Engine::getGraphicsQueue() {
+	if (g_device != nullptr)
+		return g_graphicsQueue;
+
+	throw std::runtime_error(
+		"Engine must be initialized to access the graphics queue");
+}
+
+VkQueue Engine::getUploadQueue() {
+	if (g_device != nullptr)
+		return g_uploadQueue;
+
+	throw std::runtime_error(
+		"Engine must be initialized to access the upload queue");
+}
+
 void Engine::beginFrame() {
 	getCommand().begin();
 
@@ -72,10 +94,9 @@ void Engine::beginFrame() {
 void Engine::endFrame() {
 	getCommand().end();
 
-	SubmitCmdInfo renderCmdInfo{.command = getCommand()};
+	SubmitCmdInfo cmdInfo{.command = getCommand()};
 
-	g_device->submitCommands({renderCmdInfo},
-							 m_framesData[m_currentFrame].m_inFlight);
+	g_device->submitCommands({cmdInfo}, m_framesData[m_currentFrame].m_inFlight);
 
 	m_framesData[m_currentFrame].m_inFlight->wait();
 
@@ -116,7 +137,6 @@ void Engine::renderScene(const Scene& scene,
 
 	for (const auto& node : scene.getNodes()) {
 		Mesh mesh = node.mesh;
-		Transform transform = *node.transform;
 		Material material = node.material;
 
 		const _Material* materialToUse =
@@ -127,21 +147,27 @@ void Engine::renderScene(const Scene& scene,
 		cmd.bindPipeline(pipeline);
 
 		if (viewport.width == 0) {
+			viewport.x = 0;
 			viewport.width = (float)renderTarget.getExtent().width;
 		}
 
 		if (viewport.height == 0) {
+			viewport.y = 0;
 			viewport.height = (float)renderTarget.getExtent().height;
 		}
+
+		viewport.maxDepth = 1.f;
+		viewport.minDepth = 0.f;
 
 		cmd.setViewport(viewport);
 
 		cmd.setScissor(
 			{0, 0, renderTarget.getExtent().width, renderTarget.getExtent().height});
 
-		cmd.bindIndexBuffer(mesh->getIndexBuffer());
+		cmd.bindIndexBuffer(*mesh->getIndexBuffer());
 
 		m_pushConstants = {
+			.worldTransform = node.transform->getWorldMatrix(),
 			.vertices = mesh->getVertexBuffer(),
 			.material = materialToUse->getParamsUBO(),
 			.sceneData = sceneDataBuff,
@@ -157,7 +183,17 @@ void Engine::renderScene(const Scene& scene,
 	if (!renderTarget.isMultiSampled())
 		return;
 
-	// TODO: resolve image
+	Image& drawImage = *renderTarget.getDrawAttachment().drawImage;
+	Image& resolvedDrawImage = *renderTarget.getResolvedImage();
+
+	cmd.transitionImageLayout(drawImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	cmd.transitionImageLayout(resolvedDrawImage,
+							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	cmd.resolveImage(drawImage, resolvedDrawImage);
+
+	cmd.transitionToOptimalLayout(drawImage);
+	cmd.transitionToOptimalLayout(resolvedDrawImage);
 }
 
 Mesh Engine::createMesh(const _Mesh::CreateInfo& info) {
