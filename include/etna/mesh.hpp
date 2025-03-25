@@ -31,6 +31,8 @@ public:
 
 	~_Mesh();
 
+	uint32_t indexCount() const;
+
 private:
 	_Mesh(const CreateInfo&);
 

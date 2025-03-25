@@ -1,15 +1,15 @@
 #pragma once
 
-#include "ignis/device.hpp"
 #include "image.hpp"
 #include "mesh.hpp"
 #include "material.hpp"
+#include "ignis/command.hpp"
+#include "ignis/fence.hpp"
 
 namespace etna {
 
 struct Camera;
-struct Transform;
-class RenderTarget;
+struct RenderTarget;
 class Scene;
 
 class Engine {
@@ -18,9 +18,14 @@ public:
 
 	~Engine();
 
-	void setCamera(const Camera& camera);
+	void beginFrame();
 
-	void setRenderTarget(RenderTarget*);
+	void endFrame();
+
+	void renderScene(const Scene&,
+					 const RenderTarget&,
+					 const Camera&,
+					 VkViewport = {});
 
 	Mesh createMesh(const _Mesh::CreateInfo&);
 
@@ -51,6 +56,13 @@ private:
 		ignis::Fence* m_inFlight;
 		ignis::Command* m_cmd;
 	} m_framesData[FRAMES_IN_FLIGHT];
+
+	struct PushConstants {
+		Mat4 worldTransform;
+		BufferId vertices;
+		BufferId material;
+		BufferId sceneData;
+	} m_pushConstants;
 
 	uint32_t m_currentFrame{0};
 

@@ -51,7 +51,7 @@ Window window(configs);
 
 Scene scene; // a scene will create an UBO to hold scene data
 
-scene.addObject(mesh, material);
+scene.addMesh(mesh, material);
 
 while (!window.shouldClose()) {
     engine.beginFrame(); // will wait for m_inFlight fence

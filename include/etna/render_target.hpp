@@ -1,6 +1,5 @@
 #pragma once
 
-#include <optional>
 #include "ignis/command.hpp"
 #include "image.hpp"
 
@@ -10,7 +9,7 @@ class RenderTarget {
 public:
 	struct CreateInfo {
 		VkExtent2D extent;
-		bool hasColor{true};
+		// TODO: bool hasColor{true};
 		bool hasDepth{true};
 		uint32_t samples{1};
 	};
@@ -20,27 +19,28 @@ public:
 	~RenderTarget();
 
 	// PONDER: maybe is the resolved image that is useful to be returned
-	std::optional<ignis::Image*> getDrawImage() const {
-		if (!m_drawAttachment)
-			return std::nullopt;
+	auto getDrawImage() const { return m_drawAttachment.drawImage; }
 
-		return m_drawAttachment->drawImage;
-	}
-
-	std::optional<ignis::Image*> getDepthImage() const {
+	ignis::Image* getDepthImage() const {
 		if (!m_depthAttachment)
-			return std::nullopt;
+			return nullptr;
 
 		return m_depthAttachment->depthImage;
 	}
+
+	auto& getDrawAttachment() const { return m_drawAttachment; }
+
+	auto getDepthAttachment() const { return m_depthAttachment; }
 
 	auto getExtent() const { return m_creationInfo.extent; }
 
 	bool isMultiSampled() const { return m_creationInfo.samples > 1; }
 
+	CreateInfo getCreationInfo() const { return m_creationInfo; }
+
 protected:
-	std::optional<ignis::DrawAttachment> m_drawAttachment;
-	std::optional<ignis::DepthAttachment> m_depthAttachment;
+	ignis::DrawAttachment m_drawAttachment;
+	ignis::DepthAttachment* m_depthAttachment;
 	ignis::Image* m_resolvedImage;
 
 	CreateInfo m_creationInfo;

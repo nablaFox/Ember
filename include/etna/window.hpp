@@ -44,11 +44,6 @@ private:
 	double m_lastMouseY;
 
 	std::unordered_map<int, bool> m_prevKeyStates;
-
-	struct FrameData {
-		ignis::Semaphore* m_imageAvailable;
-		ignis::Semaphore* m_renderFinished;
-	} m_framesData[Engine::FRAMES_IN_FLIGHT];
 };
 
 }  // namespace etna

@@ -1,4 +1,5 @@
 #include "material.hpp"
+#include "device.hpp"
 #include "engine.hpp"
 
 using namespace ignis;
@@ -16,17 +17,24 @@ _Material::_Material(const CreateInfo& info) {
 
 	PipelineCreateInfo pipelineInfo{
 		.device = &device,
-		.shaders = info.shaders,
+		.shaders = std::move(info.shaders),
 		.colorFormat = Engine::ETNA_COLOR_FORMAT,
-		.depthFormat = Engine::ETNA_DEPTH_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
 		.sampleCount = device.getMaxSampleCount(),
 		.sampleShadingEnable = device.isFeatureEnabled("SampleRateShading"),
-		.enableDepthTest = true,
-		.enableDepthWrite = true,
 	};
+
+#ifndef NDEBUG
+	depthTest = info.enableDepthTest;
+#endif
+
+	if (info.enableDepthTest) {
+		pipelineInfo.depthFormat = Engine::ETNA_DEPTH_FORMAT;
+		pipelineInfo.enableDepthTest = true;
+		pipelineInfo.enableDepthWrite = true;
+	}
 
 	if (info.transparency) {
 		pipelineInfo.enableDepthWrite = false;
