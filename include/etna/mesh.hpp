@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <vector>
-#include "device.hpp"
 #include "ignis/types.hpp"
 #include "math.hpp"
 #include "color.hpp"
@@ -30,20 +29,10 @@ public:
 		std::vector<Index> indices;
 	};
 
-	struct CreateInfo2 {
-		BufferId vertexBuffer{IGNIS_INVALID_BUFFER_ID};
-		BufferId indexBuffer{IGNIS_INVALID_BUFFER_ID};
-		size_t firstIndex{0};
-		size_t indexCount{0};  // 0 means all
-	};
-
-	~_Mesh();  // if no engine it will do nothing
+	~_Mesh();
 
 private:
-	_Mesh(const Engine*, const CreateInfo&);
-	_Mesh(const CreateInfo2&);
-
-	ignis::Device* m_device;
+	_Mesh(const CreateInfo&);
 
 	BufferId vertexBuffer;
 	BufferId indexBuffer;

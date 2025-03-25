@@ -1,7 +1,7 @@
 #version 450
 #extension GL_GOOGLE_include_directive : require
 
-#include "ember.glsl"
+#include "etna.glsl"
 
 layout(location = 0) out vec4 outColor;
 layout(location = 1) out vec2 outUV;

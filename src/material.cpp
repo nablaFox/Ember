@@ -5,25 +5,25 @@ using namespace ignis;
 
 namespace etna {
 
-_Material::_Material(const Engine* engine, const CreateInfo& info)
-	: m_device(engine->getDevice()) {
+_Material::_Material(const CreateInfo& info) {
 	CreateInfo actualInfo = info;
+	Device& device = Engine::getDevice();
 
 	if (info.polygonMode != VK_POLYGON_MODE_FILL &&
-		!m_device.isFeatureEnabled("FillModeNonSolid")) {
+		!device.isFeatureEnabled("FillModeNonSolid")) {
 		actualInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	}
 
 	PipelineCreateInfo pipelineInfo{
-		.device = &m_device,
+		.device = &device,
 		.shaders = info.shaders,
 		.colorFormat = Engine::ETNA_COLOR_FORMAT,
 		.depthFormat = Engine::ETNA_DEPTH_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
-		.sampleCount = m_device.getMaxSampleCount(),
-		.sampleShadingEnable = m_device.isFeatureEnabled("SampleRateShading"),
+		.sampleCount = device.getMaxSampleCount(),
+		.sampleShadingEnable = device.isFeatureEnabled("SampleRateShading"),
 		.enableDepthTest = true,
 		.enableDepthWrite = true,
 	};
@@ -42,12 +42,13 @@ _Material::_Material(const Engine* engine, const CreateInfo& info)
 		return;
 	}
 
-	m_paramsUBO = m_device.createUBO(info.paramsSize, info.paramsData);
+	m_paramsUBO = device.createUBO(info.paramsSize, info.paramsData);
 }
 
 _Material::~_Material() {
 	delete m_pipeline;
-	m_device.destroyBuffer(m_paramsUBO);
+
+	Engine::getDevice().destroyBuffer(m_paramsUBO);
 }
 
 }  // namespace etna

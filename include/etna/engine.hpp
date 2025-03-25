@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ignis/types.hpp"
 #include "ignis/device.hpp"
 #include "image.hpp"
 #include "mesh.hpp"
@@ -11,6 +10,7 @@ namespace etna {
 struct Camera;
 struct Transform;
 class RenderTarget;
+class Scene;
 
 class Engine {
 public:
@@ -18,30 +18,21 @@ public:
 
 	~Engine();
 
-	void beginFrame();
-
-	void endFrame();
-
 	void setCamera(const Camera& camera);
 
 	void setRenderTarget(RenderTarget*);
-
-	void draw(const Mesh, Transform, const Material = nullptr);
-
-	void drawInstanced(BufferId,
-					   const Mesh,
-					   const Material);	 // TODO: move into ignis ns
 
 	Mesh createMesh(const _Mesh::CreateInfo&);
 
 	Material createMaterial(const _Material::CreateInfo&);
 
-	Mesh createSphere();
+	ignis::Command& getCommand() const {
+		return *m_framesData[m_currentFrame].m_cmd;
+	}
 
-	Mesh createCube();
+	static ignis::Device& getDevice();
 
-	ignis::Device& getDevice() const { return *m_device; }
-
+public:
 	static constexpr uint32_t FRAMES_IN_FLIGHT{2};
 
 	static constexpr ignis::ColorFormat ETNA_COLOR_FORMAT{
@@ -51,22 +42,17 @@ public:
 		ignis::DepthFormat::D32_SFLOAT};
 
 private:
-	ignis::Device* m_device{nullptr};
 	_Material* m_defaultMaterial{nullptr};
-	BufferId m_primitiveVertices{IGNIS_INVALID_BUFFER_ID};
-	BufferId m_primitiveIndices{IGNIS_INVALID_BUFFER_ID};
 
 	uint32_t m_graphicsQueue{0};
 	uint32_t m_uploadQueue{0};
 
-	RenderTarget* m_currentRenderTarget{nullptr};
-
 	struct FrameData {
-		ignis::Semaphore* m_imageAvailable;
-		ignis::Semaphore* m_renderFinished;
 		ignis::Fence* m_inFlight;
 		ignis::Command* m_cmd;
-	} frames[FRAMES_IN_FLIGHT];
+	} m_framesData[FRAMES_IN_FLIGHT];
+
+	uint32_t m_currentFrame{0};
 
 public:
 	Engine(const Engine&) = delete;

@@ -6,8 +6,6 @@
 
 namespace etna {
 
-class Engine;
-
 class _Material {
 	friend class Engine;
 
@@ -30,9 +28,7 @@ public:
 	auto getParamsUBO() const { return m_paramsUBO; }
 
 private:
-	_Material(const Engine*, const CreateInfo&);
-
-	ignis::Device& m_device;
+	_Material(const CreateInfo&);
 
 	BufferId m_paramsUBO{IGNIS_INVALID_BUFFER_ID};
 	ignis::Pipeline* m_pipeline{nullptr};
