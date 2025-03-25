@@ -9,6 +9,6 @@ layout(location = 1) out vec2 outUV;
 void main() {	
     gl_Position = SCENE.viewproj * pc.worldTransform * vec4(V.position, 1.0f);
 
-    outColor = V.color;
+	outColor = V.color;
 	outUV = V.uv;
 }

@@ -9,7 +9,6 @@ class RenderTarget {
 public:
 	struct CreateInfo {
 		VkExtent2D extent;
-		VkClearColorValue clearColor{Engine::ETNA_CLEAR_COLOR};
 		// TODO: bool hasColor{true};
 		bool hasDepth{true};
 		uint32_t samples{1};
@@ -19,21 +18,11 @@ public:
 
 	~RenderTarget();
 
-	// PONDER: maybe is the resolved image that is useful to be returned
-	auto getDrawImage() const { return m_drawAttachment.drawImage; }
+	auto getDrawImage() const { return m_drawImage; }
 
 	auto getResolvedImage() const { return m_resolvedImage; }
 
-	ignis::Image* getDepthImage() const {
-		if (!m_depthAttachment)
-			return nullptr;
-
-		return m_depthAttachment->depthImage;
-	}
-
-	auto& getDrawAttachment() const { return m_drawAttachment; }
-
-	auto getDepthAttachment() const { return m_depthAttachment; }
+	auto getDepthImage() const { return m_depthImage; }
 
 	auto getExtent() const { return m_creationInfo.extent; }
 
@@ -42,8 +31,8 @@ public:
 	CreateInfo getCreationInfo() const { return m_creationInfo; }
 
 protected:
-	ignis::DrawAttachment m_drawAttachment;
-	ignis::DepthAttachment* m_depthAttachment;
+	ignis::Image* m_drawImage;
+	ignis::Image* m_depthImage;
 	ignis::Image* m_resolvedImage;
 
 	CreateInfo m_creationInfo;

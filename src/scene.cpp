@@ -16,10 +16,10 @@ Scene::~Scene() {
 	}
 }
 
-SceneNode Scene::addMesh(const Mesh mesh,
-						 Transform transform,
-						 const Material material) {
-	m_nodes.push_back({.transform = &transform, .material = material, .mesh = mesh});
+SceneNode& Scene::addMesh(const Mesh mesh,
+						  Transform transform,
+						  const Material material) {
+	m_nodes.push_back({.transform = transform, .material = material, .mesh = mesh});
 
 	return m_nodes.back();
 }

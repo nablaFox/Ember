@@ -12,6 +12,15 @@ struct RenderTarget;
 class Scene;
 struct SceneData;
 
+struct RenderSettings {
+	VkViewport viewport{};
+	Color clearColor{0.02f, 0.02f, 0.02f, 1};  // TODO: use ETNA_CLEAR_COLOR
+	VkAttachmentStoreOp colorStoreOp{VK_ATTACHMENT_STORE_OP_STORE};
+	VkAttachmentStoreOp depthStoreOp{VK_ATTACHMENT_STORE_OP_DONT_CARE};
+	VkAttachmentLoadOp colorLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
+	VkAttachmentLoadOp depthLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
+};
+
 class Engine {
 public:
 	Engine();
@@ -25,7 +34,7 @@ public:
 	void renderScene(const Scene&,
 					 const RenderTarget&,
 					 const Camera&,
-					 VkViewport = {});
+					 const RenderSettings = {});
 
 	Mesh createMesh(const _Mesh::CreateInfo&);
 
@@ -49,7 +58,7 @@ public:
 	static constexpr ignis::DepthFormat ETNA_DEPTH_FORMAT{
 		ignis::DepthFormat::D32_SFLOAT};
 
-	static constexpr VkClearColorValue ETNA_CLEAR_COLOR{0.02f, 0.02f, 0.02f, 1};
+	static constexpr Color ETNA_CLEAR_COLOR{0.02f, 0.02f, 0.02f, 1};
 
 private:
 	_Material* m_defaultMaterial{nullptr};

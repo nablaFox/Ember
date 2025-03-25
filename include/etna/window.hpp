@@ -25,13 +25,15 @@ public:
 	bool isKeyPressed(int key) const;
 	bool isKeyClicked(int key);
 
-	double getMouseX() const;
-	double getMouseY() const;
+	float getMouseX() const;
+	float getMouseY() const;
 
-	double mouseDeltaX();
-	double mouseDeltaY();
+	float mouseDeltaX();
+	float mouseDeltaY();
 
 	void swapBuffers();
+
+	void setCaptureMouse(bool capture);
 
 private:
 	ignis::Swapchain* m_swapchain;
@@ -39,8 +41,8 @@ private:
 	VkSurfaceKHR m_surface;
 	CreateInfo m_creationInfo;
 
-	double m_lastMouseX;
-	double m_lastMouseY;
+	float m_lastMouseX{0};
+	float m_lastMouseY{0};
 
 	std::unordered_map<int, bool> m_prevKeyStates;
 

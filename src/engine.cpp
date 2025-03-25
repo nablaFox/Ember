@@ -106,8 +106,10 @@ void Engine::endFrame() {
 void Engine::renderScene(const Scene& scene,
 						 const RenderTarget& renderTarget,
 						 const Camera& camera,
-						 VkViewport viewport) {
+						 const RenderSettings sceneInfo) {
 	Command& cmd = getCommand();
+	VkViewport viewport = sceneInfo.viewport;
+	Color clearColor = sceneInfo.clearColor;
 
 	// update current scene data ubo
 	BufferId sceneDataBuff = scene.getSceneDataBuff(m_currentFrame);
@@ -118,8 +120,26 @@ void Engine::renderScene(const Scene& scene,
 
 	cmd.updateBuffer(sceneDataBuff, &sceneData);
 
-	cmd.beginRender(&renderTarget.getDrawAttachment(),
-					renderTarget.getDepthAttachment());
+	VkClearColorValue clearColorValue = {clearColor.r, clearColor.g, clearColor.b,
+										 clearColor.a};
+
+	DrawAttachment* drawAttachment = new DrawAttachment({
+		.drawImage = renderTarget.getDrawImage(),
+		.loadAction = sceneInfo.colorLoadOp,
+		.storeAction = sceneInfo.colorStoreOp,
+		.clearColor = clearColorValue,
+	});
+
+	DepthAttachment* depthAttachment =
+		renderTarget.getCreationInfo().hasDepth
+			? new DepthAttachment({
+				  .depthImage = renderTarget.getDepthImage(),
+				  .loadAction = sceneInfo.depthLoadOp,
+				  .storeAction = sceneInfo.depthStoreOp,
+			  })
+			: nullptr;
+
+	cmd.beginRender(drawAttachment, depthAttachment);
 
 #ifndef NDEBUG
 	for (const auto& node : scene.getNodes()) {
@@ -167,7 +187,7 @@ void Engine::renderScene(const Scene& scene,
 		cmd.bindIndexBuffer(*mesh->getIndexBuffer());
 
 		m_pushConstants = {
-			.worldTransform = node.transform->getWorldMatrix(),
+			.worldTransform = node.transform.getWorldMatrix(),
 			.vertices = mesh->getVertexBuffer(),
 			.material = materialToUse->getParamsUBO(),
 			.sceneData = sceneDataBuff,
@@ -183,7 +203,7 @@ void Engine::renderScene(const Scene& scene,
 	if (!renderTarget.isMultiSampled())
 		return;
 
-	Image& drawImage = *renderTarget.getDrawAttachment().drawImage;
+	Image& drawImage = *renderTarget.getDrawImage();
 	Image& resolvedDrawImage = *renderTarget.getResolvedImage();
 
 	cmd.transitionImageLayout(drawImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);

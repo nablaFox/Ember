@@ -45,6 +45,8 @@ Window::Window(const CreateInfo& info)
 	m_imageAvailable = new Semaphore(device);
 
 	m_finishedBlitting = new Semaphore(device);
+
+	setCaptureMouse(info.captureMouse);
 }
 
 Window::~Window() {
@@ -87,19 +89,19 @@ bool Window::isKeyClicked(int key) {
 	return clicked;
 }
 
-double Window::getMouseX() const {
+float Window::getMouseX() const {
 	double x, y;
 	glfwGetCursorPos(m_window, &x, &y);
 	return x;
 }
 
-double Window::getMouseY() const {
+float Window::getMouseY() const {
 	double x, y;
 	glfwGetCursorPos(m_window, &x, &y);
 	return y;
 }
 
-double Window::mouseDeltaX() {
+float Window::mouseDeltaX() {
 	float toReturn = getMouseX() - m_lastMouseX;
 
 	m_lastMouseX = getMouseX();
@@ -107,7 +109,7 @@ double Window::mouseDeltaX() {
 	return toReturn;
 }
 
-double Window::mouseDeltaY() {
+float Window::mouseDeltaY() {
 	float toReturn = getMouseY() - m_lastMouseY;
 
 	m_lastMouseY = getMouseY();
@@ -144,4 +146,13 @@ void Window::swapBuffers() {
 	Engine::getDevice().submitCommands({blitCmdInfo}, nullptr);
 
 	m_swapchain->presentCurrent({.waitSemaphores = {m_finishedBlitting}});
+}
+
+void Window::setCaptureMouse(bool capture) {
+	if (capture) {
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		return;
+	}
+
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }

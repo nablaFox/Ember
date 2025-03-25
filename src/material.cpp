@@ -6,13 +6,7 @@ using namespace ignis;
 namespace etna {
 
 _Material::_Material(const CreateInfo& info) {
-	CreateInfo actualInfo = info;
 	Device& device = Engine::getDevice();
-
-	if (info.polygonMode != VK_POLYGON_MODE_FILL &&
-		!device.isFeatureEnabled("FillModeNonSolid")) {
-		actualInfo.polygonMode = VK_POLYGON_MODE_FILL;
-	}
 
 	PipelineCreateInfo pipelineInfo{
 		.device = &device,
@@ -25,11 +19,12 @@ _Material::_Material(const CreateInfo& info) {
 		.sampleShadingEnable = device.isFeatureEnabled("SampleRateShading"),
 	};
 
-#ifndef NDEBUG
-	depthTest = info.enableDepthTest;
-#endif
+	if (info.polygonMode != VK_POLYGON_MODE_FILL &&
+		!device.isFeatureEnabled("FillModeNonSolid")) {
+		pipelineInfo.polygonMode = VK_POLYGON_MODE_FILL;
+	}
 
-	if (info.enableDepthTest) {
+	if (info.enableDepth) {
 		pipelineInfo.depthFormat = Engine::ETNA_DEPTH_FORMAT;
 		pipelineInfo.enableDepthTest = true;
 		pipelineInfo.enableDepthWrite = true;
@@ -44,6 +39,10 @@ _Material::_Material(const CreateInfo& info) {
 	}
 
 	m_pipeline = new Pipeline(pipelineInfo);
+
+#ifndef NDEBUG
+	m_hasDepth = info.enableDepth;
+#endif
 
 	if (info.paramsSize == 0) {
 		return;

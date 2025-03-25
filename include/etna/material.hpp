@@ -12,7 +12,7 @@ public:
 		std::vector<std::string> shaders;
 		size_t paramsSize{0};
 		void* paramsData{nullptr};
-		bool enableDepthTest{true};
+		bool enableDepth{true};
 		bool transparency{false};
 		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
 		float lineWidth{1.0f};
@@ -29,7 +29,7 @@ public:
 	auto getParamsUBO() const { return m_paramsUBO; }
 
 #ifndef NDEBUG
-	auto hasDepthTest() const { return depthTest; }
+	auto hasDepthTest() const { return m_hasDepth; }
 #endif
 
 private:
@@ -37,7 +37,7 @@ private:
 	ignis::Pipeline* m_pipeline{nullptr};
 
 #ifndef NDEBUG
-	bool depthTest;
+	bool m_hasDepth;
 #endif
 
 public:

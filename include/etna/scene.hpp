@@ -9,13 +9,14 @@
 namespace etna {
 
 struct SceneNode {
-	Transform* transform;
+	Transform transform;
 	Material material;
 	Mesh mesh;
 };
 
 struct DirectionalLight {
 	Vec3 direction;
+	float padding;
 	Color color;
 };
 
@@ -30,7 +31,7 @@ public:
 	Scene();
 	~Scene();
 
-	SceneNode addMesh(const Mesh, Transform, const Material = nullptr);
+	SceneNode& addMesh(const Mesh, Transform, const Material = nullptr);
 
 	const std::vector<SceneNode>& getNodes() const { return m_nodes; }
 

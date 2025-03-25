@@ -87,5 +87,9 @@ struct FirstPersonCamera : Camera {
 		if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
 			position -= up * cameraSpeed * deltaTime;
 		}
+
+		if (window.isKeyPressed(GLFW_KEY_ESCAPE)) {
+			window.setCaptureMouse(false);
+		}
 	}
 };
