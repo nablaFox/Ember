@@ -1,4 +1,7 @@
 #include "shared.hpp"
+#include "engine.hpp"
+#include "scene.hpp"
+#include "primitives.hpp"
 
 using namespace etna;
 
@@ -21,7 +24,19 @@ int main(int argc, char* argv[]) {
 		.transform = {.position = {0, 1, 0}},
 	});
 
+	Scene scene;
+
+	SceneNode sphere = scene.addMesh(utils::createSphere(), {});
+
+	// SceneConfigs sceneConfigs
+
 	while (!window.shouldClose()) {
+		engine.beginFrame();
+
+		engine.renderScene(scene, window, playerCamera);
+
+		engine.endFrame();
+
 		window.swapBuffers();
 	}
 

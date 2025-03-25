@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ignis/command.hpp"
+#include "configs.hpp"
 #include "image.hpp"
 
 namespace etna {
@@ -9,6 +10,7 @@ class RenderTarget {
 public:
 	struct CreateInfo {
 		VkExtent2D extent;
+		VkClearColorValue clearColor{ETNA_CLEAR_COLOR};
 		// TODO: bool hasColor{true};
 		bool hasDepth{true};
 		uint32_t samples{1};

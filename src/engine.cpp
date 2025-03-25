@@ -1,8 +1,10 @@
 #include <GLFW/glfw3.h>
 #include "ignis/device.hpp"
+#include "ignis/command.hpp"
+#include "ignis/fence.hpp"
 #include "engine.hpp"
 #include "scene.hpp"
-#include "transform.hpp"
+#include "camera.hpp"
 #include "render_target.hpp"
 
 using namespace etna;
@@ -37,7 +39,7 @@ Engine::Engine() {
 	m_defaultMaterial =
 		new _Material({.shaders = {"default.vert.spv", "default.frag.spv"}});
 
-	for (uint32_t i{0}; i < FRAMES_IN_FLIGHT; i++) {
+	for (uint32_t i{0}; i < ETNA_FRAMES_IN_FLIGHT; i++) {
 		m_framesData[i].m_inFlight = new ignis::Fence(*g_device);
 
 		m_framesData[i].m_cmd = new ignis::Command({
@@ -48,10 +50,14 @@ Engine::Engine() {
 }
 
 Engine::~Engine() {
-	// TODO: use m_device->waitIdle() from ignis
-	vkDeviceWaitIdle(g_device->getDevice());
+	g_device->waitIdle();
 
 	glfwTerminate();
+
+	for (uint32_t i{0}; i < ETNA_FRAMES_IN_FLIGHT; i++) {
+		delete m_framesData[i].m_inFlight;
+		delete m_framesData[i].m_cmd;
+	}
 
 	delete m_defaultMaterial;
 	delete g_device;
@@ -64,14 +70,16 @@ void Engine::beginFrame() {
 }
 
 void Engine::endFrame() {
+	getCommand().end();
+
 	SubmitCmdInfo renderCmdInfo{.command = getCommand()};
 
 	g_device->submitCommands({renderCmdInfo},
 							 m_framesData[m_currentFrame].m_inFlight);
 
-	m_currentFrame = (m_currentFrame + 1) % FRAMES_IN_FLIGHT;
-
 	m_framesData[m_currentFrame].m_inFlight->wait();
+
+	m_currentFrame = (m_currentFrame + 1) % ETNA_FRAMES_IN_FLIGHT;
 }
 
 void Engine::renderScene(const Scene& scene,
@@ -79,6 +87,15 @@ void Engine::renderScene(const Scene& scene,
 						 const Camera& camera,
 						 VkViewport viewport) {
 	Command& cmd = getCommand();
+
+	// update current scene data ubo
+	BufferId sceneDataBuff = scene.getSceneDataBuff(m_currentFrame);
+
+	SceneData sceneData = {
+		.viewproj = camera.getViewProjMatrix(),
+	};
+
+	cmd.updateBuffer(sceneDataBuff, &sceneData);
 
 	cmd.beginRender(&renderTarget.getDrawAttachment(),
 					renderTarget.getDepthAttachment());
@@ -122,13 +139,12 @@ void Engine::renderScene(const Scene& scene,
 		cmd.setScissor(
 			{0, 0, renderTarget.getExtent().width, renderTarget.getExtent().height});
 
-		cmd.bindIndexBuffer(mesh->indexBuffer);
+		cmd.bindIndexBuffer(mesh->getIndexBuffer());
 
 		m_pushConstants = {
-			.worldTransform = transform.getWorldMatrix(),
-			.vertices = mesh->vertexBuffer,
+			.vertices = mesh->getVertexBuffer(),
 			.material = materialToUse->getParamsUBO(),
-			.sceneData = scene.getSceneDataUBO(),
+			.sceneData = sceneDataBuff,
 		};
 
 		cmd.pushConstants(pipeline, m_pushConstants);
@@ -142,4 +158,12 @@ void Engine::renderScene(const Scene& scene,
 		return;
 
 	// TODO: resolve image
+}
+
+Mesh Engine::createMesh(const _Mesh::CreateInfo& info) {
+	return std::shared_ptr<_Mesh>(new _Mesh(info));
+}
+
+Material Engine::createMaterial(const _Material::CreateInfo& info) {
+	return std::shared_ptr<_Material>(new _Material(info));
 }

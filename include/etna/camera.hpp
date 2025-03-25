@@ -29,7 +29,7 @@ struct Camera {
 
 	void translate(Vec3 translation);
 
-	Mat4 getViewMatrix() {
+	Mat4 getViewMatrix() const {
 		Mat4 viewTranslation = Transform::getTransMatrix(transform.position * -1);
 
 		// CHECK shouldn't be transposed?
@@ -38,7 +38,7 @@ struct Camera {
 		return viewRotation * viewTranslation;
 	};
 
-	Mat4 getProjMatrix() {
+	Mat4 getProjMatrix() const {
 		const float fovAngle = fov * M_PI / 180;
 
 		const float top = near * tanf(fovAngle / 2);
@@ -53,7 +53,7 @@ struct Camera {
 		};
 	}
 
-	Mat4 getViewProjMatrix() { return getProjMatrix() * getViewMatrix(); }
+	Mat4 getViewProjMatrix() const { return getProjMatrix() * getViewMatrix(); }
 };
 
 }  // namespace etna

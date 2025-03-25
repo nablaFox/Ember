@@ -3,17 +3,26 @@
 #include "ignis/types.hpp"
 #include "material.hpp"
 #include "mesh.hpp"
+#include "transform.hpp"
+#include "configs.hpp"
 
 namespace etna {
-
-struct Transform;
-
-struct RenderSceneInfo {};
 
 struct SceneNode {
 	Transform* transform;
 	Material material;
 	Mesh mesh;
+};
+
+struct DirectionalLight {
+	Vec3 direction;
+	Color color;
+};
+
+struct SceneData {
+	Mat4 viewproj;
+	Color ambientColor;
+	DirectionalLight sun;
 };
 
 class Scene {
@@ -25,12 +34,15 @@ public:
 
 	const std::vector<SceneNode>& getNodes() const { return m_nodes; }
 
-	auto getSceneDataUBO() const { return sceneDataUBO; }
+	auto getSceneDataBuff(uint32_t currFrame) const {
+		return m_sceneDataBuffers[currFrame];
+	}
 
 private:
 	// TODO: in the future a graph
 	std::vector<SceneNode> m_nodes;
-	BufferId sceneDataUBO;
+
+	ignis::BufferId m_sceneDataBuffers[ETNA_FRAMES_IN_FLIGHT];
 };
 
 }  // namespace etna

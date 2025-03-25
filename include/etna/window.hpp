@@ -4,11 +4,10 @@
 #include <unordered_map>
 #include "ignis/swapchain.hpp"
 #include "render_target.hpp"
-#include "engine.hpp"
 
 namespace etna {
 
-class Window : RenderTarget {
+class Window : public RenderTarget {
 public:
 	struct CreateInfo {
 		uint32_t width{0};
@@ -44,6 +43,10 @@ private:
 	double m_lastMouseY;
 
 	std::unordered_map<int, bool> m_prevKeyStates;
+
+	ignis::Command* m_blitCmd;
+	ignis::Semaphore* m_imageAvailable;
+	ignis::Semaphore* m_finishedBlitting;
 };
 
 }  // namespace etna

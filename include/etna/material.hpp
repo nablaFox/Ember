@@ -7,8 +7,6 @@
 namespace etna {
 
 class _Material {
-	friend class Engine;
-
 public:
 	struct CreateInfo {
 		std::vector<std::string> shaders;
@@ -19,6 +17,8 @@ public:
 		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
 		float lineWidth{1.0f};
 	};
+
+	_Material(const CreateInfo&);
 
 	~_Material();
 
@@ -33,9 +33,7 @@ public:
 #endif
 
 private:
-	_Material(const CreateInfo&);
-
-	BufferId m_paramsUBO{IGNIS_INVALID_BUFFER_ID};
+	ignis::BufferId m_paramsUBO{IGNIS_INVALID_BUFFER_ID};
 	ignis::Pipeline* m_pipeline{nullptr};
 
 #ifndef NDEBUG

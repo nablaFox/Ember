@@ -1,16 +1,16 @@
 #pragma once
 
-#include "image.hpp"
 #include "mesh.hpp"
 #include "material.hpp"
-#include "ignis/command.hpp"
-#include "ignis/fence.hpp"
+#include "ignis/device.hpp"
+#include "configs.hpp"
 
 namespace etna {
 
 struct Camera;
 struct RenderTarget;
 class Scene;
+struct SceneData;
 
 class Engine {
 public:
@@ -37,15 +37,6 @@ public:
 
 	static ignis::Device& getDevice();
 
-public:
-	static constexpr uint32_t FRAMES_IN_FLIGHT{2};
-
-	static constexpr ignis::ColorFormat ETNA_COLOR_FORMAT{
-		ignis::ColorFormat::RGBA16};
-
-	static constexpr ignis::DepthFormat ETNA_DEPTH_FORMAT{
-		ignis::DepthFormat::D32_SFLOAT};
-
 private:
 	_Material* m_defaultMaterial{nullptr};
 
@@ -55,13 +46,12 @@ private:
 	struct FrameData {
 		ignis::Fence* m_inFlight;
 		ignis::Command* m_cmd;
-	} m_framesData[FRAMES_IN_FLIGHT];
+	} m_framesData[ETNA_FRAMES_IN_FLIGHT];
 
 	struct PushConstants {
-		Mat4 worldTransform;
-		BufferId vertices;
-		BufferId material;
-		BufferId sceneData;
+		ignis::BufferId vertices;
+		ignis::BufferId material;
+		ignis::BufferId sceneData;
 	} m_pushConstants;
 
 	uint32_t m_currentFrame{0};

@@ -8,8 +8,6 @@
 
 namespace etna {
 
-class Engine;
-
 struct Vertex {
 	Vec3 position;
 	float padding;
@@ -21,23 +19,30 @@ struct Vertex {
 typedef uint32_t Index;
 
 class _Mesh {
-	friend class Engine;
-
 public:
 	struct CreateInfo {
 		std::vector<Vertex> vertices;
 		std::vector<Index> indices;
 	};
 
-	~_Mesh();
-
-	uint32_t indexCount() const;
-
-private:
 	_Mesh(const CreateInfo&);
 
-	BufferId vertexBuffer;
-	BufferId indexBuffer;
+	~_Mesh();
+
+	auto indexCount() const { return m_indexCount; }
+
+	auto vertexCount() const { return m_vertexCount; }
+
+	auto getVertexBuffer() const { return m_vertexBuffer; }
+
+	auto getIndexBuffer() const { return m_indexBuffer; }
+
+private:
+	ignis::BufferId m_vertexBuffer{IGNIS_INVALID_BUFFER_ID};
+	ignis::BufferId m_indexBuffer{IGNIS_INVALID_BUFFER_ID};
+
+	uint32_t m_indexCount{0};
+	uint32_t m_vertexCount{0};
 
 public:
 	_Mesh(const _Mesh&) = delete;
