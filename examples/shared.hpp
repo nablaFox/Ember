@@ -1,6 +1,7 @@
 #pragma once
 
 #include "camera.hpp"
+#include "scene.hpp"
 #include "window.hpp"
 
 using namespace etna;
@@ -91,5 +92,50 @@ struct FirstPersonCamera : Camera {
 		if (window.isKeyPressed(GLFW_KEY_ESCAPE)) {
 			window.setCaptureMouse(false);
 		}
+
+		if (window.isKeyPressed(GLFW_KEY_ENTER)) {
+			window.setCaptureMouse(true);
+		}
+	}
+};
+
+// Floor is an example of a model
+// we can model a model with a DAG
+struct Floor : SceneNode {
+	static constexpr float floorScale = 1000;
+
+	struct CreateInfo {
+		Color color{};
+		float gridSize{1};
+		float lineThickness{0.02};
+		float height{0};
+	};
+
+	Floor(const CreateInfo& info) {
+		MeshHandle mainGrid = Engine::createQuad(INVISIBLE);
+
+		MeshHandle subGrid = Engine::createQuad(INVISIBLE);
+
+		MaterialHandle mainGridMaterial = Engine::createTransparentGridMaterial({
+			.color = info.color,
+			.gridSpacing = info.gridSize / floorScale,
+			.thickness = info.lineThickness / floorScale,
+		});
+
+		MaterialHandle subGridMaterial = Engine::createTransparentGridMaterial({
+			.color = info.color * 0.8,
+			.gridSpacing = info.gridSize / (floorScale * 2.f),
+			.thickness = info.lineThickness / floorScale,
+		});
+
+		this->mesh = mainGrid;
+
+		this->transform = {.scale = floorScale,
+						   .pitch = -M_PI / 2,
+						   .position = {0, info.height, 0}};
+
+		this->material = mainGridMaterial;
+
+		// TODO: add subgrid
 	}
 };

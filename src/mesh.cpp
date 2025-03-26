@@ -5,7 +5,7 @@
 using namespace etna;
 using namespace ignis;
 
-_Mesh::_Mesh(const CreateInfo& info) {
+Mesh::Mesh(const CreateInfo& info) {
 	auto& device = Engine::getDevice();
 
 	// PONDER: maybe we can query here the appropriate queue for the upload instead
@@ -31,17 +31,21 @@ _Mesh::_Mesh(const CreateInfo& info) {
 	device.waitIdle();
 }
 
-_Mesh::~_Mesh() {
+Mesh::~Mesh() {
 	auto& device = Engine::getDevice();
 
 	device.destroyBuffer(m_vertexBuffer);
 	delete m_indexBuffer;
 }
 
-uint32_t _Mesh::indexCount() const {
+MeshHandle Mesh::create(const CreateInfo& info) {
+	return std::shared_ptr<Mesh>(new Mesh(info));
+}
+
+uint32_t Mesh::indexCount() const {
 	return m_indexBuffer->getSize() / sizeof(Index);
 }
 
-uint32_t _Mesh::vertexCount() const {
+uint32_t Mesh::vertexCount() const {
 	return Engine::getDevice().getBuffer(m_vertexBuffer).getSize() / sizeof(Vertex);
 }

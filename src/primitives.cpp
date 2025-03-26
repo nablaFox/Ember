@@ -1,8 +1,8 @@
-#include "primitives.hpp"
+#include "engine.hpp"
 
 using namespace etna;
 
-Mesh utils::createSphere(Color color, uint32_t precision) {
+MeshHandle Engine::createSphere(Color color, uint32_t precision) {
 	uint32_t vertexCount = square(precision + 1);
 	uint32_t indexCount = 6 * square(precision);
 
@@ -52,16 +52,16 @@ Mesh utils::createSphere(Color color, uint32_t precision) {
 		}
 	}
 
-	return std::shared_ptr<_Mesh>(new _Mesh({
+	return Mesh::create({
 		.vertices = std::move(vertices),
 		.indices = std::move(indices),
-	}));
+	});
 }
 
-Mesh utils::createTexturedBrick(float width,
-								float height,
-								float depth,
-								Color color) {
+MeshHandle Engine::createTexturedBrick(float width,
+									   float height,
+									   float depth,
+									   Color color) {
 	std::vector<Vertex> vertices(24);
 
 	for (uint32_t j = 0; j < 3; j++) {
@@ -122,13 +122,17 @@ Mesh utils::createTexturedBrick(float width,
 		17, 18, 22, 22, 21, 17	 // Left
 	};
 
-	return std::shared_ptr<_Mesh>(new _Mesh({
+	return Mesh::create({
 		.vertices = std::move(vertices),
 		.indices = std::move(indices),
-	}));
+	});
 }
 
-Mesh utils::createRectangle(float width, float height, Color color) {
+MeshHandle Engine::createTexturedCube(Color color) {
+	return createTexturedBrick(1, 1, 1, color);
+}
+
+MeshHandle Engine::createRectangle(float width, float height, Color color) {
 	std::vector<Vertex> vertices;
 	vertices.resize(4);
 
@@ -158,12 +162,12 @@ Mesh utils::createRectangle(float width, float height, Color color) {
 
 	std::vector<Index> indices = {0, 1, 2, 2, 3, 0};
 
-	return std::shared_ptr<_Mesh>(new _Mesh({
+	return Mesh::create({
 		.vertices = std::move(vertices),
 		.indices = std::move(indices),
-	}));
+	});
 }
 
-Mesh utils::createQuad(Color color) {
+MeshHandle Engine::createQuad(Color color) {
 	return createRectangle(1, 1, color);
 }

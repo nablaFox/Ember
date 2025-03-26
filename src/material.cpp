@@ -5,7 +5,8 @@ using namespace ignis;
 
 namespace etna {
 
-_Material::_Material(const CreateInfo& info) {
+MaterialTemplate::MaterialTemplate(const CreateInfo& info)
+	: m_paramsSize(info.paramsSize) {
 	Device& device = Engine::getDevice();
 
 	PipelineCreateInfo pipelineInfo{
@@ -41,19 +42,55 @@ _Material::_Material(const CreateInfo& info) {
 	m_pipeline = new Pipeline(pipelineInfo);
 
 #ifndef NDEBUG
-	m_hasDepth = info.enableDepth;
+	hasDepth = info.enableDepth;
 #endif
+}
 
-	if (info.paramsSize == 0) {
+MaterialTemplate::~MaterialTemplate() {
+	delete m_pipeline;
+}
+
+MaterialTemplateHandle MaterialTemplate::create(const CreateInfo& info) {
+	return std::shared_ptr<MaterialTemplate>(new MaterialTemplate(info));
+}
+
+Material::Material(const CreateInfo& info)
+	: m_materialTemplate(info.templateHandle) {
+	size_t paramsSize = m_materialTemplate->getParamsSize();
+
+	if (!paramsSize) {
 		return;
 	}
 
-	m_paramsUBO = device.createUBO(info.paramsSize, info.paramsData);
+	m_paramsUBO = Engine::getDevice().createUBO(paramsSize, info.params);
 }
 
-_Material::~_Material() {
-	delete m_pipeline;
+Material::Material(const CreateInfo2& info) {
+	m_materialTemplate = MaterialTemplate::create({
+		.shaders = info.shaders,
+		.paramsSize = info.paramsSize,
+		.enableDepth = info.enableDepth,
+		.transparency = info.transparency,
+		.polygonMode = info.polygonMode,
+		.lineWidth = info.lineWidth,
+	});
 
+	if (!info.paramsSize) {
+		return;
+	}
+
+	m_paramsUBO = Engine::getDevice().createUBO(info.paramsSize, info.paramsData);
+}
+
+MaterialHandle Material::create(const CreateInfo& info) {
+	return std::shared_ptr<Material>(new Material(info));
+}
+
+MaterialHandle Material::create(const CreateInfo2& info) {
+	return std::shared_ptr<Material>(new Material(info));
+}
+
+Material::~Material() {
 	if (m_paramsUBO != IGNIS_INVALID_BUFFER_ID)
 		Engine::getDevice().destroyBuffer(m_paramsUBO);
 }

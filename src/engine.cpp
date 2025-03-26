@@ -3,16 +3,23 @@
 #include "ignis/command.hpp"
 #include "ignis/fence.hpp"
 #include "engine.hpp"
-#include "scene.hpp"
-#include "camera.hpp"
-#include "render_target.hpp"
 
 using namespace etna;
 using namespace ignis;
 
-Device* g_device = nullptr;
-VkQueue g_graphicsQueue;
-VkQueue g_uploadQueue;
+Device* g_device{nullptr};
+VkQueue g_graphicsQueue{nullptr};
+VkQueue g_uploadQueue{nullptr};
+
+// Materials
+MaterialHandle g_defaultMaterial{nullptr};
+MaterialHandle g_pointMaterial{nullptr};
+
+// PONDER: the user should choose if initializing these resources; it should not be
+// mandatory
+MaterialTemplateHandle g_gridTemplate{nullptr};
+MaterialTemplateHandle g_transparentGridTemplate{nullptr};
+MaterialTemplateHandle g_brickOutlineMaterialTemplate{nullptr};
 
 Engine::Engine() {
 	glfwInit();
@@ -31,21 +38,34 @@ Engine::Engine() {
 		.optionalFeatures = {"FillModeNonSolid", "SampleRateShading"},
 	});
 
-	m_defaultMaterial =
-		new _Material({.shaders = {"default.vert.spv", "default.frag.spv"}});
+	g_defaultMaterial = Material::create({
+		.shaders = {"default.vert.spv", "default.frag.spv"},
+	});
+
+	g_pointMaterial = Material::create({
+		.shaders = {"default.vert.spv", "default.frag.spv"},
+		.polygonMode = VK_POLYGON_MODE_POINT,
+	});
+
+	g_gridTemplate = MaterialTemplate::create({
+		.shaders = {"default.vert.spv", "grid.frag.spv"},
+		.paramsSize = sizeof(GridMaterialParams),
+	});
+
+	g_transparentGridTemplate = MaterialTemplate::create({
+		.shaders = {"default.vert.spv", "grid.frag.spv"},
+		.paramsSize = sizeof(GridMaterialParams),
+		.transparency = true,
+	});
+
+	g_brickOutlineMaterialTemplate = MaterialTemplate::create({
+		.shaders = {"default.vert.spv", "brick_outline.frag.spv"},
+		.paramsSize = sizeof(OutlineMaterialParams),
+	});
 
 	// TODO: choose graphics & upload queues
 	g_graphicsQueue = g_device->getQueue(0);
 	g_uploadQueue = g_device->getQueue(0);
-
-	for (uint32_t i{0}; i < ETNA_FRAMES_IN_FLIGHT; i++) {
-		m_framesData[i].m_inFlight = new ignis::Fence(*g_device);
-
-		m_framesData[i].m_cmd = new ignis::Command({
-			.device = *g_device,
-			.queue = g_graphicsQueue,
-		});
-	}
 }
 
 Engine::~Engine() {
@@ -53,12 +73,12 @@ Engine::~Engine() {
 
 	glfwTerminate();
 
-	for (uint32_t i{0}; i < ETNA_FRAMES_IN_FLIGHT; i++) {
-		delete m_framesData[i].m_inFlight;
-		delete m_framesData[i].m_cmd;
-	}
+	g_defaultMaterial.reset();
+	g_pointMaterial.reset();
+	g_gridTemplate.reset();
+	g_transparentGridTemplate.reset();
+	g_brickOutlineMaterialTemplate.reset();
 
-	delete m_defaultMaterial;
 	delete g_device;
 }
 
@@ -85,141 +105,51 @@ VkQueue Engine::getUploadQueue() {
 		"Engine must be initialized to access the upload queue");
 }
 
-void Engine::beginFrame() {
-	getCommand().begin();
+// PONDER: maybe use a macro or an helper function to reduce duplication
 
-	m_framesData[m_currentFrame].m_inFlight->reset();
+MaterialHandle Engine::getDefaultMaterial() {
+	if (g_defaultMaterial != nullptr)
+		return g_defaultMaterial;
+
+	throw std::runtime_error(
+		"Engine must be initialized to access the default material");
 }
 
-void Engine::endFrame() {
-	getCommand().end();
+MaterialHandle Engine::getPointMaterial() {
+	if (g_pointMaterial != nullptr)
+		return g_pointMaterial;
 
-	SubmitCmdInfo cmdInfo{.command = getCommand()};
-
-	g_device->submitCommands({cmdInfo}, m_framesData[m_currentFrame].m_inFlight);
-
-	m_framesData[m_currentFrame].m_inFlight->wait();
-
-	m_currentFrame = (m_currentFrame + 1) % ETNA_FRAMES_IN_FLIGHT;
+	throw std::runtime_error(
+		"Engine must be initialized to access the point material");
 }
 
-void Engine::renderScene(const Scene& scene,
-						 const RenderTarget& renderTarget,
-						 const Camera& camera,
-						 const RenderSettings sceneInfo) {
-	Command& cmd = getCommand();
-	VkViewport viewport = sceneInfo.viewport;
-	Color clearColor = sceneInfo.clearColor;
+MaterialHandle Engine::createGridMaterial(GridMaterialParams params) {
+	if (g_gridTemplate == nullptr)
+		throw std::runtime_error("Grid material template not initialized");
 
-	// update current scene data ubo
-	BufferId sceneDataBuff = scene.getSceneDataBuff(m_currentFrame);
-
-	SceneData sceneData = {
-		.viewproj = camera.getViewProjMatrix(),
-	};
-
-	cmd.updateBuffer(sceneDataBuff, &sceneData);
-
-	VkClearColorValue clearColorValue = {clearColor.r, clearColor.g, clearColor.b,
-										 clearColor.a};
-
-	DrawAttachment* drawAttachment = new DrawAttachment({
-		.drawImage = renderTarget.getDrawImage(),
-		.loadAction = sceneInfo.colorLoadOp,
-		.storeAction = sceneInfo.colorStoreOp,
-		.clearColor = clearColorValue,
+	return Material::create({
+		.templateHandle = g_gridTemplate,
+		.params = &params,
 	});
-
-	DepthAttachment* depthAttachment =
-		renderTarget.getCreationInfo().hasDepth
-			? new DepthAttachment({
-				  .depthImage = renderTarget.getDepthImage(),
-				  .loadAction = sceneInfo.depthLoadOp,
-				  .storeAction = sceneInfo.depthStoreOp,
-			  })
-			: nullptr;
-
-	cmd.beginRender(drawAttachment, depthAttachment);
-
-#ifndef NDEBUG
-	for (const auto& node : scene.getNodes()) {
-		Material material = node.material;
-
-		const _Material* materialToUse =
-			material != nullptr ? material.get() : m_defaultMaterial;
-
-		if (materialToUse->hasDepthTest() !=
-			renderTarget.getCreationInfo().hasDepth) {
-			throw std::runtime_error("Material has different depth test value");
-		}
-	}
-#endif
-
-	for (const auto& node : scene.getNodes()) {
-		Mesh mesh = node.mesh;
-		Material material = node.material;
-
-		const _Material* materialToUse =
-			material != nullptr ? material.get() : m_defaultMaterial;
-
-		Pipeline& pipeline = materialToUse->getPipeline();
-
-		cmd.bindPipeline(pipeline);
-
-		if (viewport.width == 0) {
-			viewport.x = 0;
-			viewport.width = (float)renderTarget.getExtent().width;
-		}
-
-		if (viewport.height == 0) {
-			viewport.y = 0;
-			viewport.height = (float)renderTarget.getExtent().height;
-		}
-
-		viewport.maxDepth = 1.f;
-		viewport.minDepth = 0.f;
-
-		cmd.setViewport(viewport);
-
-		cmd.setScissor(
-			{0, 0, renderTarget.getExtent().width, renderTarget.getExtent().height});
-
-		cmd.bindIndexBuffer(*mesh->getIndexBuffer());
-
-		m_pushConstants = {
-			.worldTransform = node.transform.getWorldMatrix(),
-			.vertices = mesh->getVertexBuffer(),
-			.material = materialToUse->getParamsUBO(),
-			.sceneData = sceneDataBuff,
-		};
-
-		cmd.pushConstants(pipeline, m_pushConstants);
-
-		cmd.draw(mesh->indexCount());
-	}
-
-	cmd.endRendering();
-
-	if (!renderTarget.isMultiSampled())
-		return;
-
-	Image& drawImage = *renderTarget.getDrawImage();
-	Image& resolvedDrawImage = *renderTarget.getResolvedImage();
-
-	cmd.transitionImageLayout(drawImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	cmd.transitionImageLayout(resolvedDrawImage,
-							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-	cmd.resolveImage(drawImage, resolvedDrawImage);
-
-	cmd.transitionToOptimalLayout(drawImage);
-	cmd.transitionToOptimalLayout(resolvedDrawImage);
 }
 
-Mesh Engine::createMesh(const _Mesh::CreateInfo& info) {
-	return std::shared_ptr<_Mesh>(new _Mesh(info));
+MaterialHandle Engine::createTransparentGridMaterial(GridMaterialParams params) {
+	if (g_transparentGridTemplate == nullptr)
+		throw std::runtime_error(
+			"Transparent grid material template not initialized");
+
+	return Material::create({
+		.templateHandle = g_transparentGridTemplate,
+		.params = &params,
+	});
 }
 
-Material Engine::createMaterial(const _Material::CreateInfo& info) {
-	return std::shared_ptr<_Material>(new _Material(info));
+MaterialHandle Engine::brickOutlinedMaterial(OutlineMaterialParams params) {
+	if (g_brickOutlineMaterialTemplate == nullptr)
+		throw std::runtime_error("Brick outline material template not initialized");
+
+	return Material::create({
+		.templateHandle = g_brickOutlineMaterialTemplate,
+		.params = &params,
+	});
 }

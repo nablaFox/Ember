@@ -37,4 +37,6 @@ inline Color BLUE = Color::RGB(110, 150, 252);
 
 inline Color PURPLE = Color::RGB(167, 152, 220);
 
+inline Color INVISIBLE = Color{.r = 0, .g = 0, .b = 0, .a = 0};
+
 };	// namespace etna

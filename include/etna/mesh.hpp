@@ -19,16 +19,18 @@ struct Vertex {
 
 typedef uint32_t Index;
 
-class _Mesh {
+class Mesh {
 public:
 	struct CreateInfo {
 		std::vector<Vertex> vertices;
 		std::vector<Index> indices;
 	};
 
-	_Mesh(const CreateInfo&);
+	static std::shared_ptr<Mesh> create(const CreateInfo&);
 
-	~_Mesh();
+	Mesh(const CreateInfo&);
+
+	~Mesh();
 
 	uint32_t indexCount() const;
 
@@ -43,12 +45,12 @@ private:
 	ignis::Buffer* m_indexBuffer{nullptr};
 
 public:
-	_Mesh(const _Mesh&) = delete;
-	_Mesh(_Mesh&&) = delete;
-	_Mesh& operator=(const _Mesh&) = delete;
-	_Mesh& operator=(_Mesh&&) = delete;
+	Mesh(const Mesh&) = delete;
+	Mesh(Mesh&&) = delete;
+	Mesh& operator=(const Mesh&) = delete;
+	Mesh& operator=(Mesh&&) = delete;
 };
 
-using Mesh = std::shared_ptr<_Mesh>;
+using MeshHandle = std::shared_ptr<Mesh>;
 
 }  // namespace etna

@@ -1,8 +1,6 @@
 #pragma once
 
 #include "ignis/types.hpp"
-#include "material.hpp"
-#include "mesh.hpp"
 #include "transform.hpp"
 #include "engine.hpp"
 
@@ -10,8 +8,8 @@ namespace etna {
 
 struct SceneNode {
 	Transform transform;
-	Material material;
-	Mesh mesh;
+	MaterialHandle material;
+	MeshHandle mesh;
 };
 
 struct DirectionalLight {
@@ -31,7 +29,11 @@ public:
 	Scene();
 	~Scene();
 
-	SceneNode& addMesh(const Mesh, Transform, const Material = nullptr);
+	// PONDER: maybe we should add names and fetching by name
+
+	SceneNode& addNode(SceneNode);
+
+	SceneNode& addMesh(const MeshHandle, Transform, const MaterialHandle = nullptr);
 
 	const std::vector<SceneNode>& getNodes() const { return m_nodes; }
 

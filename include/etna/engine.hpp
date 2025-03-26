@@ -1,48 +1,18 @@
 #pragma once
 
-#include "mesh.hpp"
-#include "material.hpp"
 #include "ignis/image.hpp"
 #include "ignis/device.hpp"
+#include "color.hpp"
+#include "material.hpp"
+#include "mesh.hpp"
 
 namespace etna {
-
-struct Camera;
-struct RenderTarget;
-class Scene;
-struct SceneData;
-
-struct RenderSettings {
-	VkViewport viewport{};
-	Color clearColor{0.02f, 0.02f, 0.02f, 1};  // TODO: use ETNA_CLEAR_COLOR
-	VkAttachmentStoreOp colorStoreOp{VK_ATTACHMENT_STORE_OP_STORE};
-	VkAttachmentStoreOp depthStoreOp{VK_ATTACHMENT_STORE_OP_DONT_CARE};
-	VkAttachmentLoadOp colorLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
-	VkAttachmentLoadOp depthLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
-};
 
 class Engine {
 public:
 	Engine();
 
 	~Engine();
-
-	void beginFrame();
-
-	void endFrame();
-
-	void renderScene(const Scene&,
-					 const RenderTarget&,
-					 const Camera&,
-					 const RenderSettings = {});
-
-	Mesh createMesh(const _Mesh::CreateInfo&);
-
-	Material createMaterial(const _Material::CreateInfo&);
-
-	ignis::Command& getCommand() const {
-		return *m_framesData[m_currentFrame].m_cmd;
-	}
 
 	static ignis::Device& getDevice();
 
@@ -60,22 +30,41 @@ public:
 
 	static constexpr Color ETNA_CLEAR_COLOR{0.02f, 0.02f, 0.02f, 1};
 
-private:
-	_Material* m_defaultMaterial{nullptr};
+	static MaterialHandle getDefaultMaterial();
 
-	struct FrameData {
-		ignis::Fence* m_inFlight;
-		ignis::Command* m_cmd;
-	} m_framesData[ETNA_FRAMES_IN_FLIGHT];
+	static MaterialHandle getPointMaterial();
 
-	struct PushConstants {
-		Mat4 worldTransform;
-		ignis::BufferId vertices;
-		ignis::BufferId material;
-		ignis::BufferId sceneData;
-	} m_pushConstants;
+	struct GridMaterialParams {
+		Color color;
+		float gridSpacing;
+		float thickness;
+	};
 
-	uint32_t m_currentFrame{0};
+	struct OutlineMaterialParams {
+		Color outline{BLACK};
+		float thickness{0.01f};
+	};
+
+	static MaterialHandle createGridMaterial(GridMaterialParams);
+
+	static MaterialHandle createTransparentGridMaterial(GridMaterialParams);
+
+	static MaterialHandle brickOutlinedMaterial(OutlineMaterialParams);
+
+	static MeshHandle createSphere(Color color = WHITE, uint32_t precision = 100);
+
+	static MeshHandle createTexturedBrick(float width,
+										  float height,
+										  float depth,
+										  Color color = WHITE);
+
+	static MeshHandle createTexturedCube(Color color = WHITE);
+
+	static MeshHandle createRectangle(float width,
+									  float height,
+									  Color color = WHITE);
+
+	static MeshHandle createQuad(Color color = WHITE);
 
 public:
 	Engine(const Engine&) = delete;

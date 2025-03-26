@@ -1,7 +1,5 @@
 #include "shared.hpp"
-#include "engine.hpp"
-#include "scene.hpp"
-#include "primitives.hpp"
+#include "forward_renderer.hpp"
 
 using namespace etna;
 
@@ -11,7 +9,7 @@ constexpr uint32_t WINDOW_HEIGHT = 600;
 int main(int argc, char* argv[]) {
 	Engine engine;
 
-	Window window({
+	Window window1({
 		.width = 800,
 		.height = 600,
 		.title = "Etna Window",
@@ -33,11 +31,13 @@ int main(int argc, char* argv[]) {
 
 	Scene scene;
 
-	SceneNode& brick = scene.addMesh(utils::createTexturedBrick(1, 1, 2),
+	SceneNode& brick = scene.addMesh(Engine::createTexturedBrick(1, 1, 2),
 									 {.pitch = 0, .position = {0.f, 0.f, -2.f}});
 
-	while (!window.shouldClose()) {
-		engine.beginFrame();
+	Renderer renderer;
+
+	while (!window1.shouldClose()) {
+		renderer.beginFrame();
 
 		VkViewport viewport1{
 			.x = 0,
@@ -53,26 +53,26 @@ int main(int argc, char* argv[]) {
 			.height = (float)WINDOW_HEIGHT,
 		};
 
-		engine.renderScene(scene, window, playerCamera,
-						   {
-							   .viewport = viewport1,
-						   });
+		renderer.renderScene(scene, window1, playerCamera,
+							 {
+								 .viewport = viewport1,
+							 });
 
-		engine.renderScene(scene, window, playerCamera,
-						   {
-							   .viewport = viewport2,
-							   .colorLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-						   });
+		renderer.renderScene(scene, window1, playerCamera,
+							 {
+								 .viewport = viewport2,
+								 .colorLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+							 });
 
-		engine.renderScene(scene, window2, playerCamera);
+		renderer.renderScene(scene, window2, playerCamera);
 
-		engine.endFrame();
+		renderer.endFrame();
 
-		window.swapBuffers();
+		window1.swapBuffers();
 
 		window2.swapBuffers();
 
-		playerCamera.update(window, 0.016f);
+		playerCamera.update(window1, 0.016f);
 	}
 
 	return 0;
