@@ -4,65 +4,60 @@ Simple C++ 20 graphics engine written with [Ignis](https://github.com/nablaFox/I
 
 ### Example
 
-
 ```cpp
-Engine engine;
+int main(int argc, char* argv[]) {
+	Engine engine;
 
-Mesh mesh = engine.createMesh();
-Material material = engine.createMaterial();
+	Window window({
+		.width = WINDOW_WIDTH,
+		.height = WINDOW_HEIGHT,
+		.title = "Basic Ember",
+		.captureMouse = true,
+	});
 
-// mesh will point to a single buffer allocated for primitives
-Mesh spherePrimitive = engine.createSphere();
-Mesh cubePrimitive = engine.createCube();
+	FirstPersonCamera playerCamera({
+		.fov = 70,
+		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
+		.cameraSpeed = 6.f,
+		.transform = {.position = {0, 1, 0}},
+	});
 
-Window window(configs);
+	MaterialHandle gridMaterial = Engine::createGridMaterial({
+		.color = BLUE,
+		.gridSpacing = 0.1,
+		.thickness = 0.005,
+	});
 
-while (true) {
-    engine.beginFrame();
-    engine.setCamera(camera);
-    engine.setRenderTarget(window);
+	Scene scene;
 
-    engine.draw(mesh, material);
+	SceneNode& sphere1 = scene.addMesh(
+		Engine::createSphere(BLUE * 0.08),
+		{.scale = 0.5, .pitch = M_PI / 2, .position = {1.5, 0.5, -5}}, gridMaterial);
 
-    engine.drawInstanced(instanceBuffer, mesh, material, transform);
+	SceneNode& sphere2 =
+		scene.addMesh(Engine::createSphere(GREEN), {.position = {0, 2.5, -9}},
+					  Engine::getPointMaterial());
 
-    window.swapBuffers();
+	SceneNode& outlinedBrick = scene.addMesh(
+		Engine::createTexturedCube(), {.yaw = M_PI / 4, .position = {-2.5, 0.5, -5}},
+		Engine::brickOutlinedMaterial({}));
 
-    engine.endFrame();
+	SceneNode& floor = scene.addNode(Floor({.color = PURPLE.setAlpha(0.3)}));
+
+	Renderer renderer;
+
+	while (!window.shouldClose()) {
+		renderer.beginFrame();
+
+		renderer.renderScene(scene, window, playerCamera);
+
+		renderer.endFrame();
+
+		window.swapBuffers();
+
+		playerCamera.update(window, 0.01);
+	}
 }
-
-return 0;
-
-// The idea of a scene where organizing drawable things is a further abstraction that will be added later
 ```
 
-
-```cpp
-Engine engine;
-
-Mesh mesh = engine.createMesh();
-Material material = engine.createMaterial();
-
-// mesh will point to a single buffer allocated for primitives
-Mesh spherePrimitive = engine.createSphere();
-Mesh cubePrimitive = engine.createCube();
-
-Window window(configs);
-
-Scene scene; // a scene will create an UBO to hold scene data
-
-scene.addMesh(mesh, material);
-
-while (!window.shouldClose()) {
-    engine.beginFrame(); // will wait for m_inFlight fence
-
-    engine.render(sceneSettings, window, scene); // begins and ends rendering
-    // we'll push scene UBO id & material id when drawing the meshes
-
-    engine.endFrame(); // will submit the current frame command buffer and use a fence
-
-    window.swapBuffers();
-}
-
-return 0;
-``
+You can find more examples in the `examples` directory.
