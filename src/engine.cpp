@@ -15,8 +15,6 @@ VkQueue g_uploadQueue{nullptr};
 MaterialHandle g_defaultMaterial{nullptr};
 MaterialHandle g_pointMaterial{nullptr};
 
-// PONDER: the user should choose if initializing these resources; it should not be
-// mandatory
 MaterialTemplateHandle g_gridTemplate{nullptr};
 MaterialTemplateHandle g_transparentGridTemplate{nullptr};
 MaterialTemplateHandle g_brickOutlineMaterialTemplate{nullptr};
@@ -36,31 +34,6 @@ Engine::Engine() {
 		.extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME},
 		.instanceExtensions = extensions,
 		.optionalFeatures = {"FillModeNonSolid", "SampleRateShading"},
-	});
-
-	g_defaultMaterial = Material::create({
-		.shaders = {"default.vert.spv", "default.frag.spv"},
-	});
-
-	g_pointMaterial = Material::create({
-		.shaders = {"default.vert.spv", "default.frag.spv"},
-		.polygonMode = VK_POLYGON_MODE_POINT,
-	});
-
-	g_gridTemplate = MaterialTemplate::create({
-		.shaders = {"default.vert.spv", "grid.frag.spv"},
-		.paramsSize = sizeof(GridMaterialParams),
-	});
-
-	g_transparentGridTemplate = MaterialTemplate::create({
-		.shaders = {"default.vert.spv", "grid.frag.spv"},
-		.paramsSize = sizeof(GridMaterialParams),
-		.transparency = true,
-	});
-
-	g_brickOutlineMaterialTemplate = MaterialTemplate::create({
-		.shaders = {"default.vert.spv", "brick_outline.frag.spv"},
-		.paramsSize = sizeof(OutlineMaterialParams),
 	});
 
 	// TODO: choose graphics & upload queues
@@ -108,24 +81,33 @@ VkQueue Engine::getUploadQueue() {
 // PONDER: maybe use a macro or an helper function to reduce duplication
 
 MaterialHandle Engine::getDefaultMaterial() {
-	if (g_defaultMaterial != nullptr)
-		return g_defaultMaterial;
+	if (g_defaultMaterial == nullptr) {
+		g_defaultMaterial = Material::create({
+			.shaders = {"default.vert.spv", "default.frag.spv"},
+		});
+	}
 
-	throw std::runtime_error(
-		"Engine must be initialized to access the default material");
+	return g_defaultMaterial;
 }
 
 MaterialHandle Engine::getPointMaterial() {
-	if (g_pointMaterial != nullptr)
-		return g_pointMaterial;
+	if (g_pointMaterial == nullptr) {
+		g_pointMaterial = Material::create({
+			.shaders = {"default.vert.spv", "default.frag.spv"},
+			.polygonMode = VK_POLYGON_MODE_POINT,
+		});
+	}
 
-	throw std::runtime_error(
-		"Engine must be initialized to access the point material");
+	return g_pointMaterial;
 }
 
 MaterialHandle Engine::createGridMaterial(GridMaterialParams params) {
-	if (g_gridTemplate == nullptr)
-		throw std::runtime_error("Grid material template not initialized");
+	if (g_gridTemplate == nullptr) {
+		g_gridTemplate = MaterialTemplate::create({
+			.shaders = {"default.vert.spv", "grid.frag.spv"},
+			.paramsSize = sizeof(GridMaterialParams),
+		});
+	}
 
 	return Material::create({
 		.templateHandle = g_gridTemplate,
@@ -134,9 +116,13 @@ MaterialHandle Engine::createGridMaterial(GridMaterialParams params) {
 }
 
 MaterialHandle Engine::createTransparentGridMaterial(GridMaterialParams params) {
-	if (g_transparentGridTemplate == nullptr)
-		throw std::runtime_error(
-			"Transparent grid material template not initialized");
+	if (g_transparentGridTemplate == nullptr) {
+		g_transparentGridTemplate = MaterialTemplate::create({
+			.shaders = {"default.vert.spv", "grid.frag.spv"},
+			.paramsSize = sizeof(GridMaterialParams),
+			.transparency = true,
+		});
+	}
 
 	return Material::create({
 		.templateHandle = g_transparentGridTemplate,
@@ -145,8 +131,12 @@ MaterialHandle Engine::createTransparentGridMaterial(GridMaterialParams params) 
 }
 
 MaterialHandle Engine::brickOutlinedMaterial(OutlineMaterialParams params) {
-	if (g_brickOutlineMaterialTemplate == nullptr)
-		throw std::runtime_error("Brick outline material template not initialized");
+	if (g_brickOutlineMaterialTemplate == nullptr) {
+		g_brickOutlineMaterialTemplate = MaterialTemplate::create({
+			.shaders = {"default.vert.spv", "brick_outline.frag.spv"},
+			.paramsSize = sizeof(OutlineMaterialParams),
+		});
+	}
 
 	return Material::create({
 		.templateHandle = g_brickOutlineMaterialTemplate,
