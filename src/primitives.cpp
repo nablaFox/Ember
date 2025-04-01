@@ -171,3 +171,27 @@ MeshHandle Engine::createRectangle(float width, float height, Color color) {
 MeshHandle Engine::createQuad(Color color) {
 	return createRectangle(1, 1, color);
 }
+
+MeshHandle Engine::createPyramid(float height, float baseWidth, Color color) {
+	std::vector<Vertex> vertices(5);
+
+	vertices[0].position = {0, height, 0};
+
+	vertices[1].position = {baseWidth / 2, 0, baseWidth / 2};
+	vertices[2].position = {-baseWidth / 2, 0, baseWidth / 2};
+	vertices[3].position = {-baseWidth / 2, 0, -baseWidth / 2};
+	vertices[4].position = {baseWidth / 2, 0, -baseWidth / 2};
+
+	std::vector<Index> indices{
+		0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1, 1, 2, 3, 1, 3, 4,
+	};
+
+	for (auto& vertex : vertices) {
+		vertex.color = color;
+	}
+
+	return Mesh::create({
+		.vertices = std::move(vertices),
+		.indices = std::move(indices),
+	});
+}

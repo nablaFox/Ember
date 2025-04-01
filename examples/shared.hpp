@@ -1,9 +1,10 @@
 #pragma once
 
-#include "engine.hpp"
-#include "scene.hpp"
-#include "window.hpp"
-#include "model.hpp"
+#include "etna/engine.hpp"
+#include "etna/scene.hpp"
+#include "etna/window.hpp"
+#include "etna/model.hpp"
+#include "etna/forward_renderer.hpp"
 
 using namespace etna;
 

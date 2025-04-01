@@ -1,12 +1,11 @@
 #include "shared.hpp"
-#include "forward_renderer.hpp"
 
 using namespace etna;
 
 constexpr uint32_t WINDOW_WIDTH = 800;
 constexpr uint32_t WINDOW_HEIGHT = 600;
 
-int main(int argc, char* argv[]) {
+int main(void) {
 	Engine engine;
 
 	Window window1({
@@ -26,8 +25,8 @@ int main(int argc, char* argv[]) {
 
 	SceneNode root = scene.createRoot("root", {});
 
-	SceneNode& brick = root.addMesh("Brick", Engine::createTexturedBrick(1, 1, 2),
-									{.pitch = 0, .position = {0.f, 0.f, -2.f}});
+	root.addMesh("Brick", Engine::createTexturedBrick(1, 1, 2),
+				 {.pitch = 0, .position = {0.f, 0.f, -2.f}});
 
 	Viewport const viewport1{
 		.x = 0,

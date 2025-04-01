@@ -1,10 +1,9 @@
 #include "shared.hpp"
-#include "forward_renderer.hpp"
 
 constexpr uint32_t WINDOW_WIDTH = 800;
 constexpr uint32_t WINDOW_HEIGHT = 600;
 
-int main(int argc, char* argv[]) {
+int main(void) {
 	Engine engine;
 
 	Window window({

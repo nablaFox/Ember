@@ -15,10 +15,13 @@ public:
 		Transform transform;
 		std::string name;
 
-		Node& addSubMesh(std::string, MeshHandle, MaterialHandle, Transform = {});
+		Node& addSubMesh(std::string,
+						 MeshHandle,
+						 MaterialHandle = nullptr,
+						 Transform = {});
 	};
 
-	Model(MeshHandle, MaterialHandle, Transform = {});
+	Model(MeshHandle, MaterialHandle = nullptr, Transform = {});
 
 	~Model();
 

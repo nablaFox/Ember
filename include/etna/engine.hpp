@@ -65,6 +65,24 @@ public:
 
 	static MeshHandle createQuad(Color color = WHITE);
 
+	// TODO: implement
+	static MeshHandle createCylinder(float radius,
+									 float height,
+									 Color color = WHITE);
+
+	// TODO: variant for empty cyilinder
+
+	// TODO: implement
+	static MeshHandle createCone(float radius, float height, Color color = WHITE);
+
+	static MeshHandle createPyramid(float height,
+									float sideLength,
+									Color color = WHITE);
+
+	// TODO: add methods to get default instantiated meshes (cube, cylinder, etc.)
+	// (a brick for example can be obtained from a cube using a scale transform)
+	// for different colors the user can use default material with different params
+
 public:
 	Engine(const Engine&) = delete;
 	Engine(Engine&&) = delete;
