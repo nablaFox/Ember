@@ -68,8 +68,15 @@ static MeshNode& addModelChildren(const Model::Node& root,
 	return rootNode;
 }
 
-MeshNode& SceneNode::addModel(std::string name, const Model& model) {
-	return addModelChildren(model.getRoot(), *this, name);
+MeshNode& SceneNode::addModel(std::string name,
+							  const Model& model,
+							  Transform transform) {
+	MeshNode& toReturn = addModelChildren(model.getRoot(), *this, name);
+
+	toReturn.translate(transform.position);
+	toReturn.rotate(transform.yaw, transform.pitch, transform.roll);
+
+	return toReturn;
 }
 
 void SceneNode::updateChildrenTransform(Mat4 transform) {

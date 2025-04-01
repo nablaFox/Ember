@@ -115,3 +115,24 @@ inline Model createFloor(const FloorCreateInfo& info) {
 
 	return floor;
 }
+
+struct OutlinedBrickCreateInfo {
+	Color color{WHITE};
+	Color outlineColor{};
+	float outlienThickness{0.01};
+	float width{1};
+	float height{1};
+	float depth{1};
+};
+
+inline Model createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
+	MeshHandle brick =
+		Engine::createTexturedBrick(info.width, info.height, info.depth, info.color);
+
+	MaterialHandle material = Engine::createBrickOutlinedMaterial({
+		.outline = info.outlineColor,
+		.thickness = info.outlienThickness,
+	});
+
+	return Model(brick, material);
+}

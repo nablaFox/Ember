@@ -130,7 +130,7 @@ MaterialHandle Engine::createTransparentGridMaterial(GridMaterialParams params) 
 	});
 }
 
-MaterialHandle Engine::brickOutlinedMaterial(OutlineMaterialParams params) {
+MaterialHandle Engine::createBrickOutlinedMaterial(OutlineMaterialParams params) {
 	if (g_brickOutlineMaterialTemplate == nullptr) {
 		g_brickOutlineMaterialTemplate = MaterialTemplate::create({
 			.shaders = {"default.vert.spv", "brick_outline.frag.spv"},

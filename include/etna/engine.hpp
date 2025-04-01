@@ -47,7 +47,8 @@ public:
 
 	static MaterialHandle createTransparentGridMaterial(GridMaterialParams);
 
-	static MaterialHandle brickOutlinedMaterial(OutlineMaterialParams);
+	// TEMP: this should be an example
+	static MaterialHandle createBrickOutlinedMaterial(OutlineMaterialParams);
 
 	static MeshHandle createSphere(Color color = WHITE, uint32_t precision = 100);
 
