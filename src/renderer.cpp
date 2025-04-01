@@ -111,7 +111,24 @@ void Renderer::renderScene(const Scene& scene,
 	cmd.beginRender(drawAttachment, depthAttachment);
 
 	for (const auto& [_, camera] : scene.getCameras()) {
-		VkViewport viewport = camera.viewport;
+		VkViewport viewport{
+			.x = camera.viewport.x,
+			.y = camera.viewport.y,
+			.width = camera.viewport.width,
+			.height = camera.viewport.height,
+			.minDepth = 0.f,
+			.maxDepth = 1.f,
+		};
+
+		if (viewport.width == 0) {
+			viewport.x = 0;
+			viewport.width = (float)renderTarget.getExtent().width;
+		}
+
+		if (viewport.height == 0) {
+			viewport.y = 0;
+			viewport.height = (float)renderTarget.getExtent().height;
+		}
 
 		for (const auto& [_, meshNode] : scene.getMeshes()) {
 			MeshHandle mesh = meshNode.mesh;
@@ -123,19 +140,6 @@ void Renderer::renderScene(const Scene& scene,
 			Pipeline& pipeline = materialToUse->getTemplate().getPipeline();
 
 			cmd.bindPipeline(pipeline);
-
-			if (viewport.width == 0) {
-				viewport.x = 0;
-				viewport.width = (float)renderTarget.getExtent().width;
-			}
-
-			if (viewport.height == 0) {
-				viewport.y = 0;
-				viewport.height = (float)renderTarget.getExtent().height;
-			}
-
-			viewport.maxDepth = 1.f;
-			viewport.minDepth = 0.f;
 
 			cmd.setViewport(viewport);
 
