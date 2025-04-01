@@ -3,6 +3,7 @@
 #include "engine.hpp"
 #include "scene.hpp"
 #include "window.hpp"
+#include "model.hpp"
 
 using namespace etna;
 
@@ -85,9 +86,7 @@ struct FloorCreateInfo {
 	float floorScale{1000};
 };
 
-inline MeshNode& addFloor(SceneNode& context,
-						  const FloorCreateInfo& info,
-						  std::string name = "Floor") {
+inline Model createFloor(const FloorCreateInfo& info) {
 	MeshHandle quad = Engine::createQuad(INVISIBLE);
 
 	MaterialHandle mainGridMaterial = Engine::createTransparentGridMaterial({
@@ -110,9 +109,9 @@ inline MeshNode& addFloor(SceneNode& context,
 
 	Transform subGridTransform{};
 
-	MeshNode& floor =
-		context.addMesh(name, quad, mainGridTransform, mainGridMaterial)
-			.addMesh(name + " SubGrid", quad, subGridTransform, subGridMaterial);
+	Model floor(quad, mainGridMaterial, mainGridTransform);
+
+	floor.getRoot().addSubMesh("SubGrid", quad, subGridMaterial, subGridTransform);
 
 	return floor;
 }

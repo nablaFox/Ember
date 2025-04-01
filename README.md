@@ -62,5 +62,7 @@ You can find more examples in the `examples` directory.
 
 ### Building
 
+```bash
 cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build
+```

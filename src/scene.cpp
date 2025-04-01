@@ -1,6 +1,7 @@
 #include "scene.hpp"
 #include "mesh.hpp"
 #include "material.hpp"
+#include "model.hpp"
 
 using namespace etna;
 using namespace ignis;
@@ -52,6 +53,23 @@ CameraNode& SceneNode::addCamera(std::string name,
 	updateChildrenTransform(m_worldTransform);
 
 	return res;
+}
+
+static MeshNode& addModelChildren(const Model::Node& root,
+								  SceneNode& sceneNode,
+								  std::string name) {
+	MeshNode& rootNode =
+		sceneNode.addMesh(name, root.mesh, root.transform, root.material);
+
+	for (auto child : root.children) {
+		addModelChildren(*child, rootNode, name + "/" + child->name);
+	}
+
+	return rootNode;
+}
+
+MeshNode& SceneNode::addModel(std::string name, const Model& model) {
+	return addModelChildren(model.getRoot(), *this, name);
 }
 
 void SceneNode::updateChildrenTransform(Mat4 transform) {

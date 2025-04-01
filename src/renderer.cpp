@@ -161,6 +161,9 @@ void Renderer::renderScene(const Scene& scene,
 			const MaterialHandle materialToUse =
 				material != nullptr ? material : Engine::getDefaultMaterial();
 
+			assert(mesh != nullptr);
+			assert(materialToUse != nullptr);
+
 			Pipeline& pipeline = materialToUse->getTemplate().getPipeline();
 
 			cmd.bindPipeline(pipeline);

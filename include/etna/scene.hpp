@@ -13,12 +13,15 @@ struct MeshNode;
 class Material;
 class Mesh;
 struct CameraNode;
+class Model;
 
 struct SceneNode {
 	MeshNode& addMesh(std::string,
 					  const std::shared_ptr<Mesh>,
 					  Transform,
 					  const std::shared_ptr<Material> = nullptr);
+
+	MeshNode& addModel(std::string, const Model&);
 
 	CameraNode& addCamera(std::string, Camera, Transform, Viewport = {});
 
@@ -34,7 +37,7 @@ struct SceneNode {
 
 protected:
 	friend class Scene;
-	SceneNode(Scene* scene, std::string, Transform, SceneNode* parent = nullptr);
+	SceneNode(Scene*, std::string, Transform, SceneNode* parent = nullptr);
 
 	Transform m_transform;
 	Mat4 m_worldTransform;
@@ -72,6 +75,10 @@ public:
 	const std::unordered_map<std::string, CameraNode>& getCameras() const {
 		return m_cameraNodes;
 	}
+
+	void removeMesh(std::string);
+
+	void removeCamera(std::string);
 
 	CameraNode* getCamera(std::string);
 

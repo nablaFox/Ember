@@ -43,7 +43,8 @@ int main(int argc, char* argv[]) {
 					 },
 					 Engine::brickOutlinedMaterial({}));
 
-	MeshNode& floor = addFloor(root, {.color = PURPLE.setAlpha(0.3)});
+	MeshNode& floor =
+		root.addModel("Floor", createFloor({.color = PURPLE.setAlpha(0.3)}));
 
 	// camera
 	CameraNode& playerCamera =
