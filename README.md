@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 	Window window({
 		.width = WINDOW_WIDTH,
 		.height = WINDOW_HEIGHT,
-		.title = "Basic Ember",
+		.title = "Etna Demo",
 		.captureMouse = true,
 	});
 
@@ -19,43 +19,32 @@ int main(int argc, char* argv[]) {
 
 	SceneNode root = scene.createRoot("root", {});
 
-	// geometry
-	MeshNode& sphere1 = root
-        .addMesh("Sphere1", Engine::createSphere(BLUE * 0.08),
-                 {
-                     .scale = 0.5,
-                     .pitch = M_PI / 2,
-                     .position = {1.5, 0.5, -5},
-                 },
-                 Engine::createGridMaterial({
-                     .color = BLUE,
-                     .gridSpacing = 0.1,
-                     .thickness = 0.005,
-                 }));
+	MaterialHandle sphereMaterial = Engine::createGridMaterial({
+		.color = BLUE,
+		.gridSpacing = 0.1,
+		.thickness = 0.005,
+	});
 
-	MeshNode& sphere2 = root
-        .addMesh("Sphere2", Engine::createSphere(GREEN),
-					 {.position = {0, 2.5, -9}}, Engine::getPointMaterial());
+	Transform sphereTransform = {
+		.scale = 0.5,
+		.pitch = M_PI / 2,
+		.position = {1.5, 0.5, -5},
+	};
 
-	MeshNode& outlinedBrick = root
-        .addMesh("OutlinedBrick", Engine::createTexturedCube(),
-                 {
-                     .yaw = M_PI / 4,
-                     .position = {-2.5, 0.5, -5},
-                 },
-                 Engine::brickOutlinedMaterial({}));
+	MeshNode& sphere = root.addMesh("Sphere", Engine::createSphere(BLUE * 0.08),
+									sphereTransform, sphereMaterial);
 
-	MeshNode& floor = addFloor(root, {.color = PURPLE.setAlpha(0.3)});
-
-	// camera
-	CameraNode& playerCamera = root
-        .addCamera("PlayerCamera", {.fov = 70, .aspect = window.getAspect()},
+	CameraNode& playerCamera =
+		root.addCamera("PlayerCamera", {.fov = 70, .aspect = window.getAspect()},
 					   {.position = {0, 1, 0}});
 
-	// rendering
 	Renderer renderer({});
 
 	while (!window.shouldClose()) {
+		window.pollEvents();
+
+		updateFirstPersonCamera(playerCamera, window);
+
 		renderer.beginFrame();
 
 		renderer.renderScene(scene, window);
@@ -63,8 +52,6 @@ int main(int argc, char* argv[]) {
 		renderer.endFrame();
 
 		window.swapBuffers();
-
-		updateFirstPersonCamera(playerCamera, window);
 	}
 }
 ```

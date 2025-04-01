@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
 	Window window1({
 		.width = WINDOW_WIDTH,
 		.height = WINDOW_HEIGHT,
-		.title = "Etna Window",
+		.title = "Etna Window 1",
 		.captureMouse = true,
 	});
 
@@ -56,7 +56,19 @@ int main(int argc, char* argv[]) {
 
 	Renderer renderer({});
 
-	while (!window1.shouldClose()) {
+	bool shouldClose = false;
+
+	while (!shouldClose) {
+		window1.pollEvents();
+		window2.pollEvents();
+
+		updateFirstPersonCamera(camera1, window1);
+		updateFirstPersonCamera(camera2, window1);
+
+		if (window1.shouldClose() || window2.shouldClose()) {
+			shouldClose = true;
+		}
+
 		renderer.beginFrame();
 
 		renderer.renderScene(scene, window1);
@@ -68,9 +80,6 @@ int main(int argc, char* argv[]) {
 		window1.swapBuffers();
 
 		window2.swapBuffers();
-
-		updateFirstPersonCamera(camera1, window1);
-		updateFirstPersonCamera(camera2, window1);
 	}
 
 	return 0;

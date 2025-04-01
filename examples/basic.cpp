@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 	Window window({
 		.width = WINDOW_WIDTH,
 		.height = WINDOW_HEIGHT,
-		.title = "Basic Ember",
+		.title = "Basic Etna",
 		.captureMouse = true,
 	});
 
@@ -54,6 +54,10 @@ int main(int argc, char* argv[]) {
 	Renderer renderer({});
 
 	while (!window.shouldClose()) {
+		window.pollEvents();
+
+		updateFirstPersonCamera(playerCamera, window);
+
 		renderer.beginFrame();
 
 		renderer.renderScene(scene, window);
@@ -61,7 +65,5 @@ int main(int argc, char* argv[]) {
 		renderer.endFrame();
 
 		window.swapBuffers();
-
-		updateFirstPersonCamera(playerCamera, window);
 	}
 }

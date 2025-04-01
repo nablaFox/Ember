@@ -20,7 +20,9 @@ public:
 
 	~Window();
 
-	bool shouldClose();
+	bool shouldClose() const;
+
+	void pollEvents();
 
 	bool isKeyPressed(int key) const;
 	bool isKeyClicked(int key);

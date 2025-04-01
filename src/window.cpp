@@ -65,7 +65,11 @@ Window::~Window() {
 	glfwDestroyWindow(m_window);
 }
 
-bool Window::shouldClose() {
+bool Window::shouldClose() const {
+	return glfwWindowShouldClose(m_window);
+}
+
+void Window::pollEvents() {
 	glfwPollEvents();
 
 	double currentX, currentY;
@@ -74,8 +78,6 @@ bool Window::shouldClose() {
 	m_mouseDeltaY = currentY - m_lastMouseY;
 	m_lastMouseX = currentX;
 	m_lastMouseY = currentY;
-
-	return glfwWindowShouldClose(m_window);
 }
 
 bool Window::isKeyPressed(int key) const {
