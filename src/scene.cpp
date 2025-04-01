@@ -67,6 +67,18 @@ void SceneNode::updateTransform(Transform transform) {
 	updateChildrenTransform(m_worldTransform);
 }
 
+void SceneNode::translate(Vec3 translation) {
+	m_transform.position += translation;
+	updateTransform(m_transform);
+}
+
+void SceneNode::rotate(float yaw, float pitch, float roll) {
+	m_transform.yaw += yaw;
+	m_transform.pitch += pitch;
+	m_transform.roll += roll;
+	updateTransform(m_transform);
+}
+
 Scene::Scene() {}
 
 Scene::~Scene() {}

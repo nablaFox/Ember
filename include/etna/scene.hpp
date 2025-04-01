@@ -28,6 +28,10 @@ struct SceneNode {
 
 	void updateTransform(Transform);
 
+	void translate(Vec3);
+
+	void rotate(float yaw, float pitch, float roll);
+
 protected:
 	friend class Scene;
 	SceneNode(Scene* scene, std::string, Transform, SceneNode* parent = nullptr);

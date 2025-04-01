@@ -45,6 +45,8 @@ int main(int argc, char* argv[]) {
 
 		updateFirstPersonCamera(playerCamera, window);
 
+		sphere.rotate(0, 0.01, 0);
+
 		renderer.beginFrame();
 
 		renderer.renderScene(scene, window);
@@ -57,3 +59,8 @@ int main(int argc, char* argv[]) {
 ```
 
 You can find more examples in the `examples` directory.
+
+### Building
+
+cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build
