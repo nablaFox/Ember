@@ -1,8 +1,16 @@
 #pragma once
 
 #include "transform.hpp"
+#include <vulkan/vulkan.h>
 
 namespace etna {
+
+struct Viewport {
+	float x{0};
+	float y{0};
+	float width{0};
+	float height{0};
+};
 
 struct Camera {
 	float fov{90.f};
@@ -10,6 +18,7 @@ struct Camera {
 	float near{0.1f};
 	float far{100.f};
 	Transform transform;
+	VkViewport viewport;
 
 	Vec3 forward() const {
 		Vec3 res = {

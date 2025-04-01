@@ -100,43 +100,46 @@ struct FirstPersonCamera : Camera {
 	}
 };
 
-// Floor is an example of a model
-// we can model a model with a DAG
-struct Floor : SceneNode {
-	static constexpr float floorScale = 1000;
+struct FloorCreateInfo {
+	Color color{};
+	float gridSize{1};
+	float lineThickness{0.02};
+	float height{0};
+	float floorScale{1000};
+};
 
-	struct CreateInfo {
-		Color color{};
-		float gridSize{1};
-		float lineThickness{0.02};
-		float height{0};
+struct FloorNode : MeshNode {};
+
+inline FloorNode& addFloor(SceneNode& context,
+						   const FloorCreateInfo& info,
+						   std::string name = "Floor") {
+	MeshHandle quad = Engine::createQuad(INVISIBLE);
+
+	MaterialHandle mainGridMaterial = Engine::createTransparentGridMaterial({
+		.color = info.color,
+		.gridSpacing = info.gridSize / info.floorScale,
+		.thickness = info.lineThickness / info.floorScale,
+	});
+
+	MaterialHandle subGridMaterial = Engine::createTransparentGridMaterial({
+		.color = info.color * 0.8,
+		.gridSpacing = info.gridSize / (info.floorScale * 2.f),
+		.thickness = info.lineThickness / info.floorScale,
+	});
+
+	Transform mainGridTransform{
+		.scale = info.floorScale,
+		.pitch = -M_PI / 2,
+		.position = {0, info.height, 0},
 	};
 
-	Floor(const CreateInfo& info) {
-		MeshHandle mainGrid = Engine::createQuad(INVISIBLE);
+	Transform subGridTransform{};
 
-		MeshHandle subGrid = Engine::createQuad(INVISIBLE);
+	MeshNode& floor =
+		context.addMesh(name, quad, mainGridTransform, mainGridMaterial)
+			.addMesh(name + " SubGrid", quad, subGridTransform, subGridMaterial);
 
-		MaterialHandle mainGridMaterial = Engine::createTransparentGridMaterial({
-			.color = info.color,
-			.gridSpacing = info.gridSize / floorScale,
-			.thickness = info.lineThickness / floorScale,
-		});
+	return static_cast<FloorNode&>(floor);
+}
 
-		MaterialHandle subGridMaterial = Engine::createTransparentGridMaterial({
-			.color = info.color * 0.8,
-			.gridSpacing = info.gridSize / (floorScale * 2.f),
-			.thickness = info.lineThickness / floorScale,
-		});
-
-		this->mesh = mainGrid;
-
-		this->transform = {.scale = floorScale,
-						   .pitch = -M_PI / 2,
-						   .position = {0, info.height, 0}};
-
-		this->material = mainGridMaterial;
-
-		// TODO: add subgrid
-	}
-};
+void updateFloorHeight(FloorNode& floor, float height);

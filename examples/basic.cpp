@@ -14,6 +14,32 @@ int main(int argc, char* argv[]) {
 		.captureMouse = true,
 	});
 
+	Scene scene;
+
+	SceneNode root = scene.createRoot("root", {});
+
+	// geometry
+	MeshNode& sphere1 =
+		root.addMesh("Sphere1", Engine::createSphere(BLUE * 0.08),
+					 {.scale = 0.5, .pitch = M_PI / 2, .position = {1.5, 0.5, -5}},
+					 Engine::createGridMaterial({
+						 .color = BLUE,
+						 .gridSpacing = 0.1,
+						 .thickness = 0.005,
+					 }));
+
+	MeshNode& sphere2 =
+		root.addMesh("Sphere2", Engine::createSphere(GREEN),
+					 {.position = {0, 2.5, -9}}, Engine::getPointMaterial());
+
+	MeshNode& outlinedBrick =
+		root.addMesh("OutlinedBrick", Engine::createTexturedCube(),
+					 {.yaw = M_PI / 4, .position = {-2.5, 0.5, -5}},
+					 Engine::brickOutlinedMaterial({}));
+
+	FloorNode& floor = addFloor(root, {.color = PURPLE.setAlpha(0.3)});
+
+	// camera
 	FirstPersonCamera playerCamera({
 		.fov = 70,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
@@ -21,34 +47,15 @@ int main(int argc, char* argv[]) {
 		.transform = {.position = {0, 1, 0}},
 	});
 
-	MaterialHandle gridMaterial = Engine::createGridMaterial({
-		.color = BLUE,
-		.gridSpacing = 0.1,
-		.thickness = 0.005,
-	});
+	root.addCamera("PlayerCamera", playerCamera);
 
-	Scene scene;
-
-	SceneNode& sphere1 = scene.addMesh(
-		Engine::createSphere(BLUE * 0.08),
-		{.scale = 0.5, .pitch = M_PI / 2, .position = {1.5, 0.5, -5}}, gridMaterial);
-
-	SceneNode& sphere2 =
-		scene.addMesh(Engine::createSphere(GREEN), {.position = {0, 2.5, -9}},
-					  Engine::getPointMaterial());
-
-	SceneNode& outlinedBrick = scene.addMesh(
-		Engine::createTexturedCube(), {.yaw = M_PI / 4, .position = {-2.5, 0.5, -5}},
-		Engine::brickOutlinedMaterial({}));
-
-	SceneNode& floor = scene.addNode(Floor({.color = PURPLE.setAlpha(0.3)}));
-
+	// rendering
 	Renderer renderer({});
 
 	while (!window.shouldClose()) {
 		renderer.beginFrame();
 
-		renderer.renderScene(scene, window, playerCamera);
+		renderer.renderScene(scene, window);
 
 		renderer.endFrame();
 

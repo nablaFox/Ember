@@ -1,13 +1,38 @@
 #pragma once
 
+#include <unordered_map>
 #include "transform.hpp"
 #include "mesh.hpp"
 #include "material.hpp"
+#include "camera.hpp"
 
 namespace etna {
 
+class Scene;
+struct MeshNode;
+
 struct SceneNode {
-	Transform transform;
+	MeshNode& addMesh(std::string,
+					  const MeshHandle,
+					  Transform,
+					  const MaterialHandle = nullptr);
+
+	Camera& addCamera(std::string, Camera);
+
+	Mat4 getWorldMatrix() const;
+
+	void updateTransform(Transform);
+
+private:
+	Transform m_localTransform;
+	Transform m_worldTransform;
+
+	SceneNode* m_parent{nullptr};
+	std::vector<SceneNode*> m_children;
+	Scene* m_scene;
+};
+
+struct MeshNode : SceneNode {
 	MaterialHandle material;
 	MeshHandle mesh;
 };
@@ -17,17 +42,24 @@ public:
 	Scene();
 	~Scene();
 
-	// PONDER: maybe we should add names and fetching by name
+	const std::unordered_map<std::string, MeshNode>& getMeshes() const {
+		return m_meshNodes;
+	}
 
-	SceneNode& addNode(SceneNode);
+	const std::unordered_map<std::string, Camera>& getCameras() const {
+		return m_cameraNodes;
+	}
 
-	SceneNode& addMesh(const MeshHandle, Transform, const MaterialHandle = nullptr);
+	Camera& getCamera(std::string);
 
-	const std::vector<SceneNode>& getNodes() const { return m_nodes; }
+	MeshNode& getMesh(std::string);
+
+	SceneNode createRoot(std::string, Transform);
 
 private:
 	// TODO: in the future a graph
-	std::vector<SceneNode> m_nodes;
+	std::unordered_map<std::string, MeshNode> m_meshNodes;
+	std::unordered_map<std::string, Camera> m_cameraNodes;
 };
 
 }  // namespace etna

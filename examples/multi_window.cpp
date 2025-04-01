@@ -22,49 +22,45 @@ int main(int argc, char* argv[]) {
 		.title = "Etna Window 2",
 	});
 
-	FirstPersonCamera playerCamera({
+	FirstPersonCamera camera1({
 		.fov = 70,
 		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
 		.cameraSpeed = 6.f,
 		.transform = {.position = {0, 0, 1}},
 	});
+	camera1.viewport = {
+		.x = 0,
+		.y = 0,
+		.width = (float)WINDOW_WIDTH / 2,
+		.height = (float)WINDOW_HEIGHT,
+	};
+
+	FirstPersonCamera camera2 = camera1;
+	camera2.viewport = {
+		.x = (float)WINDOW_WIDTH / 2,
+		.y = 0,
+		.width = (float)WINDOW_WIDTH / 2,
+		.height = (float)WINDOW_HEIGHT,
+	};
 
 	Scene scene;
 
-	SceneNode& brick = scene.addMesh(Engine::createTexturedBrick(1, 1, 2),
-									 {.pitch = 0, .position = {0.f, 0.f, -2.f}});
+	SceneNode root = scene.createRoot("root", {});
+
+	SceneNode& brick = root.addMesh("Brick", Engine::createTexturedBrick(1, 1, 2),
+									{.pitch = 0, .position = {0.f, 0.f, -2.f}});
+
+	root.addCamera("Camera1", camera1);
+	root.addCamera("Camera2", camera2);
 
 	Renderer renderer({});
 
 	while (!window1.shouldClose()) {
 		renderer.beginFrame();
 
-		VkViewport viewport1{
-			.x = 0,
-			.y = 0,
-			.width = (float)WINDOW_WIDTH / 2,
-			.height = (float)WINDOW_HEIGHT,
-		};
+		renderer.renderScene(scene, window1);
 
-		VkViewport viewport2{
-			.x = (float)WINDOW_WIDTH / 2,
-			.y = 0,
-			.width = (float)WINDOW_WIDTH / 2,
-			.height = (float)WINDOW_HEIGHT,
-		};
-
-		renderer.renderScene(scene, window1, playerCamera,
-							 {
-								 .viewport = viewport1,
-							 });
-
-		renderer.renderScene(scene, window1, playerCamera,
-							 {
-								 .viewport = viewport2,
-								 .colorLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-							 });
-
-		renderer.renderScene(scene, window2, playerCamera);
+		renderer.renderScene(scene, window1);
 
 		renderer.endFrame();
 
@@ -72,7 +68,8 @@ int main(int argc, char* argv[]) {
 
 		window2.swapBuffers();
 
-		playerCamera.update(window1, 0.016f);
+		camera1.update(window1, 0.016f);
+		camera2.update(window2, 0.016f);
 	}
 
 	return 0;

@@ -28,8 +28,6 @@ int main(int argc, char* argv[]) {
 		.thickness = 0.005,
 	});
 
-	Scene scene;
-
 	SceneNode& sphere1 = scene.addMesh(
 		Engine::createSphere(BLUE * 0.08),
 		{.scale = 0.5, .pitch = M_PI / 2, .position = {1.5, 0.5, -5}}, gridMaterial);
