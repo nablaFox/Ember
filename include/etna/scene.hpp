@@ -1,40 +1,59 @@
 #pragma once
 
+#include <memory>
 #include <unordered_map>
+#include <vector>
 #include "transform.hpp"
-#include "mesh.hpp"
-#include "material.hpp"
 #include "camera.hpp"
 
 namespace etna {
 
 class Scene;
 struct MeshNode;
+class Material;
+class Mesh;
+struct CameraNode;
 
 struct SceneNode {
 	MeshNode& addMesh(std::string,
-					  const MeshHandle,
+					  const std::shared_ptr<Mesh>,
 					  Transform,
-					  const MaterialHandle = nullptr);
+					  const std::shared_ptr<Material> = nullptr);
 
-	Camera& addCamera(std::string, Camera);
+	CameraNode& addCamera(std::string, Camera, Transform, Viewport = {});
 
-	Mat4 getWorldMatrix() const;
+	const Transform& getTransform() const { return m_transform; }
+
+	Mat4 getWorldMatrix() const { return m_worldTransform; }
 
 	void updateTransform(Transform);
 
-private:
-	Transform m_localTransform;
-	Transform m_worldTransform;
+protected:
+	friend class Scene;
+	SceneNode(Scene* scene, std::string, Transform, SceneNode* parent = nullptr);
+
+	Transform m_transform;
+	Mat4 m_worldTransform;
 
 	SceneNode* m_parent{nullptr};
 	std::vector<SceneNode*> m_children;
 	Scene* m_scene;
+
+	void updateChildrenTransform(Mat4);
 };
 
-struct MeshNode : SceneNode {
-	MaterialHandle material;
-	MeshHandle mesh;
+struct MeshNode : public SceneNode {
+	using SceneNode::SceneNode;
+
+	std::shared_ptr<Material> material;
+	std::shared_ptr<Mesh> mesh;
+};
+
+struct CameraNode : public SceneNode {
+	using SceneNode::SceneNode;
+
+	Viewport viewport;
+	Camera camera;	// PONDER: should this be a ptr?
 };
 
 class Scene {
@@ -46,20 +65,21 @@ public:
 		return m_meshNodes;
 	}
 
-	const std::unordered_map<std::string, Camera>& getCameras() const {
+	const std::unordered_map<std::string, CameraNode>& getCameras() const {
 		return m_cameraNodes;
 	}
 
-	Camera& getCamera(std::string);
+	CameraNode* getCamera(std::string);
 
-	MeshNode& getMesh(std::string);
+	MeshNode* getMesh(std::string);
 
 	SceneNode createRoot(std::string, Transform);
 
 private:
-	// TODO: in the future a graph
+	friend struct SceneNode;
+
 	std::unordered_map<std::string, MeshNode> m_meshNodes;
-	std::unordered_map<std::string, Camera> m_cameraNodes;
+	std::unordered_map<std::string, CameraNode> m_cameraNodes;
 };
 
 }  // namespace etna

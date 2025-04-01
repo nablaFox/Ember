@@ -17,6 +17,7 @@ layout(push_constant) uniform constants {
 	uint verticesIndex;
 	uint materialIndex;
 	uint sceneData;
+	uint cameraData;
 } pc;
 
 // Vertices
@@ -43,10 +44,18 @@ struct DirectionalLight {
     vec4 color;     
 };
 
-DEF_UBO(SceneData, {
-	mat4 viewproj;
+DEF_SSBO(SceneData, {
 	vec4 ambientColor;
 	DirectionalLight sun;
 });
 
 #define SCENE (uSceneData[pc.sceneData])
+
+// Other
+DEF_UBO(CameraData, {
+	mat4 viewproj;
+	mat4 view;
+	mat4 proj;
+});
+
+#define CAMERA (uCameraData[pc.cameraData])

@@ -9,6 +9,12 @@ struct SceneData {
 	DirectionalLight sun;
 };
 
+struct CameraData {
+	Mat4 viewProj;
+	Mat4 view;
+	Mat4 proj;
+};
+
 Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFlight) {
 	assert(m_framesInFlight > 0);
 
@@ -54,6 +60,12 @@ void Renderer::endFrame() {
 
 	m_framesData[m_currentFrame].inFlight->wait();
 
+	for (const auto& cameraDataBuff : m_cameraDataBuffs) {
+		Engine::getDevice().destroyBuffer(cameraDataBuff);
+	}
+
+	m_cameraDataBuffs.clear();
+
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
 
@@ -84,14 +96,6 @@ void Renderer::renderScene(const Scene& scene,
 		clearColor.a,
 	};
 
-	SceneData sceneData = {
-		.ambientColor = sceneInfo.ambientColor,
-		.sun = sceneInfo.sun,
-	};
-
-	BufferId sceneDataBuff = m_framesData[m_currentFrame].sceneDataBuff;
-	cmd.updateBuffer(sceneDataBuff, &sceneData);
-
 	DrawAttachment* drawAttachment = new DrawAttachment({
 		.drawImage = renderTarget.getDrawImage(),
 		.loadAction = sceneInfo.colorLoadOp,
@@ -108,14 +112,22 @@ void Renderer::renderScene(const Scene& scene,
 			  })
 			: nullptr;
 
+	SceneData sceneData = {
+		.ambientColor = sceneInfo.ambientColor,
+		.sun = sceneInfo.sun,
+	};
+
+	BufferId sceneDataBuff = m_framesData[m_currentFrame].sceneDataBuff;
+	cmd.updateBuffer(sceneDataBuff, &sceneData);
+
 	cmd.beginRender(drawAttachment, depthAttachment);
 
-	for (const auto& [_, camera] : scene.getCameras()) {
+	for (const auto& [_, cameraNode] : scene.getCameras()) {
 		VkViewport viewport{
-			.x = camera.viewport.x,
-			.y = camera.viewport.y,
-			.width = camera.viewport.width,
-			.height = camera.viewport.height,
+			.x = cameraNode.viewport.x,
+			.y = cameraNode.viewport.y,
+			.width = cameraNode.viewport.width,
+			.height = cameraNode.viewport.height,
 			.minDepth = 0.f,
 			.maxDepth = 1.f,
 		};
@@ -129,6 +141,18 @@ void Renderer::renderScene(const Scene& scene,
 			viewport.y = 0;
 			viewport.height = (float)renderTarget.getExtent().height;
 		}
+
+		CameraData cameraData = {
+			.viewProj =
+				cameraNode.camera.getViewProjMatrix(cameraNode.getTransform()),
+			.view = cameraNode.getTransform().getViewMatrix(),
+			.proj = cameraNode.camera.getProjMatrix(),
+		};
+
+		BufferId cameraDataBuff =
+			Engine::getDevice().createUBO(sizeof(CameraData), &cameraData);
+
+		m_cameraDataBuffs.push_back(cameraDataBuff);
 
 		for (const auto& [_, meshNode] : scene.getMeshes()) {
 			MeshHandle mesh = meshNode.mesh;
@@ -150,10 +174,10 @@ void Renderer::renderScene(const Scene& scene,
 
 			m_pushConstants = {
 				.worldTransform = meshNode.getWorldMatrix(),
-				.viewproj = camera.getViewProjMatrix(),
 				.vertices = mesh->getVertexBuffer(),
 				.material = materialToUse->getParamsUBO(),
 				.sceneData = sceneDataBuff,
+				.cameraData = cameraDataBuff,
 			};
 
 			cmd.pushConstants(pipeline, m_pushConstants);

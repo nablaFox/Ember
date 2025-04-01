@@ -16,35 +16,6 @@ struct Camera {
 	float aspect{1.77f};
 	float near{0.1f};
 	float far{100.f};
-	Transform transform;
-	Viewport viewport;
-
-	Vec3 forward() const {
-		Vec3 res = {
-			sinf(-transform.yaw) * cosf(transform.pitch),
-			sinf(transform.pitch),
-			cosf(-transform.yaw) * cosf(transform.pitch),
-		};
-
-		return res * -1;
-	}
-
-	Vec3 right() const { return forward().cross({0, 1, 0}).normalize(); }
-
-	Vec3 up() const { return right().cross(forward()).normalize(); }
-
-	void rotate(float yaw, float pitch, float roll);
-
-	void translate(Vec3 translation);
-
-	Mat4 getViewMatrix() const {
-		Mat4 viewTranslation = Transform::getTransMatrix(transform.position * -1);
-
-		// CHECK shouldn't be transposed?
-		Mat4 viewRotation = transform.getRotMatrix();
-
-		return viewRotation * viewTranslation;
-	};
 
 	Mat4 getProjMatrix() const {
 		const float fovAngle = fov * M_PI / 180;
@@ -61,7 +32,9 @@ struct Camera {
 		};
 	}
 
-	Mat4 getViewProjMatrix() const { return getProjMatrix() * getViewMatrix(); }
+	Mat4 getViewProjMatrix(const Transform& transform) const {
+		return getProjMatrix() * transform.getViewMatrix();
+	}
 };
 
 }  // namespace etna

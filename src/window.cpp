@@ -65,8 +65,16 @@ Window::~Window() {
 	glfwDestroyWindow(m_window);
 }
 
-bool Window::shouldClose() const {
+bool Window::shouldClose() {
 	glfwPollEvents();
+
+	double currentX, currentY;
+	glfwGetCursorPos(m_window, &currentX, &currentY);
+	m_mouseDeltaX = currentX - m_lastMouseX;
+	m_mouseDeltaY = currentY - m_lastMouseY;
+	m_lastMouseX = currentX;
+	m_lastMouseY = currentY;
+
 	return glfwWindowShouldClose(m_window);
 }
 
@@ -89,6 +97,10 @@ bool Window::isKeyClicked(int key) {
 	return clicked;
 }
 
+float Window::getAspect() const {
+	return m_creationInfo.width / static_cast<float>(m_creationInfo.height);
+}
+
 float Window::getMouseX() const {
 	double x, y;
 	glfwGetCursorPos(m_window, &x, &y);
@@ -101,20 +113,12 @@ float Window::getMouseY() const {
 	return y;
 }
 
-float Window::mouseDeltaX() {
-	float toReturn = getMouseX() - m_lastMouseX;
-
-	m_lastMouseX = getMouseX();
-
-	return toReturn;
+float Window::mouseDeltaX() const {
+	return m_mouseDeltaX;
 }
 
-float Window::mouseDeltaY() {
-	float toReturn = getMouseY() - m_lastMouseY;
-
-	m_lastMouseY = getMouseY();
-
-	return toReturn;
+float Window::mouseDeltaY() const {
+	return m_mouseDeltaY;
 }
 
 void Window::swapBuffers() {

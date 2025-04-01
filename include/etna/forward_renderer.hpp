@@ -52,11 +52,13 @@ private:
 
 	struct PushConstants {
 		Mat4 worldTransform;
-		Mat4 viewproj;
 		ignis::BufferId vertices;
 		ignis::BufferId material;
 		ignis::BufferId sceneData;
+		ignis::BufferId cameraData;
 	} m_pushConstants;
+
+	std::vector<ignis::BufferId> m_cameraDataBuffs;
 };
 
 }  // namespace etna

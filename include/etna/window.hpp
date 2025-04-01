@@ -20,16 +20,18 @@ public:
 
 	~Window();
 
-	bool shouldClose() const;
+	bool shouldClose();
 
 	bool isKeyPressed(int key) const;
 	bool isKeyClicked(int key);
 
+	float getAspect() const;
+
 	float getMouseX() const;
 	float getMouseY() const;
 
-	float mouseDeltaX();
-	float mouseDeltaY();
+	float mouseDeltaX() const;
+	float mouseDeltaY() const;
 
 	void swapBuffers();
 
@@ -43,6 +45,8 @@ private:
 
 	float m_lastMouseX{0};
 	float m_lastMouseY{0};
+	float m_mouseDeltaX{0};
+	float m_mouseDeltaY{0};
 
 	std::unordered_map<int, bool> m_prevKeyStates;
 
