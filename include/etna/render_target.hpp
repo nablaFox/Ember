@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ignis/command.hpp"
-#include "engine.hpp"
 
 namespace etna {
 

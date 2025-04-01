@@ -4,32 +4,39 @@
 using namespace ignis;
 using namespace etna;
 
-Renderer::Renderer() {
+Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFlight) {
+	assert(m_framesInFlight > 0);
+
 	Device& device = Engine::getDevice();
 
-	for (uint32_t i{0}; i < Engine::ETNA_FRAMES_IN_FLIGHT; i++) {
-		m_framesData[i].m_inFlight = new ignis::Fence(device);
+	m_framesData.resize(m_framesInFlight);
 
-		m_framesData[i].m_cmd = new ignis::Command({
+	for (uint32_t i{0}; i < m_framesInFlight; i++) {
+		m_framesData[i].inFlight = new ignis::Fence(device);
+
+		m_framesData[i].cmd = new ignis::Command({
 			.device = device,
 			.queue = Engine::getGraphicsQueue(),
 		});
+
+		m_framesData[i].sceneDataBuff = device.createSSBO(sizeof(SceneData));
 	}
 }
 
 Renderer::~Renderer() {
 	Device& device = Engine::getDevice();
 
-	for (uint32_t i{0}; i < Engine::ETNA_FRAMES_IN_FLIGHT; i++) {
-		delete m_framesData[i].m_inFlight;
-		delete m_framesData[i].m_cmd;
+	for (uint32_t i{0}; i < m_framesInFlight; i++) {
+		delete m_framesData[i].inFlight;
+		delete m_framesData[i].cmd;
+		device.destroyBuffer(m_framesData[i].sceneDataBuff);
 	}
 }
 
 void Renderer::beginFrame() {
 	getCommand().begin();
 
-	m_framesData[m_currentFrame].m_inFlight->reset();
+	m_framesData[m_currentFrame].inFlight->reset();
 }
 
 void Renderer::endFrame() {
@@ -38,11 +45,11 @@ void Renderer::endFrame() {
 	SubmitCmdInfo cmdInfo{.command = getCommand()};
 
 	Engine::getDevice().submitCommands({cmdInfo},
-									   m_framesData[m_currentFrame].m_inFlight);
+									   m_framesData[m_currentFrame].inFlight);
 
-	m_framesData[m_currentFrame].m_inFlight->wait();
+	m_framesData[m_currentFrame].inFlight->wait();
 
-	m_currentFrame = (m_currentFrame + 1) % Engine::ETNA_FRAMES_IN_FLIGHT;
+	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
 
 void Renderer::renderScene(const Scene& scene,
@@ -53,8 +60,7 @@ void Renderer::renderScene(const Scene& scene,
 	VkViewport viewport = sceneInfo.viewport;
 	Color clearColor = sceneInfo.clearColor;
 
-	// update current scene data ubo
-	BufferId sceneDataBuff = scene.getSceneDataBuff(m_currentFrame);
+	BufferId sceneDataBuff = m_framesData[m_currentFrame].sceneDataBuff;
 
 	SceneData sceneData = {
 		.viewproj = camera.getViewProjMatrix(),
@@ -62,8 +68,12 @@ void Renderer::renderScene(const Scene& scene,
 
 	cmd.updateBuffer(sceneDataBuff, &sceneData);
 
-	VkClearColorValue clearColorValue = {clearColor.r, clearColor.g, clearColor.b,
-										 clearColor.a};
+	VkClearColorValue clearColorValue = {
+		clearColor.r,
+		clearColor.g,
+		clearColor.b,
+		clearColor.a,
+	};
 
 	DrawAttachment* drawAttachment = new DrawAttachment({
 		.drawImage = renderTarget.getDrawImage(),

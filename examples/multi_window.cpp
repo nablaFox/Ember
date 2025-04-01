@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
 	SceneNode& brick = scene.addMesh(Engine::createTexturedBrick(1, 1, 2),
 									 {.pitch = 0, .position = {0.f, 0.f, -2.f}});
 
-	Renderer renderer;
+	Renderer renderer({});
 
 	while (!window1.shouldClose()) {
 		renderer.beginFrame();

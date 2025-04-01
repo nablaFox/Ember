@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
 	SceneNode& floor = scene.addNode(Floor({.color = PURPLE.setAlpha(0.3)}));
 
-	Renderer renderer;
+	Renderer renderer({});
 
 	while (!window.shouldClose()) {
 		renderer.beginFrame();

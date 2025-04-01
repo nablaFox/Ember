@@ -20,8 +20,6 @@ public:
 
 	static VkQueue getUploadQueue();
 
-	static constexpr uint32_t ETNA_FRAMES_IN_FLIGHT{2};
-
 	static constexpr ignis::ColorFormat ETNA_COLOR_FORMAT{
 		ignis::ColorFormat::RGBA16};
 

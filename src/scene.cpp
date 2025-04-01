@@ -1,20 +1,11 @@
-#include "engine.hpp"
 #include "scene.hpp"
 
 using namespace etna;
 using namespace ignis;
 
-Scene::Scene() {
-	for (uint32_t i{0}; i < Engine::ETNA_FRAMES_IN_FLIGHT; i++) {
-		m_sceneDataBuffers[i] = Engine::getDevice().createSSBO(sizeof(SceneData));
-	}
-}
+Scene::Scene() {}
 
-Scene::~Scene() {
-	for (uint32_t i{0}; i < Engine::ETNA_FRAMES_IN_FLIGHT; i++) {
-		Engine::getDevice().destroyBuffer(m_sceneDataBuffers[i]);
-	}
-}
+Scene::~Scene() {}
 
 SceneNode& Scene::addMesh(const MeshHandle mesh,
 						  Transform transform,

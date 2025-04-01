@@ -43,7 +43,7 @@ struct DirectionalLight {
     vec4 color;     
 };
 
-DEF_SSBO(SceneData, {
+DEF_UBO(SceneData, {
 	mat4 viewproj;
 	vec4 ambientColor;
 	DirectionalLight sun;

@@ -2,6 +2,7 @@
 
 #include "camera.hpp"
 #include "scene.hpp"
+#include "engine.hpp"
 #include "window.hpp"
 
 using namespace etna;

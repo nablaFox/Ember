@@ -1,12 +1,21 @@
 #include "scene.hpp"
 #include "render_target.hpp"
 #include "camera.hpp"
+#include "engine.hpp"
 
 namespace etna {
+
+struct DirectionalLight {
+	Vec3 direction;
+	float padding;
+	Color color;
+};
 
 struct RenderSettings {
 	VkViewport viewport{};
 	Color clearColor{Engine::ETNA_CLEAR_COLOR};
+	Color ambientColor{0.1f, 0.1f, 0.1f, 1};
+	DirectionalLight sun{};
 	VkAttachmentStoreOp colorStoreOp{VK_ATTACHMENT_STORE_OP_STORE};
 	VkAttachmentStoreOp depthStoreOp{VK_ATTACHMENT_STORE_OP_DONT_CARE};
 	VkAttachmentLoadOp colorLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
@@ -15,7 +24,11 @@ struct RenderSettings {
 
 class Renderer {
 public:
-	Renderer();
+	struct CreateInfo {
+		uint32_t framesInFlight{2};
+	};
+
+	Renderer(const CreateInfo&);
 
 	~Renderer();
 
@@ -28,15 +41,25 @@ public:
 					 const Camera&,
 					 const RenderSettings = {});
 
-	ignis::Command& getCommand() const {
-		return *m_framesData[m_currentFrame].m_cmd;
-	}
+	ignis::Command& getCommand() const { return *m_framesData[m_currentFrame].cmd; }
 
 private:
+	uint32_t m_framesInFlight;
+	uint32_t m_currentFrame{0};
+
+	struct SceneData {
+		Mat4 viewproj;
+		Color ambientColor;
+		DirectionalLight sun;
+	};
+
 	struct FrameData {
-		ignis::Fence* m_inFlight;
-		ignis::Command* m_cmd;
-	} m_framesData[Engine::ETNA_FRAMES_IN_FLIGHT];
+		ignis::Fence* inFlight;
+		ignis::Command* cmd;
+		ignis::BufferId sceneDataBuff;
+	};
+
+	std::vector<FrameData> m_framesData;
 
 	struct PushConstants {
 		Mat4 worldTransform;
@@ -44,8 +67,6 @@ private:
 		ignis::BufferId material;
 		ignis::BufferId sceneData;
 	} m_pushConstants;
-
-	uint32_t m_currentFrame{0};
 };
 
 }  // namespace etna
