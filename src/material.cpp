@@ -7,17 +7,17 @@ namespace etna {
 
 MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	: m_paramsSize(info.paramsSize) {
-	Device& device = Engine::getDevice();
+	Device& device = engine::getDevice();
 
 	uint32_t sampleCount =
-		(info.samples == 0 || info.samples > Engine::getMaxAllowedSampleCount())
-			? Engine::getMaxAllowedSampleCount()
+		(info.samples == 0 || info.samples > engine::getMaxAllowedSampleCount())
+			? engine::getMaxAllowedSampleCount()
 			: info.samples;
 
 	PipelineCreateInfo pipelineInfo{
 		.device = &device,
 		.shaders = std::move(info.shaders),
-		.colorFormat = Engine::ETNA_COLOR_FORMAT,
+		.colorFormat = engine::ETNA_COLOR_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
@@ -31,7 +31,7 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	}
 
 	if (info.enableDepth) {
-		pipelineInfo.depthFormat = Engine::ETNA_DEPTH_FORMAT;
+		pipelineInfo.depthFormat = engine::ETNA_DEPTH_FORMAT;
 		pipelineInfo.enableDepthTest = true;
 		pipelineInfo.enableDepthWrite = true;
 	}
@@ -68,7 +68,7 @@ Material::Material(const CreateInfo& info)
 		return;
 	}
 
-	m_paramsUBO = Engine::getDevice().createUBO(paramsSize, info.params);
+	m_paramsUBO = engine::getDevice().createUBO(paramsSize, info.params);
 }
 
 Material::Material(const MaterialTemplate::CreateInfo& info) {
@@ -85,7 +85,7 @@ Material::Material(const MaterialTemplate::CreateInfo& info) {
 		return;
 	}
 
-	m_paramsUBO = Engine::getDevice().createUBO(info.paramsSize);
+	m_paramsUBO = engine::getDevice().createUBO(info.paramsSize);
 }
 
 MaterialHandle Material::create(const CreateInfo& info) {
@@ -98,7 +98,7 @@ MaterialHandle Material::create(const MaterialTemplate::CreateInfo& info) {
 
 Material::~Material() {
 	if (m_paramsUBO != IGNIS_INVALID_BUFFER_ID)
-		Engine::getDevice().destroyBuffer(m_paramsUBO);
+		engine::getDevice().destroyBuffer(m_paramsUBO);
 }
 
 }  // namespace etna

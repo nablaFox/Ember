@@ -1,6 +1,7 @@
 #pragma once
 
-#include "etna/engine.hpp"
+#include "etna/primitives.hpp"
+#include "etna/default_materials.hpp"
 #include "etna/scene.hpp"
 #include "etna/window.hpp"
 #include "etna/model.hpp"
@@ -88,16 +89,16 @@ struct FloorCreateInfo {
 };
 
 inline Model createFloor(const FloorCreateInfo& info) {
-	MeshHandle quad = Engine::createQuad(INVISIBLE);
+	MeshHandle quad = engine::createQuad(INVISIBLE);
 
-	MaterialHandle mainGridMaterial = Engine::createTransparentGridMaterial({
-		.color = info.color,
+	MaterialHandle mainGridMaterial = engine::createTransparentGridMaterial({
+		.gridColor = info.color,
 		.gridSpacing = info.gridSize / info.floorScale,
 		.thickness = info.lineThickness / info.floorScale,
 	});
 
-	MaterialHandle subGridMaterial = Engine::createTransparentGridMaterial({
-		.color = info.color * 0.8,
+	MaterialHandle subGridMaterial = engine::createTransparentGridMaterial({
+		.gridColor = info.color * 0.8,
 		.gridSpacing = info.gridSize / (info.floorScale * 2.f),
 		.thickness = info.lineThickness / info.floorScale,
 	});
@@ -128,9 +129,9 @@ struct OutlinedBrickCreateInfo {
 
 inline Model createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 	MeshHandle brick =
-		Engine::createTexturedBrick(info.width, info.height, info.depth, info.color);
+		engine::createTexturedBrick(info.width, info.height, info.depth, info.color);
 
-	MaterialHandle material = Engine::createBrickOutlinedMaterial({
+	MaterialHandle material = engine::createBrickOutlinedMaterial({
 		.outline = info.outlineColor,
 		.thickness = info.outlienThickness,
 	});

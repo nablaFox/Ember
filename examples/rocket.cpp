@@ -1,3 +1,4 @@
+#include "engine.hpp"
 #include "physics.hpp"
 #include "shared.hpp"
 
@@ -55,14 +56,14 @@ Model createRocketModel() {
 	rocket.getRoot().transform.position = {0, ROCKET_INIT_HEIGHT * WU_PER_METER, 0};
 
 	rocket.getRoot().addSubMesh("Nose",
-								Engine::createPyramid(height / 3, width * 1.2, RED),
+								engine::createPyramid(height / 3, width * 1.2, RED),
 								nullptr, {.position = {0, height / 2, 0}});
 
 	return rocket;
 }
 
 int main(void) {
-	Engine engine;
+	engine::init();
 
 	Window window({
 		.width = WINDOW_WIDTH,

@@ -4,7 +4,7 @@ constexpr uint32_t WINDOW_WIDTH = 800;
 constexpr uint32_t WINDOW_HEIGHT = 600;
 
 int main(void) {
-	Engine engine;
+	engine::init();
 
 	Window window({
 		.width = WINDOW_WIDTH,
@@ -18,20 +18,20 @@ int main(void) {
 	SceneNode root = scene.createRoot("root", {});
 
 	// geometry
-	root.addMesh("Sphere1", Engine::createSphere(BLUE * 0.08),
+	root.addMesh("Sphere1", engine::createSphere(BLUE * 0.08),
 				 {
 					 .scale = 0.5,
 					 .pitch = M_PI / 2,
 					 .position = {1.5, 0.5, -5},
 				 },
-				 Engine::createGridMaterial({
-					 .color = BLUE,
+				 engine::createGridMaterial({
+					 .gridColor = BLUE,
 					 .gridSpacing = 0.1,
 					 .thickness = 0.005,
 				 }));
 
-	root.addMesh("Sphere2", Engine::createSphere(GREEN), {.position = {0, 2.5, -9}},
-				 Engine::getPointMaterial());
+	root.addMesh("Sphere2", engine::createSphere(GREEN), {.position = {0, 2.5, -9}},
+				 engine::getPointMaterial());
 
 	root.addModel("OutlinedBrick", createOutlinedBrick({}),
 				  {

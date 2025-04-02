@@ -6,11 +6,11 @@ using namespace etna;
 using namespace ignis;
 
 Mesh::Mesh(const CreateInfo& info) {
-	auto& device = Engine::getDevice();
+	auto& device = engine::getDevice();
 
 	// PONDER: maybe we can query here the appropriate queue for the upload instead
 	// of having it global
-	Command uploadCmd({.device = device, .queue = Engine::getUploadQueue()});
+	Command uploadCmd({.device = device, .queue = engine::getUploadQueue()});
 
 	m_vertexBuffer = device.createSSBO(info.vertices.size() * sizeof(Vertex));
 
@@ -32,7 +32,7 @@ Mesh::Mesh(const CreateInfo& info) {
 }
 
 Mesh::~Mesh() {
-	auto& device = Engine::getDevice();
+	auto& device = engine::getDevice();
 
 	device.destroyBuffer(m_vertexBuffer);
 	delete m_indexBuffer;
@@ -47,5 +47,5 @@ uint32_t Mesh::indexCount() const {
 }
 
 uint32_t Mesh::vertexCount() const {
-	return Engine::getDevice().getBuffer(m_vertexBuffer).getSize() / sizeof(Vertex);
+	return engine::getDevice().getBuffer(m_vertexBuffer).getSize() / sizeof(Vertex);
 }

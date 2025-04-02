@@ -6,12 +6,13 @@ using namespace ignis;
 namespace etna {
 
 RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
-	Device& device = Engine::getDevice();
+	Device& device = engine::getDevice();
 
-	const uint32_t sampleCount =
-		(info.samples == 0 || info.samples > Engine::getMaxAllowedSampleCount())
-			? Engine::getMaxAllowedSampleCount()
-			: info.samples;
+	const uint32_t maxSampleCount = engine::getMaxAllowedSampleCount();
+
+	const uint32_t sampleCount = (info.samples == 0 || info.samples > maxSampleCount)
+									 ? maxSampleCount
+									 : info.samples;
 
 	m_creationInfo.samples = sampleCount;
 
@@ -21,7 +22,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	m_drawImage = new Image(device.createDrawAttachmentImage({
 		.width = info.extent.width,
 		.height = info.extent.height,
-		.format = Engine::ETNA_COLOR_FORMAT,
+		.format = engine::ETNA_COLOR_FORMAT,
 		.sampleCount = sampleCountBits,
 	}));
 
@@ -29,7 +30,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 		m_resolvedImage = new Image(device.createDrawAttachmentImage({
 			.width = info.extent.width,
 			.height = info.extent.height,
-			.format = Engine::ETNA_COLOR_FORMAT,
+			.format = engine::ETNA_COLOR_FORMAT,
 			.sampleCount = VK_SAMPLE_COUNT_1_BIT,
 		}));
 	}
@@ -38,12 +39,12 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 		m_depthImage = new Image(device.createDepthAttachmentImage({
 			.width = info.extent.width,
 			.height = info.extent.height,
-			.format = Engine::ETNA_DEPTH_FORMAT,
+			.format = engine::ETNA_DEPTH_FORMAT,
 			.sampleCount = sampleCountBits,
 		}));
 	}
 
-	Command cmd({.device = device, .queue = Engine::getUploadQueue()});
+	Command cmd({.device = device, .queue = engine::getUploadQueue()});
 
 	cmd.begin();
 

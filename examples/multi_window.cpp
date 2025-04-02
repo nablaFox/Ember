@@ -6,7 +6,7 @@ constexpr uint32_t WINDOW_WIDTH = 800;
 constexpr uint32_t WINDOW_HEIGHT = 600;
 
 int main(void) {
-	Engine engine;
+	engine::init();
 
 	Window window1({
 		.width = WINDOW_WIDTH,
@@ -25,7 +25,7 @@ int main(void) {
 
 	SceneNode root = scene.createRoot("root", {});
 
-	root.addMesh("Brick", Engine::createTexturedBrick(1, 1, 2),
+	root.addMesh("Brick", engine::createTexturedBrick(1, 1, 2),
 				 {.pitch = 0, .position = {0.f, 0.f, -2.f}});
 
 	Viewport const viewport1{

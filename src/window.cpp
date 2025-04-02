@@ -10,7 +10,7 @@ using namespace ignis;
 
 Window::Window(const CreateInfo& info)
 	: RenderTarget({.extent = {info.width, info.height}}), m_creationInfo(info) {
-	Device& device = Engine::getDevice();
+	Device& device = engine::getDevice();
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -43,7 +43,7 @@ Window::Window(const CreateInfo& info)
 }
 
 Window::~Window() {
-	Engine::getDevice().waitIdle();
+	engine::getDevice().waitIdle();
 
 	delete m_finishedBlitting;
 
@@ -53,7 +53,7 @@ Window::~Window() {
 
 	delete m_swapchain;
 
-	vkDestroySurfaceKHR(Engine::getDevice().getInstance(), m_surface, nullptr);
+	vkDestroySurfaceKHR(engine::getDevice().getInstance(), m_surface, nullptr);
 
 	glfwDestroyWindow(m_window);
 }
@@ -141,7 +141,7 @@ void Window::swapBuffers() {
 		.signalSemaphores = {m_finishedBlitting},
 	};
 
-	Engine::getDevice().submitCommands({blitCmdInfo}, nullptr);
+	engine::getDevice().submitCommands({blitCmdInfo}, nullptr);
 
 	m_swapchain->presentCurrent({.waitSemaphores = {m_finishedBlitting}});
 }

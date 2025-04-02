@@ -6,7 +6,7 @@ Simple C++ 20 graphics engine written with [Ignis](https://github.com/nablaFox/I
 
 ```cpp
 int main(int argc, char* argv[]) {
-	Engine engine;
+    engine::init();
 
 	Window window({
 		.width = WINDOW_WIDTH,
@@ -19,20 +19,20 @@ int main(int argc, char* argv[]) {
 
 	SceneNode root = scene.createRoot("root", {});
 
-	MaterialHandle sphereMaterial = Engine::createGridMaterial({
+	MaterialHandle sphereMaterial = engine::createGridMaterial({
 		.color = BLUE,
 		.gridSpacing = 0.1,
 		.thickness = 0.005,
 	});
 
-	Transform sphereTransform = {
+	Transform sphereTransform{
 		.scale = 0.5,
 		.pitch = M_PI / 2,
 		.position = {1.5, 0.5, -5},
 	};
 
-	MeshNode& sphere = root.addMesh("Sphere", Engine::createSphere(BLUE * 0.08),
-									sphereTransform, sphereMaterial);
+    MeshNode& sphere = root.addMesh("Sphere", engine::createSphere(BLUE * 0.08),
+                                    sphereTransform, sphereMaterial);
 
 	CameraNode& playerCamera =
 		root.addCamera("PlayerCamera", {.fov = 70, .aspect = window.getAspect()},

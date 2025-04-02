@@ -11,7 +11,7 @@ struct DirectionalLight {
 };
 
 struct RenderSettings {
-	Color clearColor{Engine::ETNA_CLEAR_COLOR};
+	Color clearColor{engine::ETNA_CLEAR_COLOR};
 	Color ambientColor;
 	DirectionalLight sun;
 	VkAttachmentStoreOp colorStoreOp{VK_ATTACHMENT_STORE_OP_STORE};

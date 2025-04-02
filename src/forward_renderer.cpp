@@ -1,5 +1,7 @@
 #include "forward_renderer.hpp"
-#include "fence.hpp"
+#include "ignis/fence.hpp"
+#include "default_materials.hpp"
+#include "mesh.hpp"
 
 using namespace ignis;
 using namespace etna;
@@ -18,7 +20,7 @@ struct CameraData {
 Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFlight) {
 	assert(m_framesInFlight > 0);
 
-	Device& device = Engine::getDevice();
+	Device& device = engine::getDevice();
 
 	m_framesData.resize(m_framesInFlight);
 
@@ -27,7 +29,7 @@ Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFligh
 
 		m_framesData[i].cmd = new ignis::Command({
 			.device = device,
-			.queue = Engine::getGraphicsQueue(),
+			.queue = engine::getGraphicsQueue(),
 		});
 
 		m_framesData[i].sceneDataBuff = device.createSSBO(sizeof(SceneData));
@@ -35,7 +37,7 @@ Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFligh
 }
 
 Renderer::~Renderer() {
-	Device& device = Engine::getDevice();
+	Device& device = engine::getDevice();
 
 	for (uint32_t i{0}; i < m_framesInFlight; i++) {
 		delete m_framesData[i].inFlight;
@@ -55,13 +57,13 @@ void Renderer::endFrame() {
 
 	SubmitCmdInfo cmdInfo{.command = getCommand()};
 
-	Engine::getDevice().submitCommands({cmdInfo},
+	engine::getDevice().submitCommands({cmdInfo},
 									   m_framesData[m_currentFrame].inFlight);
 
 	m_framesData[m_currentFrame].inFlight->wait();
 
 	for (const auto& cameraDataBuff : m_cameraDataBuffs) {
-		Engine::getDevice().destroyBuffer(cameraDataBuff);
+		engine::getDevice().destroyBuffer(cameraDataBuff);
 	}
 
 	m_cameraDataBuffs.clear();
@@ -77,7 +79,7 @@ void Renderer::renderScene(const Scene& scene,
 	for (const auto& [_, node] : scene.getMeshes()) {
 		const MaterialTemplate& materialT =
 			node.material != nullptr ? node.material->getTemplate()
-									 : Engine::getDefaultMaterial()->getTemplate();
+									 : engine::getDefaultMaterial()->getTemplate();
 
 		const RenderTarget::CreateInfo& renderTargetInfo =
 			renderTarget.getCreationInfo();
@@ -156,7 +158,7 @@ void Renderer::renderScene(const Scene& scene,
 		};
 
 		BufferId cameraDataBuff =
-			Engine::getDevice().createUBO(sizeof(CameraData), &cameraData);
+			engine::getDevice().createUBO(sizeof(CameraData), &cameraData);
 
 		m_cameraDataBuffs.push_back(cameraDataBuff);
 
@@ -165,7 +167,7 @@ void Renderer::renderScene(const Scene& scene,
 			MaterialHandle material = meshNode.material;
 
 			const MaterialHandle materialToUse =
-				material != nullptr ? material : Engine::getDefaultMaterial();
+				material != nullptr ? material : engine::getDefaultMaterial();
 
 			assert(mesh != nullptr);
 			assert(materialToUse != nullptr);
