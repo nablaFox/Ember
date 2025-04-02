@@ -10,7 +10,7 @@ public:
 		VkExtent2D extent;
 		// TODO: bool hasColor{true};
 		bool hasDepth{true};
-		uint32_t samples{1};
+		uint32_t samples{0};
 	};
 
 	RenderTarget(const CreateInfo&);
@@ -30,9 +30,9 @@ public:
 	CreateInfo getCreationInfo() const { return m_creationInfo; }
 
 protected:
-	ignis::Image* m_drawImage;
-	ignis::Image* m_depthImage;
-	ignis::Image* m_resolvedImage;
+	ignis::Image* m_drawImage{nullptr};
+	ignis::Image* m_depthImage{nullptr};
+	ignis::Image* m_resolvedImage{nullptr};
 
 	CreateInfo m_creationInfo;
 };

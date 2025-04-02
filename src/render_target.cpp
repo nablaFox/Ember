@@ -8,16 +8,21 @@ namespace etna {
 RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	Device& device = Engine::getDevice();
 
-	assert(info.samples > 0 && "Samples must be greater than 0");
+	const uint32_t sampleCount =
+		(info.samples == 0 || info.samples > Engine::getMaxAllowedSampleCount())
+			? Engine::getMaxAllowedSampleCount()
+			: info.samples;
 
-	assert(info.samples <= device.getMaxSampleCount() &&
-		   "Samples must be less than or equal to the maximum sample count");
+	m_creationInfo.samples = sampleCount;
+
+	const VkSampleCountFlagBits sampleCountBits =
+		static_cast<VkSampleCountFlagBits>(sampleCount);
 
 	m_drawImage = new Image(device.createDrawAttachmentImage({
 		.width = info.extent.width,
 		.height = info.extent.height,
 		.format = Engine::ETNA_COLOR_FORMAT,
-		.sampleCount = static_cast<VkSampleCountFlagBits>(info.samples),
+		.sampleCount = sampleCountBits,
 	}));
 
 	if (isMultiSampled()) {
@@ -34,7 +39,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 			.width = info.extent.width,
 			.height = info.extent.height,
 			.format = Engine::ETNA_DEPTH_FORMAT,
-			.sampleCount = static_cast<VkSampleCountFlagBits>(info.samples),
+			.sampleCount = sampleCountBits,
 		}));
 	}
 

@@ -15,6 +15,7 @@ public:
 		bool transparency{false};
 		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
 		float lineWidth{1.0f};
+		uint32_t samples{0};
 	};
 
 	~MaterialTemplate();
@@ -27,6 +28,7 @@ public:
 
 #ifndef NDEBUG
 	bool hasDepth;
+	uint32_t samples;
 #endif
 
 private:
@@ -46,23 +48,13 @@ public:
 		void* params{nullptr};
 	};
 
-	struct CreateInfo2 {
-		std::vector<std::string> shaders;
-		void* paramsData{nullptr};
-		size_t paramsSize{0};  // TODO: reflect this
-		bool enableDepth{true};
-		bool transparency{false};
-		VkPolygonMode polygonMode{VK_POLYGON_MODE_FILL};
-		float lineWidth{1.0f};
-	};
-
 	Material(const CreateInfo&);
 
-	Material(const CreateInfo2&);
+	Material(const MaterialTemplate::CreateInfo&);
 
 	static std::shared_ptr<Material> create(const CreateInfo&);
 
-	static std::shared_ptr<Material> create(const CreateInfo2&);
+	static std::shared_ptr<Material> create(const MaterialTemplate::CreateInfo&);
 
 	~Material();
 

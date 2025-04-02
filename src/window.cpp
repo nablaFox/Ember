@@ -1,7 +1,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
-#include <algorithm>
 #include "window.hpp"
 #include "engine.hpp"
 #include "semaphore.hpp"
@@ -10,13 +9,7 @@ using namespace etna;
 using namespace ignis;
 
 Window::Window(const CreateInfo& info)
-	: RenderTarget({
-		  .extent = {info.width, info.height},
-		  .samples = std::min(
-			  static_cast<uint32_t>(Engine::getDevice().getMaxSampleCount()),
-			  8u),
-	  }),
-	  m_creationInfo(info) {
+	: RenderTarget({.extent = {info.width, info.height}}), m_creationInfo(info) {
 	Device& device = Engine::getDevice();
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -125,21 +118,20 @@ float Window::mouseDeltaY() const {
 
 void Window::swapBuffers() {
 	Image& swapchainImage = m_swapchain->acquireNextImage(m_imageAvailable);
-	Image& resolvedImage = *m_resolvedImage;
+	Image& dstImage = isMultiSampled() ? *m_resolvedImage : *m_drawImage;
 
 	m_blitCmd->begin();
 
-	m_blitCmd->transitionImageLayout(resolvedImage,
-									 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	m_blitCmd->transitionImageLayout(dstImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
 
 	m_blitCmd->transitionImageLayout(swapchainImage,
 									 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-	m_blitCmd->blitImage(resolvedImage, swapchainImage);
+	m_blitCmd->blitImage(dstImage, swapchainImage);
 
 	m_blitCmd->transitionToOptimalLayout(swapchainImage);
 
-	m_blitCmd->transitionToOptimalLayout(*m_resolvedImage);
+	m_blitCmd->transitionToOptimalLayout(dstImage);
 
 	m_blitCmd->end();
 

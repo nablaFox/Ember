@@ -69,19 +69,25 @@ void Renderer::endFrame() {
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
 
+// TODO: group meshes by material
 void Renderer::renderScene(const Scene& scene,
 						   const RenderTarget& renderTarget,
 						   const RenderSettings sceneInfo) {
 #ifndef NDEBUG
 	for (const auto& [_, node] : scene.getMeshes()) {
-		MaterialHandle material = node.material;
+		const MaterialTemplate& materialT =
+			node.material != nullptr ? node.material->getTemplate()
+									 : Engine::getDefaultMaterial()->getTemplate();
 
-		const MaterialHandle materialToUse =
-			material != nullptr ? material : Engine::getDefaultMaterial();
+		const RenderTarget::CreateInfo& renderTargetInfo =
+			renderTarget.getCreationInfo();
 
-		if (materialToUse->getTemplate().hasDepth !=
-			renderTarget.getCreationInfo().hasDepth) {
+		if (materialT.hasDepth != renderTargetInfo.hasDepth) {
 			throw std::runtime_error("Material has different depth test value");
+		}
+
+		if (materialT.samples != renderTargetInfo.samples) {
+			throw std::runtime_error("Material has different sample count");
 		}
 	}
 #endif

@@ -20,11 +20,15 @@ public:
 
 	static VkQueue getUploadQueue();
 
+	static uint32_t getMaxAllowedSampleCount();
+
 	static constexpr ignis::ColorFormat ETNA_COLOR_FORMAT{
 		ignis::ColorFormat::RGBA16};
 
 	static constexpr ignis::DepthFormat ETNA_DEPTH_FORMAT{
 		ignis::DepthFormat::D32_SFLOAT};
+
+	static constexpr uint32_t ETNA_MAX_SAMPLE_COUNT{8};
 
 	static constexpr Color ETNA_CLEAR_COLOR{0.02f, 0.02f, 0.02f, 1};
 

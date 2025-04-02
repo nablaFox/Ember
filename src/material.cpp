@@ -9,6 +9,11 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	: m_paramsSize(info.paramsSize) {
 	Device& device = Engine::getDevice();
 
+	uint32_t sampleCount =
+		(info.samples == 0 || info.samples > Engine::getMaxAllowedSampleCount())
+			? Engine::getMaxAllowedSampleCount()
+			: info.samples;
+
 	PipelineCreateInfo pipelineInfo{
 		.device = &device,
 		.shaders = std::move(info.shaders),
@@ -16,7 +21,7 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
-		.sampleCount = device.getMaxSampleCount(),
+		.sampleCount = static_cast<VkSampleCountFlagBits>(sampleCount),
 		.sampleShadingEnable = device.isFeatureEnabled("SampleRateShading"),
 	};
 
@@ -43,6 +48,7 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 
 #ifndef NDEBUG
 	hasDepth = info.enableDepth;
+	samples = sampleCount;
 #endif
 }
 
@@ -65,7 +71,7 @@ Material::Material(const CreateInfo& info)
 	m_paramsUBO = Engine::getDevice().createUBO(paramsSize, info.params);
 }
 
-Material::Material(const CreateInfo2& info) {
+Material::Material(const MaterialTemplate::CreateInfo& info) {
 	m_materialTemplate = MaterialTemplate::create({
 		.shaders = info.shaders,
 		.paramsSize = info.paramsSize,
@@ -79,14 +85,14 @@ Material::Material(const CreateInfo2& info) {
 		return;
 	}
 
-	m_paramsUBO = Engine::getDevice().createUBO(info.paramsSize, info.paramsData);
+	m_paramsUBO = Engine::getDevice().createUBO(info.paramsSize);
 }
 
 MaterialHandle Material::create(const CreateInfo& info) {
 	return std::shared_ptr<Material>(new Material(info));
 }
 
-MaterialHandle Material::create(const CreateInfo2& info) {
+MaterialHandle Material::create(const MaterialTemplate::CreateInfo& info) {
 	return std::shared_ptr<Material>(new Material(info));
 }
 

@@ -78,6 +78,18 @@ VkQueue Engine::getUploadQueue() {
 		"Engine must be initialized to access the upload queue");
 }
 
+uint32_t Engine::getMaxAllowedSampleCount() {
+	if (g_device != nullptr) {
+		uint32_t deviceMaxSampleCount = g_device->getMaxSampleCount();
+
+		return deviceMaxSampleCount > ETNA_MAX_SAMPLE_COUNT ? ETNA_MAX_SAMPLE_COUNT
+															: deviceMaxSampleCount;
+	}
+
+	throw std::runtime_error(
+		"Engine must be initialized to access the maximum sample count");
+}
+
 // PONDER: maybe use a macro or an helper function to reduce duplication
 
 MaterialHandle Engine::getDefaultMaterial() {
