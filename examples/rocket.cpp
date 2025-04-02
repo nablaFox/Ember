@@ -135,6 +135,7 @@ int main(void) {
 		renderer.beginFrame();
 
 		renderer.renderScene(scene, window, playerCamera);
+
 		renderer.renderScene(scene, window, rocketCamera, LOAD_PREVIOUS);
 
 		renderer.endFrame();

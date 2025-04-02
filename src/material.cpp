@@ -44,7 +44,6 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	m_pipeline = new Pipeline(pipelineInfo);
 
 #ifndef NDEBUG
-	hasDepth = info.enableDepth;
 	samples = sampleCount;
 #endif
 }

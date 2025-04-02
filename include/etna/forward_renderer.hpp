@@ -18,6 +18,7 @@ struct RenderSettings {
 	VkAttachmentStoreOp depthStoreOp{VK_ATTACHMENT_STORE_OP_DONT_CARE};
 	VkAttachmentLoadOp colorLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
 	VkAttachmentLoadOp depthLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
+	bool renderDepth{true};
 };
 
 constexpr RenderSettings LOAD_PREVIOUS{

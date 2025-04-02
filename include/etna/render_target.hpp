@@ -8,8 +8,6 @@ class RenderTarget {
 public:
 	struct CreateInfo {
 		VkExtent2D extent;
-		// TODO: bool hasColor{true};
-		bool hasDepth{true};
 		uint32_t samples{0};
 	};
 

@@ -27,7 +27,6 @@ public:
 	auto getParamsSize() const { return m_paramsSize; }
 
 #ifndef NDEBUG
-	bool hasDepth;
 	uint32_t samples;
 #endif
 

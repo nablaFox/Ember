@@ -78,7 +78,7 @@ void Renderer::endFrame() {
 void Renderer::renderScene(const Scene& scene,
 						   const RenderTarget& renderTarget,
 						   const CameraNode& cameraNode,
-						   const RenderSettings sceneInfo) {
+						   const RenderSettings info) {
 #ifndef NDEBUG
 	for (const auto& [_, node] : scene.getMeshes()) {
 		const MaterialTemplate& materialT = node.material != nullptr
@@ -88,10 +88,6 @@ void Renderer::renderScene(const Scene& scene,
 		const RenderTarget::CreateInfo& renderTargetInfo =
 			renderTarget.getCreationInfo();
 
-		if (materialT.hasDepth != renderTargetInfo.hasDepth) {
-			throw std::runtime_error("Material has different depth test value");
-		}
-
 		if (materialT.samples != renderTargetInfo.samples) {
 			throw std::runtime_error("Material has different sample count");
 		}
@@ -100,7 +96,7 @@ void Renderer::renderScene(const Scene& scene,
 
 	Command& cmd = getCommand();
 
-	Color clearColor = sceneInfo.clearColor;
+	const Color clearColor{info.clearColor};
 
 	const VkClearColorValue clearColorValue{
 		clearColor.r,
@@ -111,23 +107,22 @@ void Renderer::renderScene(const Scene& scene,
 
 	DrawAttachment* drawAttachment = new DrawAttachment({
 		.drawImage = renderTarget.getDrawImage(),
-		.loadAction = sceneInfo.colorLoadOp,
-		.storeAction = sceneInfo.colorStoreOp,
+		.loadAction = info.colorLoadOp,
+		.storeAction = info.colorStoreOp,
 		.clearColor = clearColorValue,
 	});
 
 	DepthAttachment* depthAttachment =
-		renderTarget.getCreationInfo().hasDepth
-			? new DepthAttachment({
-				  .depthImage = renderTarget.getDepthImage(),
-				  .loadAction = sceneInfo.depthLoadOp,
-				  .storeAction = sceneInfo.depthStoreOp,
-			  })
-			: nullptr;
+		info.renderDepth ? new DepthAttachment({
+							   .depthImage = renderTarget.getDepthImage(),
+							   .loadAction = info.depthLoadOp,
+							   .storeAction = info.depthStoreOp,
+						   })
+						 : nullptr;
 
 	const SceneData sceneData{
-		.ambientColor = sceneInfo.ambientColor,
-		.sun = sceneInfo.sun,
+		.ambientColor = info.ambientColor,
+		.sun = info.sun,
 	};
 
 	BufferId sceneDataBuff = m_framesData[m_currentFrame].sceneDataBuff;
@@ -178,7 +173,6 @@ void Renderer::renderScene(const Scene& scene,
 		const MaterialHandle materialToUse =
 			material != nullptr ? material : g_defaultMaterial;
 
-		assert(mesh != nullptr);
 		assert(materialToUse != nullptr);
 
 		Pipeline& pipeline = materialToUse->getTemplate().getPipeline();

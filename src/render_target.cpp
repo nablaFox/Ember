@@ -32,14 +32,12 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 		}));
 	}
 
-	if (info.hasDepth) {
-		m_depthImage = new Image(_device.createDepthAttachmentImage({
-			.width = info.extent.width,
-			.height = info.extent.height,
-			.format = engine::ETNA_DEPTH_FORMAT,
-			.sampleCount = sampleCountBits,
-		}));
-	}
+	m_depthImage = new Image(_device.createDepthAttachmentImage({
+		.width = info.extent.width,
+		.height = info.extent.height,
+		.format = engine::ETNA_DEPTH_FORMAT,
+		.sampleCount = sampleCountBits,
+	}));
 
 	Command cmd({.device = _device, .queue = engine::getUploadQueue()});
 
@@ -47,11 +45,10 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 
 	cmd.transitionToOptimalLayout(*m_drawImage);
 
+	cmd.transitionToOptimalLayout(*m_depthImage);
+
 	if (isMultiSampled())
 		cmd.transitionToOptimalLayout(*m_resolvedImage);
-
-	if (info.hasDepth)
-		cmd.transitionToOptimalLayout(*m_depthImage);
 
 	cmd.end();
 
