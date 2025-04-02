@@ -5,9 +5,9 @@
 namespace etna {
 
 struct Transform {
-	float scale{1.f};
-	float yaw{0}, pitch{0}, roll{0};
 	Vec3 position{0, 0, 0};
+	float yaw{0}, pitch{0}, roll{0};
+	Vec3 scale{1, 1, 1};
 
 	Mat4 getWorldMatrix() const {
 		return getTransMatrix() * getScaleMatrix() * getRotMatrix();
@@ -17,11 +17,11 @@ struct Transform {
 
 	Mat4 getScaleMatrix() const { return getScaleMatrix(scale); }
 
-	static Mat4 getScaleMatrix(float scale) {
+	static Mat4 getScaleMatrix(Vec3 scale) {
 		return {
-			{scale, 0, 0, 0},
-			{0, scale, 0, 0},
-			{0, 0, scale, 0},
+			{scale[0], 0, 0, 0},
+			{0, scale[1], 0, 0},
+			{0, 0, scale[2], 0},
 			{0, 0, 0, 1},
 		};
 	}

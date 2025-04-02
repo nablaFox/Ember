@@ -26,7 +26,7 @@ int main(void) {
 	SceneNode root = scene.createRoot("root", {});
 
 	root.addMesh("Brick", engine::createTexturedBrick(1, 1, 2),
-				 {.pitch = 0, .position = {0.f, 0.f, -2.f}});
+				 {.position = {0.f, 0.f, -2.f}});
 
 	Viewport const viewport1{
 		.x = 0,

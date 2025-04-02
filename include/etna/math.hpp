@@ -148,6 +148,12 @@ public:
 		std::copy(m.elements.begin(), m.elements.end(), this->elements.begin());
 	}
 
+	Vec(float value) {
+		for (std::size_t i = 0; i < Rows; i++) {
+			(*this)[i] = value;
+		}
+	}
+
 	T& operator[](std::size_t row) { return (*this)(row, 0); }
 	const T& operator[](std::size_t row) const { return (*this)(row, 0); }
 

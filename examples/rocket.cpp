@@ -114,8 +114,8 @@ int main(void) {
 		updateFirstPersonCamera(playerCamera, window);
 
 		rocketCamera.updateTransform({
-			.pitch = M_PI / 2,
 			.position = rocketMesh.getTransform().position + Vec3{0, 0, 0.5},
+			.pitch = M_PI / 2,
 		});
 
 		renderer.beginFrame();

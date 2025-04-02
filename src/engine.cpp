@@ -14,7 +14,7 @@ VkQueue g_uploadQueue{nullptr};
 
 std::deque<std::function<void()>> g_deletionQueue;
 
-static void shutdown() {
+static void cleanup() {
 	g_device->waitIdle();
 
 	glfwTerminate();
@@ -47,7 +47,7 @@ void engine::init() {
 	g_graphicsQueue = g_device->getQueue(0);
 	g_uploadQueue = g_device->getQueue(0);
 
-	std::atexit(shutdown);
+	std::atexit(cleanup);
 }
 
 Device& engine::getDevice() {

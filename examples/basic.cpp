@@ -20,9 +20,9 @@ int main(void) {
 	// geometry
 	root.addMesh("Sphere1", engine::createSphere(BLUE * 0.08),
 				 {
-					 .scale = 0.5,
-					 .pitch = M_PI / 2,
 					 .position = {1.5, 0.5, -5},
+					 .pitch = M_PI / 2,
+					 .scale = Vec3(0.5),
 				 },
 				 engine::createGridMaterial({
 					 .gridColor = BLUE,
@@ -35,8 +35,8 @@ int main(void) {
 
 	root.addModel("OutlinedBrick", createOutlinedBrick({}),
 				  {
-					  .yaw = M_PI / 4,
 					  .position = {-2.5, 0.5, -5},
+					  .yaw = M_PI / 4,
 				  });
 
 	root.addModel("Floor", createFloor({.color = PURPLE.setAlpha(0.3)}));

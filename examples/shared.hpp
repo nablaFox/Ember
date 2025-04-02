@@ -104,9 +104,9 @@ inline Model createFloor(const FloorCreateInfo& info) {
 	});
 
 	Transform mainGridTransform{
-		.scale = info.floorScale,
-		.pitch = -M_PI / 2,
 		.position = {0, info.height, 0},
+		.pitch = -M_PI / 2,
+		.scale = Vec3(info.floorScale),
 	};
 
 	Transform subGridTransform{};
