@@ -20,6 +20,11 @@ struct RenderSettings {
 	VkAttachmentLoadOp depthLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
 };
 
+constexpr RenderSettings LOAD_PREVIOUS{
+	.colorLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+	.depthLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+};
+
 class Renderer {
 public:
 	struct CreateInfo {
@@ -34,7 +39,10 @@ public:
 
 	void endFrame();
 
-	void renderScene(const Scene&, const RenderTarget&, const RenderSettings = {});
+	void renderScene(const Scene&,
+					 const RenderTarget&,
+					 const CameraNode&,
+					 const RenderSettings = {});
 
 	ignis::Command& getCommand() const { return *m_framesData[m_currentFrame].cmd; }
 

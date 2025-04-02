@@ -77,6 +77,7 @@ void Renderer::endFrame() {
 // handle syncrhonization between resources
 void Renderer::renderScene(const Scene& scene,
 						   const RenderTarget& renderTarget,
+						   const CameraNode& cameraNode,
 						   const RenderSettings sceneInfo) {
 #ifndef NDEBUG
 	for (const auto& [_, node] : scene.getMeshes()) {
@@ -100,7 +101,8 @@ void Renderer::renderScene(const Scene& scene,
 	Command& cmd = getCommand();
 
 	Color clearColor = sceneInfo.clearColor;
-	VkClearColorValue clearColorValue = {
+
+	const VkClearColorValue clearColorValue{
 		clearColor.r,
 		clearColor.g,
 		clearColor.b,
@@ -123,7 +125,7 @@ void Renderer::renderScene(const Scene& scene,
 			  })
 			: nullptr;
 
-	SceneData sceneData = {
+	const SceneData sceneData{
 		.ambientColor = sceneInfo.ambientColor,
 		.sun = sceneInfo.sun,
 	};
@@ -133,76 +135,74 @@ void Renderer::renderScene(const Scene& scene,
 
 	cmd.beginRender(drawAttachment, depthAttachment);
 
-	for (const auto& [_, cameraNode] : scene.getCameras()) {
-		VkViewport viewport{
-			.x = cameraNode.viewport.x,
-			.y = cameraNode.viewport.y,
-			.width = cameraNode.viewport.width,
-			.height = cameraNode.viewport.height,
-			.minDepth = 0.f,
-			.maxDepth = 1.f,
+	VkViewport viewport{
+		.x = cameraNode.viewport.x,
+		.y = cameraNode.viewport.y,
+		.width = cameraNode.viewport.width,
+		.height = cameraNode.viewport.height,
+		.minDepth = 0.f,
+		.maxDepth = 1.f,
+	};
+
+	if (viewport.width == 0) {
+		viewport.x = 0;
+		viewport.width = (float)renderTarget.getExtent().width;
+	}
+
+	if (viewport.height == 0) {
+		viewport.y = 0;
+		viewport.height = (float)renderTarget.getExtent().height;
+	}
+
+	const Mat4 view = cameraNode.getViewMatrix();
+
+	const Mat4 proj = cameraNode.getProjMatrix(viewport.width / viewport.height);
+
+	const CameraData cameraData{
+		.viewProj = proj * view,
+		.view = view,
+		.proj = proj,
+	};
+
+	BufferId cameraDataBuff = _device.createUBO(sizeof(CameraData), &cameraData);
+
+	m_cameraDataBuffs.push_back(cameraDataBuff);
+
+	for (const auto& [_, meshNode] : scene.getMeshes()) {
+		MeshHandle mesh = meshNode.mesh;
+		MaterialHandle material = meshNode.material;
+
+		if (mesh == nullptr)
+			continue;
+
+		const MaterialHandle materialToUse =
+			material != nullptr ? material : g_defaultMaterial;
+
+		assert(mesh != nullptr);
+		assert(materialToUse != nullptr);
+
+		Pipeline& pipeline = materialToUse->getTemplate().getPipeline();
+
+		cmd.bindPipeline(pipeline);
+
+		cmd.setViewport(viewport);
+
+		cmd.setScissor(
+			{0, 0, renderTarget.getExtent().width, renderTarget.getExtent().height});
+
+		cmd.bindIndexBuffer(*mesh->getIndexBuffer());
+
+		m_pushConstants = {
+			.worldTransform = meshNode.getWorldMatrix(),
+			.vertices = mesh->getVertexBuffer(),
+			.material = materialToUse->getParamsUBO(),
+			.sceneData = sceneDataBuff,
+			.cameraData = cameraDataBuff,
 		};
 
-		if (viewport.width == 0) {
-			viewport.x = 0;
-			viewport.width = (float)renderTarget.getExtent().width;
-		}
+		cmd.pushConstants(pipeline, m_pushConstants);
 
-		if (viewport.height == 0) {
-			viewport.y = 0;
-			viewport.height = (float)renderTarget.getExtent().height;
-		}
-
-		const Mat4 view = cameraNode.getViewMatrix();
-
-		const Mat4 proj = cameraNode.getProjMatrix(viewport.width / viewport.height);
-
-		const CameraData cameraData{
-			.viewProj = proj * view,
-			.view = view,
-			.proj = proj,
-		};
-
-		BufferId cameraDataBuff = _device.createUBO(sizeof(CameraData), &cameraData);
-
-		m_cameraDataBuffs.push_back(cameraDataBuff);
-
-		for (const auto& [_, meshNode] : scene.getMeshes()) {
-			MeshHandle mesh = meshNode.mesh;
-			MaterialHandle material = meshNode.material;
-
-			if (mesh == nullptr)
-				continue;
-
-			const MaterialHandle materialToUse =
-				material != nullptr ? material : g_defaultMaterial;
-
-			assert(mesh != nullptr);
-			assert(materialToUse != nullptr);
-
-			Pipeline& pipeline = materialToUse->getTemplate().getPipeline();
-
-			cmd.bindPipeline(pipeline);
-
-			cmd.setViewport(viewport);
-
-			cmd.setScissor({0, 0, renderTarget.getExtent().width,
-							renderTarget.getExtent().height});
-
-			cmd.bindIndexBuffer(*mesh->getIndexBuffer());
-
-			m_pushConstants = {
-				.worldTransform = meshNode.getWorldMatrix(),
-				.vertices = mesh->getVertexBuffer(),
-				.material = materialToUse->getParamsUBO(),
-				.sceneData = sceneDataBuff,
-				.cameraData = cameraDataBuff,
-			};
-
-			cmd.pushConstants(pipeline, m_pushConstants);
-
-			cmd.draw(mesh->indexCount());
-		}
+		cmd.draw(mesh->indexCount());
 	}
 
 	cmd.endRendering();

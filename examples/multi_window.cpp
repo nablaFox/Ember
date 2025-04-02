@@ -51,6 +51,8 @@ int main(void) {
 	CameraNode& camera2 =
 		root.addCamera("Camera2", {.position = {0, 0, 1}}, viewport2);
 
+	CameraNode& camera3 = root.addCamera("Camera3", {.position = {0, 0, 1}});
+
 	Renderer renderer({});
 
 	bool shouldClose = false;
@@ -61,6 +63,7 @@ int main(void) {
 
 		updateFirstPersonCamera(camera1, window1);
 		updateFirstPersonCamera(camera2, window1);
+		updateFirstPersonCamera(camera3, window1);
 
 		if (window1.shouldClose() || window2.shouldClose()) {
 			shouldClose = true;
@@ -68,9 +71,10 @@ int main(void) {
 
 		renderer.beginFrame();
 
-		renderer.renderScene(scene, window1);
+		renderer.renderScene(scene, window1, camera1);
+		renderer.renderScene(scene, window1, camera2, LOAD_PREVIOUS);
 
-		renderer.renderScene(scene, window2);
+		renderer.renderScene(scene, window2, camera3);
 
 		renderer.endFrame();
 

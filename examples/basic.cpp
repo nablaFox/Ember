@@ -56,7 +56,7 @@ int main(void) {
 
 		renderer.beginFrame();
 
-		renderer.renderScene(scene, window);
+		renderer.renderScene(scene, window, playerCamera);
 
 		renderer.endFrame();
 
