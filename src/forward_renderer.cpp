@@ -168,6 +168,9 @@ void Renderer::renderScene(const Scene& scene,
 			MeshHandle mesh = meshNode.mesh;
 			MaterialHandle material = meshNode.material;
 
+			if (mesh == nullptr)
+				continue;
+
 			const MaterialHandle materialToUse =
 				material != nullptr ? material : g_defaultMaterial;
 

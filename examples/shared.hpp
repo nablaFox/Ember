@@ -88,7 +88,7 @@ struct FloorCreateInfo {
 	float floorScale{1000};
 };
 
-inline Model createFloor(const FloorCreateInfo& info) {
+inline ModelRoot createFloor(const FloorCreateInfo& info) {
 	MeshHandle quad = engine::getQuad();
 
 	MaterialHandle mainGridMaterial = engine::createTransparentGridMaterial({
@@ -105,17 +105,17 @@ inline Model createFloor(const FloorCreateInfo& info) {
 		.thickness = info.lineThickness / info.floorScale,
 	});
 
-	Transform mainGridTransform{
+	Transform transform{
 		.position = {0, info.height, 0},
 		.pitch = -M_PI / 2,
 		.scale = Vec3(info.floorScale),
 	};
 
-	Transform subGridTransform{};
+	ModelRoot floor = Model::createRoot("Floor", {.transform = transform});
 
-	Model floor(quad, mainGridMaterial, mainGridTransform);
+	floor->add("MainGrid", {.mesh = quad, .material = mainGridMaterial});
 
-	floor.getRoot().addSubMesh("SubGrid", quad, subGridMaterial, subGridTransform);
+	floor->add("SubGrid", {.mesh = quad, .material = subGridMaterial});
 
 	return floor;
 }
@@ -129,7 +129,7 @@ struct OutlinedBrickCreateInfo {
 	float depth{1};
 };
 
-inline Model createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
+inline ModelRoot createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 	MeshHandle cube = engine::getUVCube();
 
 	MaterialHandle material = engine::createBrickOutlinedMaterial({
@@ -142,8 +142,7 @@ inline Model createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 		.scale = Vec3(info.width, info.height, info.depth),
 	};
 
-	transform.scale.print();
-	std::cout << std::endl;
-
-	return Model(cube, material, transform);
+	return Model::createRoot(
+		"OutlinedBrick",
+		{.mesh = cube, .material = material, .transform = transform});
 }

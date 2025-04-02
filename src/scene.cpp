@@ -55,23 +55,25 @@ CameraNode& SceneNode::addCamera(std::string name,
 	return res;
 }
 
-static MeshNode& addModelChildren(const Model::Node& root,
+static MeshNode& addModelChildren(const ModelRoot root,
 								  SceneNode& sceneNode,
 								  std::string name) {
-	MeshNode& rootNode =
-		sceneNode.addMesh(name, root.mesh, root.transform, root.material);
+	MeshNode& rootNode = sceneNode.addMesh(
+		name, root->node.mesh, root->node.transform, root->node.material);
 
-	for (auto child : root.children) {
-		addModelChildren(*child, rootNode, name + "/" + child->name);
+	for (auto child : root->children) {
+		addModelChildren(child, rootNode, name + "/" + child->name);
 	}
 
 	return rootNode;
 }
 
 MeshNode& SceneNode::addModel(std::string name,
-							  const Model& model,
+							  const ModelRoot model,
 							  Transform transform) {
-	MeshNode& toReturn = addModelChildren(model.getRoot(), *this, name);
+	assert(model != nullptr && "Model is null");
+
+	MeshNode& toReturn = addModelChildren(model, *this, name + "-" + model->name);
 
 	toReturn.translate(transform.position);
 	toReturn.rotate(transform.yaw, transform.pitch, transform.roll);

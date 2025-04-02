@@ -6,32 +6,31 @@
 
 namespace etna {
 
-class Model {
-public:
-	struct Node {
-		MeshHandle mesh{nullptr};
-		MaterialHandle material{nullptr};
-		std::vector<std::shared_ptr<Node>> children;
-		Transform transform;
-		std::string name;
+struct ModelNode {
+	MeshHandle mesh{nullptr};
+	MaterialHandle material{nullptr};
+	Transform transform{};
+};
 
-		Node& addSubMesh(std::string,
-						 MeshHandle,
-						 MaterialHandle = nullptr,
-						 Transform = {});
-	};
+struct Model {
+	ModelNode node;
+	std::vector<std::shared_ptr<Model>> children;
+	std::string name;
 
-	Model(MeshHandle, MaterialHandle = nullptr, Transform = {});
+	std::shared_ptr<Model> add(const std::string&, const ModelNode& = {});
 
-	~Model();
+	std::shared_ptr<Model> add(const std::string&, std::shared_ptr<Model>);
 
-	auto& getRoot() const { return *m_root; };
+	static std::shared_ptr<Model> loadFromPath(const std::string&);
 
-	// TODO: implement
-	static Model loadFromPath(const std::string&);
+	static std::shared_ptr<Model> createRoot(const std::string&,
+											 const ModelNode& = {});
 
 private:
-	std::shared_ptr<Node> m_root;
+	Model(const std::string& name, const ModelNode& node)
+		: name(name), node(node) {};
 };
+
+using ModelRoot = std::shared_ptr<Model>;
 
 }  // namespace etna

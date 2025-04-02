@@ -41,11 +41,14 @@ void simulateRocket(PhysicalObject& rocket, MeshNode& rocketMesh) {
 	rocketMesh.updateTransform({.position = rocket.pos * WU_PER_METER});
 }
 
-Model createRocketModel() {
+ModelRoot createRocketModel() {
 	float width = ROCKET_WIDTH * WU_PER_METER;
 	float height = ROCKET_HEIGHT * WU_PER_METER;
 
-	Model rocket = createOutlinedBrick({
+	ModelRoot rocket = Model::createRoot(
+		"Rocket", {.transform = {.position = ROCKET_INITIAL_POS * WU_PER_METER}});
+
+	ModelRoot rocketBody = createOutlinedBrick({
 		.color = WHITE,
 		.outlineColor = BLACK,
 		.outlineThickness = 0.01,
@@ -54,14 +57,14 @@ Model createRocketModel() {
 		.depth = width,
 	});
 
-	rocket.getRoot().transform.position = {0, ROCKET_INIT_HEIGHT * WU_PER_METER, 0};
+	ModelNode rocketNose{
+		.mesh = engine::getPyramid(),
+		.material = engine::createColorMaterial(RED),
+		.transform = {.position = {0, height / 2, 0}},
+	};
 
-	rocket.getRoot().addSubMesh("Nose", engine::getPyramid(),
-								engine::createColorMaterial(RED),
-								{
-									.position = {0, height / 2, 0},
-									// .scale = {height / 3, width * 1.2f, 1},
-								});
+	rocket->add("Body", rocketBody);
+	rocket->add("Nose", rocketNose);
 
 	return rocket;
 }
@@ -113,7 +116,7 @@ int main(void) {
 
 		system.update(1 / 60.f);
 
-		// simulateRocket(rocket, rocketMesh);
+		simulateRocket(rocket, rocketMesh);
 
 		updateFirstPersonCamera(playerCamera, window);
 

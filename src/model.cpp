@@ -2,25 +2,22 @@
 
 using namespace etna;
 
-Model::Model(MeshHandle mesh, MaterialHandle mat, Transform trans)
-	: m_root(std::make_shared<Node>()) {
-	m_root->mesh = mesh;
-	m_root->material = mat;
-	m_root->transform = trans;
+ModelRoot Model::createRoot(const std::string& name, const ModelNode& node) {
+	return std::make_shared<Model>(Model(name, node));
 }
 
-Model::~Model() {}
+ModelRoot Model::loadFromPath(const std::string& filePath) {
+	throw std::runtime_error("Not implemented");
+}
 
-Model::Node& Model::Node::addSubMesh(std::string name,
-									 MeshHandle mesh,
-									 MaterialHandle material,
-									 Transform transform) {
-	Node node{
-		.mesh = mesh,
-		.material = material,
-		.transform = transform,
-		.name = name,
-	};
+ModelRoot Model::add(const std::string& name, const ModelNode& node) {
+	return children.emplace_back(createRoot(name, node));
+}
 
-	return *children.emplace_back(std::make_shared<Node>(node));
+ModelRoot Model::add(const std::string& name, ModelRoot model) {
+	Model newModel = *model;
+
+	newModel.name = name;
+
+	return children.emplace_back(std::make_shared<Model>(newModel));
 }

@@ -21,7 +21,7 @@ struct SceneNode {
 					  Transform,
 					  const std::shared_ptr<Material> = nullptr);
 
-	MeshNode& addModel(std::string, const Model&, Transform = {});
+	MeshNode& addModel(std::string, const std::shared_ptr<Model>, Transform = {});
 
 	CameraNode& addCamera(std::string, Camera, Transform, Viewport = {});
 
