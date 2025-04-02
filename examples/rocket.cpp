@@ -2,8 +2,8 @@
 #include "physics.hpp"
 #include "shared.hpp"
 
-constexpr int WINDOW_WIDTH = 1280;
-constexpr int WINDOW_HEIGHT = 720;
+constexpr int WINDOW_WIDTH = 1100;
+constexpr int WINDOW_HEIGHT = 700;
 constexpr float GRAVITY = 9.81;
 constexpr float WU_PER_METER = 0.04;  // every meter is 0.04 world units (pixels)
 
@@ -80,20 +80,14 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Camera camera({
-		.fov = 70,
-		.aspect = window.getAspect(),
-	});
-
 	Scene scene;
 	SceneNode root = scene.createRoot("root", {});
 
 	root.addModel("Floor", createFloor({.color = PURPLE.setAlpha(0.3)}));
 
-	CameraNode& playerCamera =
-		root.addCamera("PlayerCamera", camera,
-					   {.position = {2, 1, -14}, .yaw = -3.25f, .pitch = -0.27f},
-					   {.width = (float)WINDOW_WIDTH * 0.5});
+	CameraNode& playerCamera = root.addCamera(
+		"PlayerCamera", {.position = {2, 1, -14}, .yaw = -3.25f, .pitch = -0.27f},
+		{.width = (float)WINDOW_WIDTH * 0.5});
 
 	PhysicalObject rocket{
 		.mass = ROCKET_MASS,
@@ -104,7 +98,7 @@ int main(void) {
 	MeshNode& rocketMesh = root.addModel("Rocket", createRocketModel());
 
 	rocketMesh.addCamera(
-		"RocketCamera", camera,
+		"RocketCamera",
 		{
 			.position = {0, 0, 0.5},
 			.pitch = M_PI / 2,

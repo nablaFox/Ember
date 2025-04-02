@@ -89,15 +89,6 @@ struct Transform {
 	Vec3 right() const { return forward().cross({0, 1, 0}).normalize(); }
 
 	Vec3 up() const { return right().cross(forward()).normalize(); }
-
-	Mat4 getViewMatrix() const {
-		Mat4 viewTranslation = getTransMatrix(position * -1);
-
-		// CHECK shouldn't be transposed?
-		Mat4 viewRotation = getRotMatrix();
-
-		return viewRotation * viewTranslation;
-	}
 };
 
 }  // namespace etna

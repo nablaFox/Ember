@@ -44,8 +44,7 @@ int main(void) {
 
 	// camera
 	CameraNode& playerCamera =
-		root.addCamera("PlayerCamera", {.fov = 70, .aspect = window.getAspect()},
-					   {.position = {0, 1, 0}});
+		root.addCamera("PlayerCamera", {.position = {0, 1, 0}});
 
 	// rendering
 	Renderer renderer({});

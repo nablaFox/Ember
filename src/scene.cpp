@@ -36,9 +36,9 @@ MeshNode& SceneNode::addMesh(std::string name,
 }
 
 CameraNode& SceneNode::addCamera(std::string name,
-								 Camera camera,
 								 Transform transform,
-								 Viewport viewport) {
+								 Viewport viewport,
+								 Camera camera) {
 	CameraNode node{m_scene, name, transform, this};
 
 	node.camera = camera;
@@ -73,7 +73,7 @@ MeshNode& SceneNode::addModel(std::string name,
 							  Transform transform) {
 	assert(model != nullptr && "Model is null");
 
-	MeshNode& toReturn = addModelChildren(model, *this, name + "-" + model->name);
+	MeshNode& toReturn = addModelChildren(model, *this, name);
 
 	toReturn.translate(transform.position);
 	toReturn.rotate(transform.yaw, transform.pitch, transform.roll);
@@ -109,6 +109,14 @@ void SceneNode::rotate(float yaw, float pitch, float roll) {
 	m_transform.pitch += pitch;
 	m_transform.roll += roll;
 	updateTransform(m_transform);
+}
+
+Mat4 CameraNode::getViewMatrix() const {
+	return camera.getViewMatrix(getWorldMatrix());
+}
+
+Mat4 CameraNode::getProjMatrix(float aspect) const {
+	return camera.getProjMatrix(aspect);
 }
 
 Scene::Scene() {}

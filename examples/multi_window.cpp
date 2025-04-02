@@ -45,16 +45,11 @@ int main(void) {
 		.height = (float)WINDOW_HEIGHT,
 	};
 
-	Camera const sharedCamera{
-		.fov = 70,
-		.aspect = (float)WINDOW_WIDTH / WINDOW_HEIGHT,
-	};
-
 	CameraNode& camera1 =
-		root.addCamera("Camera1", sharedCamera, {.position = {0, 0, 1}}, viewport1);
+		root.addCamera("Camera1", {.position = {0, 0, 1}}, viewport1);
 
 	CameraNode& camera2 =
-		root.addCamera("Camera2", sharedCamera, {.position = {0, 0, 1}}, viewport2);
+		root.addCamera("Camera2", {.position = {0, 0, 1}}, viewport2);
 
 	Renderer renderer({});
 

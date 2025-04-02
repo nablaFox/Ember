@@ -27,8 +27,6 @@ public:
 	bool isKeyPressed(int key) const;
 	bool isKeyClicked(int key);
 
-	float getAspect() const;
-
 	float getMouseX() const;
 	float getMouseY() const;
 

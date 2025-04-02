@@ -153,11 +153,14 @@ void Renderer::renderScene(const Scene& scene,
 			viewport.height = (float)renderTarget.getExtent().height;
 		}
 
-		CameraData cameraData = {
-			.viewProj =
-				cameraNode.camera.getViewProjMatrix(cameraNode.getWorldMatrix()),
-			.view = cameraNode.getTransform().getViewMatrix(),
-			.proj = cameraNode.camera.getProjMatrix(),
+		const Mat4 view = cameraNode.getViewMatrix();
+
+		const Mat4 proj = cameraNode.getProjMatrix(viewport.width / viewport.height);
+
+		const CameraData cameraData{
+			.viewProj = proj * view,
+			.view = view,
+			.proj = proj,
 		};
 
 		BufferId cameraDataBuff = _device.createUBO(sizeof(CameraData), &cameraData);

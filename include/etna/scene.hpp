@@ -23,7 +23,7 @@ struct SceneNode {
 
 	MeshNode& addModel(std::string, const std::shared_ptr<Model>, Transform = {});
 
-	CameraNode& addCamera(std::string, Camera, Transform, Viewport = {});
+	CameraNode& addCamera(std::string, Transform, Viewport = {}, Camera = {});
 
 	const Transform& getTransform() const { return m_transform; }
 
@@ -63,6 +63,9 @@ struct CameraNode : public SceneNode {
 
 	Viewport viewport;
 	Camera camera;	// PONDER: should this be a ptr?
+
+	Mat4 getViewMatrix() const;
+	Mat4 getProjMatrix(float aspect) const;
 };
 
 class Scene {

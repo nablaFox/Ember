@@ -27,6 +27,11 @@ public:
 
 	bool isMultiSampled() const { return m_creationInfo.samples > 1; }
 
+	float getAspect() const {
+		return m_creationInfo.extent.width /
+			   static_cast<float>(m_creationInfo.extent.height);
+	}
+
 	CreateInfo getCreationInfo() const { return m_creationInfo; }
 
 protected:

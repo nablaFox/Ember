@@ -12,12 +12,11 @@ struct Viewport {
 };
 
 struct Camera {
-	float fov{90.f};
-	float aspect{1.77f};
+	float fov{70.f};
 	float near{0.1f};
 	float far{100.f};
 
-	Mat4 getProjMatrix() const {
+	Mat4 getProjMatrix(float aspect) const {
 		const float fovAngle = fov * M_PI / 180;
 
 		const float top = near * tanf(fovAngle / 2);
@@ -32,7 +31,7 @@ struct Camera {
 		};
 	}
 
-	Mat4 getViewProjMatrix(const Mat4& M) const {
+	Mat4 getViewMatrix(const Mat4& M) const {
 		const Mat4 R{
 			{M(0, 0), M(0, 1), M(0, 2), 0},
 			{M(1, 0), M(1, 1), M(1, 2), 0},
@@ -44,7 +43,7 @@ struct Camera {
 
 		const Mat4 T = Transform::getTransMatrix(translation * -1);
 
-		return getProjMatrix() * R * T;
+		return R * T;
 	}
 };
 

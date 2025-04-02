@@ -96,10 +96,6 @@ bool Window::isKeyClicked(int key) {
 	return clicked;
 }
 
-float Window::getAspect() const {
-	return m_creationInfo.width / static_cast<float>(m_creationInfo.height);
-}
-
 float Window::getMouseX() const {
 	double x, y;
 	glfwGetCursorPos(m_window, &x, &y);
