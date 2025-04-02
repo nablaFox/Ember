@@ -4,8 +4,11 @@
 #include "etna.glsl"
 
 layout (location = 0) out vec4 outColor;
-layout (location = 0) in vec4 inColor;
+
+DEF_MATERIAL({
+	vec4 color;
+});
 
 void main() {
-	outColor = inColor;	
+	outColor = MATERIAL.color;
 }

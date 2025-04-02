@@ -23,7 +23,6 @@ layout(push_constant) uniform constants {
 // Vertices
 struct Vertex {
     vec3 position;
-    vec4 color;
 	vec2 uv;
 };
 

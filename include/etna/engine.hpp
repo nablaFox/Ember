@@ -19,6 +19,7 @@ uint32_t getMaxAllowedSampleCount();
 
 void queueForDeletion(std::function<void()>);
 
+// TODO: remove ETNA prefix since we are already in etna::engine ns
 constexpr ignis::ColorFormat ETNA_COLOR_FORMAT{ignis::ColorFormat::RGBA16};
 
 constexpr ignis::DepthFormat ETNA_DEPTH_FORMAT{ignis::DepthFormat::D32_SFLOAT};

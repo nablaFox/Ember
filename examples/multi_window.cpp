@@ -25,8 +25,11 @@ int main(void) {
 
 	SceneNode root = scene.createRoot("root", {});
 
-	root.addMesh("Brick", engine::createTexturedBrick(1, 1, 2),
-				 {.position = {0.f, 0.f, -2.f}});
+	root.addMesh("Brick", engine::getUVCube(),
+				 {
+					 .position = {0.f, 0.f, -2.f},
+					 .scale = {1.f, 1.f, 2.f},
+				 });
 
 	Viewport const viewport1{
 		.x = 0,

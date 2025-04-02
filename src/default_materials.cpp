@@ -3,49 +3,32 @@
 
 using namespace etna;
 
-MaterialHandle g_defaultMaterial{nullptr};
-MaterialHandle g_pointMaterial{nullptr};
-
+MaterialTemplateHandle g_colorMaterialTemplate{nullptr};
+MaterialTemplateHandle g_pointMaterialTemplate{nullptr};
 MaterialTemplateHandle g_gridTemplate{nullptr};
 MaterialTemplateHandle g_transparentGridTemplate{nullptr};
 MaterialTemplateHandle g_brickOutlineMaterialTemplate{nullptr};
 
-// PONDER: maybe use a macro or an helper function to reduce duplication
+MaterialHandle engine::createColorMaterial(Color color) {
+	initColorMaterial();
 
-MaterialHandle engine::getDefaultMaterial() {
-	if (g_defaultMaterial == nullptr) {
-		g_defaultMaterial = Material::create({
-			.shaders = {"default.vert.spv", "default.frag.spv"},
-		});
-
-		queueForDeletion([=] { g_defaultMaterial.reset(); });
-	}
-
-	return g_defaultMaterial;
+	return Material::create({
+		.templateHandle = g_colorMaterialTemplate,
+		.params = &color,
+	});
 }
 
-MaterialHandle engine::getPointMaterial() {
-	if (g_pointMaterial == nullptr) {
-		g_pointMaterial = Material::create({
-			.shaders = {"default.vert.spv", "default.frag.spv"},
-			.polygonMode = VK_POLYGON_MODE_POINT,
-		});
+MaterialHandle engine::createPointMaterial(Color color) {
+	initPointMaterial();
 
-		queueForDeletion([=] { g_pointMaterial.reset(); });
-	}
-
-	return g_pointMaterial;
+	return Material::create({
+		.templateHandle = g_pointMaterialTemplate,
+		.params = &color,
+	});
 }
 
 MaterialHandle engine::createGridMaterial(GridMaterialParams params) {
-	if (g_gridTemplate == nullptr) {
-		g_gridTemplate = MaterialTemplate::create({
-			.shaders = {"default.vert.spv", "grid.frag.spv"},
-			.paramsSize = sizeof(GridMaterialParams),
-		});
-
-		queueForDeletion([=] { g_gridTemplate.reset(); });
-	}
+	initGridMaterial();
 
 	return Material::create({
 		.templateHandle = g_gridTemplate,
@@ -54,15 +37,7 @@ MaterialHandle engine::createGridMaterial(GridMaterialParams params) {
 }
 
 MaterialHandle engine::createTransparentGridMaterial(GridMaterialParams params) {
-	if (g_transparentGridTemplate == nullptr) {
-		g_transparentGridTemplate = MaterialTemplate::create({
-			.shaders = {"default.vert.spv", "grid.frag.spv"},
-			.paramsSize = sizeof(GridMaterialParams),
-			.transparency = true,
-		});
-
-		queueForDeletion([=] { g_transparentGridTemplate.reset(); });
-	}
+	initTransparentGridMaterial();
 
 	return Material::create({
 		.templateHandle = g_transparentGridTemplate,
@@ -71,17 +46,85 @@ MaterialHandle engine::createTransparentGridMaterial(GridMaterialParams params) 
 }
 
 MaterialHandle engine::createBrickOutlinedMaterial(OutlineMaterialParams params) {
-	if (g_brickOutlineMaterialTemplate == nullptr) {
-		g_brickOutlineMaterialTemplate = MaterialTemplate::create({
-			.shaders = {"default.vert.spv", "brick_outline.frag.spv"},
-			.paramsSize = sizeof(OutlineMaterialParams),
-		});
-
-		queueForDeletion([=] { g_brickOutlineMaterialTemplate.reset(); });
-	}
+	initBrickOutlineMaterial();
 
 	return Material::create({
 		.templateHandle = g_brickOutlineMaterialTemplate,
 		.params = &params,
 	});
+}
+
+void engine::initDefaultMaterials() {
+	initColorMaterial();
+	initPointMaterial();
+	initGridMaterial();
+	initTransparentGridMaterial();
+	initBrickOutlineMaterial();
+}
+
+void engine::initColorMaterial() {
+	if (g_colorMaterialTemplate != nullptr) {
+		return;
+	}
+
+	g_colorMaterialTemplate = MaterialTemplate::create({
+		.shaders = {"default.vert.spv", "default.frag.spv"},
+		.paramsSize = sizeof(Color),
+	});
+
+	queueForDeletion([=] { g_colorMaterialTemplate.reset(); });
+}
+
+void engine::initPointMaterial() {
+	if (g_pointMaterialTemplate != nullptr) {
+		return;
+	}
+
+	g_pointMaterialTemplate = MaterialTemplate::create({
+		.shaders = {"default.vert.spv", "default.frag.spv"},
+		.paramsSize = sizeof(Color),
+		.polygonMode = VK_POLYGON_MODE_POINT,
+	});
+
+	queueForDeletion([=] { g_pointMaterialTemplate.reset(); });
+}
+
+void engine::initGridMaterial() {
+	if (g_gridTemplate != nullptr) {
+		return;
+	}
+
+	g_gridTemplate = MaterialTemplate::create({
+		.shaders = {"default.vert.spv", "grid.frag.spv"},
+		.paramsSize = sizeof(GridMaterialParams),
+	});
+
+	queueForDeletion([=] { g_gridTemplate.reset(); });
+}
+
+void engine::initTransparentGridMaterial() {
+	if (g_transparentGridTemplate != nullptr) {
+		return;
+	}
+
+	g_transparentGridTemplate = MaterialTemplate::create({
+		.shaders = {"default.vert.spv", "grid.frag.spv"},
+		.paramsSize = sizeof(GridMaterialParams),
+		.transparency = true,
+	});
+
+	queueForDeletion([=] { g_transparentGridTemplate.reset(); });
+}
+
+void engine::initBrickOutlineMaterial() {
+	if (g_brickOutlineMaterialTemplate != nullptr) {
+		return;
+	}
+
+	g_brickOutlineMaterialTemplate = MaterialTemplate::create({
+		.shaders = {"default.vert.spv", "brick_outline.frag.spv"},
+		.paramsSize = sizeof(OutlineMaterialParams),
+	});
+
+	queueForDeletion([=] { g_brickOutlineMaterialTemplate.reset(); });
 }

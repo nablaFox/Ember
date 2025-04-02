@@ -18,20 +18,21 @@ int main(void) {
 	SceneNode root = scene.createRoot("root", {});
 
 	// geometry
-	root.addMesh("Sphere1", engine::createSphere(BLUE * 0.08),
+	root.addMesh("Sphere1", engine::getSphere(),
 				 {
 					 .position = {1.5, 0.5, -5},
 					 .pitch = M_PI / 2,
 					 .scale = Vec3(0.5),
 				 },
 				 engine::createGridMaterial({
+					 .color = BLUE * 0.08,
 					 .gridColor = BLUE,
 					 .gridSpacing = 0.1,
 					 .thickness = 0.005,
 				 }));
 
-	root.addMesh("Sphere2", engine::createSphere(GREEN), {.position = {0, 2.5, -9}},
-				 engine::getPointMaterial());
+	root.addMesh("Sphere2", engine::getSphere(), {.position = {0, 2.5, -9}},
+				 engine::createPointMaterial(GREEN));
 
 	root.addModel("OutlinedBrick", createOutlinedBrick({}),
 				  {

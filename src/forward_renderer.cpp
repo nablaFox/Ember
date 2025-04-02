@@ -17,6 +17,8 @@ struct CameraData {
 	Mat4 proj;
 };
 
+MaterialHandle g_defaultMaterial{nullptr};
+
 Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFlight) {
 	assert(m_framesInFlight > 0);
 
@@ -32,6 +34,8 @@ Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFligh
 
 		m_framesData[i].sceneDataBuff = _device.createSSBO(sizeof(SceneData));
 	}
+
+	g_defaultMaterial = engine::createColorMaterial(WHITE);
 }
 
 Renderer::~Renderer() {
@@ -40,6 +44,8 @@ Renderer::~Renderer() {
 		delete m_framesData[i].cmd;
 		_device.destroyBuffer(m_framesData[i].sceneDataBuff);
 	}
+
+	g_defaultMaterial.reset();
 }
 
 void Renderer::beginFrame() {
@@ -67,14 +73,16 @@ void Renderer::endFrame() {
 }
 
 // TODO: group meshes by material
+// PONDER: for multi-pass rendering use a render graph where we will automatically
+// handle syncrhonization between resources
 void Renderer::renderScene(const Scene& scene,
 						   const RenderTarget& renderTarget,
 						   const RenderSettings sceneInfo) {
 #ifndef NDEBUG
 	for (const auto& [_, node] : scene.getMeshes()) {
-		const MaterialTemplate& materialT =
-			node.material != nullptr ? node.material->getTemplate()
-									 : engine::getDefaultMaterial()->getTemplate();
+		const MaterialTemplate& materialT = node.material != nullptr
+												? node.material->getTemplate()
+												: g_defaultMaterial->getTemplate();
 
 		const RenderTarget::CreateInfo& renderTargetInfo =
 			renderTarget.getCreationInfo();
@@ -161,7 +169,7 @@ void Renderer::renderScene(const Scene& scene,
 			MaterialHandle material = meshNode.material;
 
 			const MaterialHandle materialToUse =
-				material != nullptr ? material : engine::getDefaultMaterial();
+				material != nullptr ? material : g_defaultMaterial;
 
 			assert(mesh != nullptr);
 			assert(materialToUse != nullptr);
@@ -193,6 +201,7 @@ void Renderer::renderScene(const Scene& scene,
 
 	cmd.endRendering();
 
+	// PONDER: the resolving should probably not happen here
 	if (!renderTarget.isMultiSampled())
 		return;
 

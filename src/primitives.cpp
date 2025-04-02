@@ -2,7 +2,7 @@
 
 using namespace etna;
 
-MeshHandle engine::createSphere(Color color, uint32_t precision) {
+MeshHandle engine::createSphere(float radius, uint32_t precision) {
 	uint32_t vertexCount = square(precision + 1);
 	uint32_t indexCount = 6 * square(precision);
 
@@ -19,10 +19,8 @@ MeshHandle engine::createSphere(Color color, uint32_t precision) {
 			float y = sinf(theta) * sinf(phi);
 			float z = cosf(theta);
 
-			vertices[i * (precision + 1) + j] = Vertex{
-				.position = {x, y, z},
-				.color = color,
-			};
+			vertices[i * (precision + 1) + j] =
+				Vertex{.position = Vec3{x, y, z} * radius};
 		}
 	}
 
@@ -58,10 +56,7 @@ MeshHandle engine::createSphere(Color color, uint32_t precision) {
 	});
 }
 
-MeshHandle engine::createTexturedBrick(float width,
-									   float height,
-									   float depth,
-									   Color color) {
+MeshHandle engine::createUVBrick(float width, float height, float depth) {
 	std::vector<Vertex> vertices(24);
 
 	for (uint32_t j = 0; j < 3; j++) {
@@ -109,10 +104,6 @@ MeshHandle engine::createTexturedBrick(float width,
 	vertices[22].uv = {1.0f, 0.0f};
 	vertices[21].uv = {1.0f, 1.0f};
 
-	for (auto& vertex : vertices) {
-		vertex.color = color;
-	}
-
 	std::vector<Index> indices = {
 		0,	1,	2,	2,	3,	0,	 // Front
 		4,	5,	6,	6,	7,	4,	 // Back
@@ -128,11 +119,7 @@ MeshHandle engine::createTexturedBrick(float width,
 	});
 }
 
-MeshHandle engine::createTexturedCube(Color color) {
-	return createTexturedBrick(1, 1, 1, color);
-}
-
-MeshHandle engine::createRectangle(float width, float height, Color color) {
+MeshHandle engine::createQuad(float width, float height) {
 	std::vector<Vertex> vertices;
 	vertices.resize(4);
 
@@ -156,10 +143,6 @@ MeshHandle engine::createRectangle(float width, float height, Color color) {
 		.uv = {1, 1},
 	};
 
-	for (auto& vertex : vertices) {
-		vertex.color = color;
-	}
-
 	std::vector<Index> indices = {0, 1, 2, 2, 3, 0};
 
 	return Mesh::create({
@@ -168,11 +151,7 @@ MeshHandle engine::createRectangle(float width, float height, Color color) {
 	});
 }
 
-MeshHandle engine::createQuad(Color color) {
-	return createRectangle(1, 1, color);
-}
-
-MeshHandle engine::createPyramid(float height, float baseWidth, Color color) {
+MeshHandle engine::createPyramid(float height, float baseWidth) {
 	std::vector<Vertex> vertices(5);
 
 	vertices[0].position = {0, height, 0};
@@ -185,10 +164,6 @@ MeshHandle engine::createPyramid(float height, float baseWidth, Color color) {
 	std::vector<Index> indices{
 		0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 1, 1, 2, 3, 1, 3, 4,
 	};
-
-	for (auto& vertex : vertices) {
-		vertex.color = color;
-	}
 
 	return Mesh::create({
 		.vertices = std::move(vertices),

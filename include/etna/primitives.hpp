@@ -1,31 +1,21 @@
 #pragma once
 
 #include "mesh.hpp"
-#include "color.hpp"
 
 namespace etna::engine {
 
-MeshHandle createSphere(Color color = WHITE, uint32_t precision = 100);
+MeshHandle createSphere(float radius, uint32_t precision = 100);
 
-MeshHandle createTexturedBrick(float width,
-							   float height,
-							   float depth,
-							   Color color = WHITE);
+MeshHandle createUVBrick(float width, float height, float depth);
 
-MeshHandle createTexturedCube(Color color = WHITE);
+MeshHandle createQuad(float width, float height);
 
-MeshHandle createRectangle(float width, float height, Color color = WHITE);
-
-MeshHandle createQuad(Color color = WHITE);
+MeshHandle createPyramid(float height, float sideLengt);
 
 // TODO: implement
-MeshHandle createCylinder(float radius, float height, Color color = WHITE);
-
-// TODO: variant for empty cyilinder
+MeshHandle createCylinder(float radius, float height);
 
 // TODO: implement
-MeshHandle createCone(float radius, float height, Color color = WHITE);
-
-MeshHandle createPyramid(float height, float sideLength, Color color = WHITE);
+MeshHandle createCone(float radius, float height);
 
 }  // namespace etna::engine

@@ -5,14 +5,12 @@
 #include "ignis/types.hpp"
 #include "ignis/buffer.hpp"
 #include "math.hpp"
-#include "color.hpp"
 
 namespace etna {
 
 struct Vertex {
 	Vec3 position;
 	float padding;
-	Color color;
 	Vec2 uv;
 	float padding2[2];
 };
