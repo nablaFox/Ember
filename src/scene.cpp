@@ -94,6 +94,11 @@ void SceneNode::updateTransform(Transform transform) {
 	updateChildrenTransform(m_worldTransform);
 }
 
+void SceneNode::updatePosition(Vec3 position) {
+	m_transform.position = position;
+	updateTransform(m_transform);
+}
+
 void SceneNode::translate(Vec3 translation) {
 	m_transform.position += translation;
 	updateTransform(m_transform);

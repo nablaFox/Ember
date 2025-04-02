@@ -31,6 +31,8 @@ struct SceneNode {
 
 	void updateTransform(Transform);
 
+	void updatePosition(Vec3);
+
 	void translate(Vec3);
 
 	void rotate(float yaw, float pitch, float roll);

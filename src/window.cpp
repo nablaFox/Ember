@@ -38,6 +38,12 @@ Window::Window(const CreateInfo& info)
 	m_finishedBlitting = new Semaphore(_device);
 
 	setCaptureMouse(info.captureMouse);
+
+	double x, y;
+	glfwGetCursorPos(m_window, &x, &y);
+
+	m_lastMouseX = x;
+	m_lastMouseY = y;
 }
 
 Window::~Window() {

@@ -16,9 +16,12 @@ constexpr float ROCKET_INIT_HEIGHT = 300;
 const Vec3 ROCKET_INITIAL_POS{0, ROCKET_INIT_HEIGHT, 0};
 
 void simulateRocket(PhysicalObject& rocket, MeshNode& rocketMesh) {
+	std::cout << "\033[2J\033[1;1H";
+
 	const float currHeight = rocket.pos[1] - (ROCKET_HEIGHT / 2);
 
 	if (currHeight <= 1e-3) {
+		std::cout << "\033[32mRocket has landed!\033[0m\n" << std::endl;
 		return;
 	}
 
@@ -37,8 +40,7 @@ void simulateRocket(PhysicalObject& rocket, MeshNode& rocketMesh) {
 
 	rocket.force = {0, decForce - weight, 0};
 
-	// TODO: should be updatePosition
-	rocketMesh.updateTransform({.position = rocket.pos * WU_PER_METER});
+	rocketMesh.updatePosition(rocket.pos * WU_PER_METER);
 }
 
 ModelRoot createRocketModel() {
@@ -94,7 +96,8 @@ int main(void) {
 		{.x = (float)WINDOW_WIDTH * 0.5, .width = (float)WINDOW_WIDTH * 0.5});
 
 	CameraNode& playerCamera =
-		root.addCamera("PlayerCamera", camera, {.position = {0, 1, 0}},
+		root.addCamera("PlayerCamera", camera,
+					   {.position = {2, 1, -14}, .yaw = -3.25f, .pitch = -0.27f},
 					   {.width = (float)WINDOW_WIDTH * 0.5});
 
 	PhysicalObject rocket{
@@ -111,14 +114,21 @@ int main(void) {
 
 	Renderer renderer({});
 
+	bool simulate{false};
+
 	while (!window.shouldClose()) {
 		window.pollEvents();
 
-		system.update(1 / 60.f);
+		if (simulate)
+			system.update(1 / 60.f);
 
 		simulateRocket(rocket, rocketMesh);
 
 		updateFirstPersonCamera(playerCamera, window);
+
+		if (window.isKeyClicked(GLFW_KEY_ENTER)) {
+			simulate = !simulate;
+		}
 
 		rocketCamera.updateTransform({
 			.position = rocketMesh.getTransform().position + Vec3{0, 0, 0.5},
