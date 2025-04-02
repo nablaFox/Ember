@@ -42,7 +42,6 @@ CameraNode& SceneNode::addCamera(std::string name,
 	CameraNode node{m_scene, name, transform, this};
 
 	node.camera = camera;
-	node.viewport = viewport;
 
 	auto result = m_scene->m_cameraNodes.emplace(name, std::move(node));
 

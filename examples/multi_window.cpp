@@ -45,13 +45,7 @@ int main(void) {
 		.height = (float)WINDOW_HEIGHT,
 	};
 
-	CameraNode& camera1 =
-		root.addCamera("Camera1", {.position = {0, 0, 1}}, viewport1);
-
-	CameraNode& camera2 =
-		root.addCamera("Camera2", {.position = {0, 0, 1}}, viewport2);
-
-	CameraNode& camera3 = root.addCamera("Camera3", {.position = {0, 0, 1}});
+	CameraNode& camera = root.addCamera("Camera1", {.position = {0, 0, 1}});
 
 	Renderer renderer({});
 
@@ -61,9 +55,7 @@ int main(void) {
 		window1.pollEvents();
 		window2.pollEvents();
 
-		updateFirstPersonCamera(camera1, window1);
-		updateFirstPersonCamera(camera2, window1);
-		updateFirstPersonCamera(camera3, window1);
+		updateFirstPersonCamera(camera, window1);
 
 		if (window1.shouldClose() || window2.shouldClose()) {
 			shouldClose = true;
@@ -71,10 +63,10 @@ int main(void) {
 
 		renderer.beginFrame();
 
-		renderer.renderScene(scene, window1, camera1);
-		renderer.renderScene(scene, window1, camera2, LOAD_PREVIOUS);
+		renderer.renderScene(scene, window1, camera, viewport1);
+		renderer.renderScene(scene, window1, camera, viewport2, LOAD_PREVIOUS);
 
-		renderer.renderScene(scene, window2, camera3);
+		renderer.renderScene(scene, window2, camera, {});
 
 		renderer.endFrame();
 

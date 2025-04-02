@@ -19,6 +19,7 @@ struct RenderSettings {
 	VkAttachmentLoadOp colorLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
 	VkAttachmentLoadOp depthLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
 	bool renderDepth{true};
+	bool clearViewport{true};
 };
 
 constexpr RenderSettings LOAD_PREVIOUS{
@@ -43,6 +44,7 @@ public:
 	void renderScene(const Scene&,
 					 const RenderTarget&,
 					 const CameraNode&,
+					 const Viewport& = {},
 					 const RenderSettings = {});
 
 	ignis::Command& getCommand() const { return *m_framesData[m_currentFrame].cmd; }

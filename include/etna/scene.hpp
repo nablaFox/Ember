@@ -61,7 +61,6 @@ struct MeshNode : public SceneNode {
 struct CameraNode : public SceneNode {
 	using SceneNode::SceneNode;
 
-	Viewport viewport;
 	Camera camera;	// PONDER: should this be a ptr?
 
 	Mat4 getViewMatrix() const;

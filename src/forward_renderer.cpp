@@ -78,6 +78,7 @@ void Renderer::endFrame() {
 void Renderer::renderScene(const Scene& scene,
 						   const RenderTarget& renderTarget,
 						   const CameraNode& cameraNode,
+						   const Viewport& viewport,
 						   const RenderSettings info) {
 #ifndef NDEBUG
 	for (const auto& [_, node] : scene.getMeshes()) {
@@ -128,30 +129,28 @@ void Renderer::renderScene(const Scene& scene,
 	BufferId sceneDataBuff = m_framesData[m_currentFrame].sceneDataBuff;
 	cmd.updateBuffer(sceneDataBuff, &sceneData);
 
-	cmd.beginRender(drawAttachment, depthAttachment);
-
-	VkViewport viewport{
-		.x = cameraNode.viewport.x,
-		.y = cameraNode.viewport.y,
-		.width = cameraNode.viewport.width,
-		.height = cameraNode.viewport.height,
+	VkViewport vp{
+		.x = viewport.x,
+		.y = viewport.y,
+		.width = viewport.width,
+		.height = viewport.height,
 		.minDepth = 0.f,
 		.maxDepth = 1.f,
 	};
 
-	if (viewport.width == 0) {
-		viewport.x = 0;
-		viewport.width = (float)renderTarget.getExtent().width;
+	if (vp.width == 0) {
+		vp.x = 0;
+		vp.width = (float)renderTarget.getExtent().width;
 	}
 
-	if (viewport.height == 0) {
-		viewport.y = 0;
-		viewport.height = (float)renderTarget.getExtent().height;
+	if (vp.height == 0) {
+		vp.y = 0;
+		vp.height = (float)renderTarget.getExtent().height;
 	}
 
 	const Mat4 view = cameraNode.getViewMatrix();
 
-	const Mat4 proj = cameraNode.getProjMatrix(viewport.width / viewport.height);
+	const Mat4 proj = cameraNode.getProjMatrix(vp.width / vp.height);
 
 	const CameraData cameraData{
 		.viewProj = proj * view,
@@ -162,6 +161,27 @@ void Renderer::renderScene(const Scene& scene,
 	BufferId cameraDataBuff = _device.createUBO(sizeof(CameraData), &cameraData);
 
 	m_cameraDataBuffs.push_back(cameraDataBuff);
+
+	cmd.beginRender(drawAttachment, depthAttachment);
+
+	// TODO: add ignis utility for clearing the viewport
+	if (info.clearViewport) {
+		const VkClearRect clearRect{
+			.rect =
+				{
+					{(int32_t)vp.x, (int32_t)vp.y},
+					{(uint32_t)vp.width, (uint32_t)vp.height},
+				},
+			.layerCount = 1,
+		};
+
+		const VkClearAttachment clearAtt{
+			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+			.clearValue = {clearColorValue},
+		};
+
+		vkCmdClearAttachments(getCommand().getHandle(), 1, &clearAtt, 1, &clearRect);
+	}
 
 	for (const auto& [_, meshNode] : scene.getMeshes()) {
 		MeshHandle mesh = meshNode.mesh;
@@ -179,7 +199,7 @@ void Renderer::renderScene(const Scene& scene,
 
 		cmd.bindPipeline(pipeline);
 
-		cmd.setViewport(viewport);
+		cmd.setViewport(vp);
 
 		cmd.setScissor(
 			{0, 0, renderTarget.getExtent().width, renderTarget.getExtent().height});

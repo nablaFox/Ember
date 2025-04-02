@@ -97,18 +97,15 @@ int main(void) {
 
 	MeshNode& rocketMesh = root.addModel("Rocket", createRocketModel());
 
-	CameraNode& rocketCamera =
-		rocketMesh.addCamera("RocketCamera",
-							 {
-								 .position = {0, 0, 0.5},
-								 .pitch = M_PI / 2,
-							 },
-							 {
-								 .x = WINDOW_WIDTH * (1 - ROCKET_MINIMAP_SIZE),
-								 .y = WINDOW_HEIGHT * 0,
-								 .width = WINDOW_WIDTH * ROCKET_MINIMAP_SIZE,
-								 .height = WINDOW_WIDTH * ROCKET_MINIMAP_SIZE,
-							 });
+	const Viewport rocketViewport{
+		.x = WINDOW_WIDTH * (1 - ROCKET_MINIMAP_SIZE),
+		.y = WINDOW_HEIGHT * 0,
+		.width = WINDOW_WIDTH * ROCKET_MINIMAP_SIZE,
+		.height = WINDOW_WIDTH * ROCKET_MINIMAP_SIZE,
+	};
+
+	CameraNode& rocketCamera = rocketMesh.addCamera(
+		"RocketCamera", {.position = {0, 0, 0.5}, .pitch = M_PI / 2});
 
 	PhysicalSystem system({});
 
@@ -136,7 +133,9 @@ int main(void) {
 
 		renderer.renderScene(scene, window, playerCamera);
 
-		renderer.renderScene(scene, window, rocketCamera, LOAD_PREVIOUS);
+		renderer.renderScene(
+			scene, window, rocketCamera, rocketViewport,
+			{.colorLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD, .clearViewport = true});
 
 		renderer.endFrame();
 
