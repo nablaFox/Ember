@@ -6,15 +6,11 @@ using namespace etna;
 using namespace ignis;
 
 Mesh::Mesh(const CreateInfo& info) {
-	auto& device = engine::getDevice();
+	Command uploadCmd({.device = _device, .queue = engine::getUploadQueue()});
 
-	// PONDER: maybe we can query here the appropriate queue for the upload instead
-	// of having it global
-	Command uploadCmd({.device = device, .queue = engine::getUploadQueue()});
+	m_vertexBuffer = _device.createSSBO(info.vertices.size() * sizeof(Vertex));
 
-	m_vertexBuffer = device.createSSBO(info.vertices.size() * sizeof(Vertex));
-
-	m_indexBuffer = new Buffer(device.createIndexBuffer32(info.indices.size()));
+	m_indexBuffer = new Buffer(_device.createIndexBuffer32(info.indices.size()));
 
 	uploadCmd.begin();
 
@@ -26,15 +22,13 @@ Mesh::Mesh(const CreateInfo& info) {
 
 	SubmitCmdInfo uploadCmdInfo{.command = uploadCmd};
 
-	device.submitCommands({uploadCmdInfo}, nullptr);
+	_device.submitCommands({uploadCmdInfo}, nullptr);
 
-	device.waitIdle();
+	_device.waitIdle();
 }
 
 Mesh::~Mesh() {
-	auto& device = engine::getDevice();
-
-	device.destroyBuffer(m_vertexBuffer);
+	_device.destroyBuffer(m_vertexBuffer);
 	delete m_indexBuffer;
 }
 
@@ -47,5 +41,5 @@ uint32_t Mesh::indexCount() const {
 }
 
 uint32_t Mesh::vertexCount() const {
-	return engine::getDevice().getBuffer(m_vertexBuffer).getSize() / sizeof(Vertex);
+	return _device.getBuffer(m_vertexBuffer).getSize() / sizeof(Vertex);
 }

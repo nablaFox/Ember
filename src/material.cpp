@@ -2,31 +2,28 @@
 #include "engine.hpp"
 
 using namespace ignis;
-
-namespace etna {
+using namespace etna;
 
 MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	: m_paramsSize(info.paramsSize) {
-	Device& device = engine::getDevice();
-
 	uint32_t sampleCount =
 		(info.samples == 0 || info.samples > engine::getMaxAllowedSampleCount())
 			? engine::getMaxAllowedSampleCount()
 			: info.samples;
 
 	PipelineCreateInfo pipelineInfo{
-		.device = &device,
+		.device = &_device,
 		.shaders = std::move(info.shaders),
 		.colorFormat = engine::ETNA_COLOR_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
 		.sampleCount = static_cast<VkSampleCountFlagBits>(sampleCount),
-		.sampleShadingEnable = device.isFeatureEnabled("SampleRateShading"),
+		.sampleShadingEnable = _device.isFeatureEnabled("SampleRateShading"),
 	};
 
 	if (info.polygonMode != VK_POLYGON_MODE_FILL &&
-		!device.isFeatureEnabled("FillModeNonSolid")) {
+		!_device.isFeatureEnabled("FillModeNonSolid")) {
 		pipelineInfo.polygonMode = VK_POLYGON_MODE_FILL;
 	}
 
@@ -68,7 +65,7 @@ Material::Material(const CreateInfo& info)
 		return;
 	}
 
-	m_paramsUBO = engine::getDevice().createUBO(paramsSize, info.params);
+	m_paramsUBO = _device.createUBO(paramsSize, info.params);
 }
 
 Material::Material(const MaterialTemplate::CreateInfo& info) {
@@ -85,7 +82,7 @@ Material::Material(const MaterialTemplate::CreateInfo& info) {
 		return;
 	}
 
-	m_paramsUBO = engine::getDevice().createUBO(info.paramsSize);
+	m_paramsUBO = _device.createUBO(info.paramsSize);
 }
 
 MaterialHandle Material::create(const CreateInfo& info) {
@@ -98,7 +95,5 @@ MaterialHandle Material::create(const MaterialTemplate::CreateInfo& info) {
 
 Material::~Material() {
 	if (m_paramsUBO != IGNIS_INVALID_BUFFER_ID)
-		engine::getDevice().destroyBuffer(m_paramsUBO);
+		_device.destroyBuffer(m_paramsUBO);
 }
-
-}  // namespace etna

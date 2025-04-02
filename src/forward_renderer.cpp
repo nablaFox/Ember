@@ -20,29 +20,25 @@ struct CameraData {
 Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFlight) {
 	assert(m_framesInFlight > 0);
 
-	Device& device = engine::getDevice();
-
 	m_framesData.resize(m_framesInFlight);
 
 	for (uint32_t i{0}; i < m_framesInFlight; i++) {
-		m_framesData[i].inFlight = new ignis::Fence(device);
+		m_framesData[i].inFlight = new ignis::Fence(_device);
 
 		m_framesData[i].cmd = new ignis::Command({
-			.device = device,
+			.device = _device,
 			.queue = engine::getGraphicsQueue(),
 		});
 
-		m_framesData[i].sceneDataBuff = device.createSSBO(sizeof(SceneData));
+		m_framesData[i].sceneDataBuff = _device.createSSBO(sizeof(SceneData));
 	}
 }
 
 Renderer::~Renderer() {
-	Device& device = engine::getDevice();
-
 	for (uint32_t i{0}; i < m_framesInFlight; i++) {
 		delete m_framesData[i].inFlight;
 		delete m_framesData[i].cmd;
-		device.destroyBuffer(m_framesData[i].sceneDataBuff);
+		_device.destroyBuffer(m_framesData[i].sceneDataBuff);
 	}
 }
 
@@ -57,13 +53,12 @@ void Renderer::endFrame() {
 
 	SubmitCmdInfo cmdInfo{.command = getCommand()};
 
-	engine::getDevice().submitCommands({cmdInfo},
-									   m_framesData[m_currentFrame].inFlight);
+	_device.submitCommands({cmdInfo}, m_framesData[m_currentFrame].inFlight);
 
 	m_framesData[m_currentFrame].inFlight->wait();
 
 	for (const auto& cameraDataBuff : m_cameraDataBuffs) {
-		engine::getDevice().destroyBuffer(cameraDataBuff);
+		_device.destroyBuffer(cameraDataBuff);
 	}
 
 	m_cameraDataBuffs.clear();
@@ -157,8 +152,7 @@ void Renderer::renderScene(const Scene& scene,
 			.proj = cameraNode.camera.getProjMatrix(),
 		};
 
-		BufferId cameraDataBuff =
-			engine::getDevice().createUBO(sizeof(CameraData), &cameraData);
+		BufferId cameraDataBuff = _device.createUBO(sizeof(CameraData), &cameraData);
 
 		m_cameraDataBuffs.push_back(cameraDataBuff);
 

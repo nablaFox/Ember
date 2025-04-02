@@ -7,9 +7,9 @@
 
 namespace etna::engine {
 
-void init();
-
 ignis::Device& getDevice();
+
+void init();
 
 VkQueue getGraphicsQueue();
 
@@ -28,3 +28,5 @@ constexpr uint32_t ETNA_MAX_SAMPLE_COUNT{8};
 constexpr Color ETNA_CLEAR_COLOR{0.02f, 0.02f, 0.02f, 1};
 
 }  // namespace etna::engine
+
+#define _device etna::engine::getDevice()

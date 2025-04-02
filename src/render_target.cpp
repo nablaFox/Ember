@@ -2,12 +2,9 @@
 #include "render_target.hpp"
 
 using namespace ignis;
-
-namespace etna {
+using namespace etna;
 
 RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
-	Device& device = engine::getDevice();
-
 	const uint32_t maxSampleCount = engine::getMaxAllowedSampleCount();
 
 	const uint32_t sampleCount = (info.samples == 0 || info.samples > maxSampleCount)
@@ -19,7 +16,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	const VkSampleCountFlagBits sampleCountBits =
 		static_cast<VkSampleCountFlagBits>(sampleCount);
 
-	m_drawImage = new Image(device.createDrawAttachmentImage({
+	m_drawImage = new Image(_device.createDrawAttachmentImage({
 		.width = info.extent.width,
 		.height = info.extent.height,
 		.format = engine::ETNA_COLOR_FORMAT,
@@ -27,7 +24,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	}));
 
 	if (isMultiSampled()) {
-		m_resolvedImage = new Image(device.createDrawAttachmentImage({
+		m_resolvedImage = new Image(_device.createDrawAttachmentImage({
 			.width = info.extent.width,
 			.height = info.extent.height,
 			.format = engine::ETNA_COLOR_FORMAT,
@@ -36,7 +33,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	}
 
 	if (info.hasDepth) {
-		m_depthImage = new Image(device.createDepthAttachmentImage({
+		m_depthImage = new Image(_device.createDepthAttachmentImage({
 			.width = info.extent.width,
 			.height = info.extent.height,
 			.format = engine::ETNA_DEPTH_FORMAT,
@@ -44,7 +41,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 		}));
 	}
 
-	Command cmd({.device = device, .queue = engine::getUploadQueue()});
+	Command cmd({.device = _device, .queue = engine::getUploadQueue()});
 
 	cmd.begin();
 
@@ -60,9 +57,9 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 
 	SubmitCmdInfo uploadCmdInfo{.command = cmd};
 
-	device.submitCommands({uploadCmdInfo}, nullptr);
+	_device.submitCommands({uploadCmdInfo}, nullptr);
 
-	device.waitIdle();
+	_device.waitIdle();
 }
 
 RenderTarget::~RenderTarget() {
@@ -70,5 +67,3 @@ RenderTarget::~RenderTarget() {
 	delete m_depthImage;
 	delete m_resolvedImage;
 }
-
-}  // namespace etna

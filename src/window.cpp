@@ -1,49 +1,47 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "ignis/semaphore.hpp"
 #include "window.hpp"
 #include "engine.hpp"
-#include "semaphore.hpp"
 
 using namespace etna;
 using namespace ignis;
 
 Window::Window(const CreateInfo& info)
 	: RenderTarget({.extent = {info.width, info.height}}), m_creationInfo(info) {
-	Device& device = engine::getDevice();
-
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	m_window =
 		glfwCreateWindow(info.width, info.height, info.title, nullptr, nullptr);
 
-	if (glfwCreateWindowSurface(device.getInstance(), m_window, nullptr,
+	if (glfwCreateWindowSurface(_device.getInstance(), m_window, nullptr,
 								&m_surface) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create window surface!");
 	}
 
 	m_swapchain = new Swapchain({
-		.device = &device,
+		.device = &_device,
 		.extent = {info.width, info.height},
 		.surface = m_surface,
 		.presentMode = VK_PRESENT_MODE_MAILBOX_KHR,
 	});
 
 	m_blitCmd = new Command({
-		.device = device,
-		.queue = device.getQueue(0),
+		.device = _device,
+		.queue = _device.getQueue(0),
 	});
 
-	m_imageAvailable = new Semaphore(device);
+	m_imageAvailable = new Semaphore(_device);
 
-	m_finishedBlitting = new Semaphore(device);
+	m_finishedBlitting = new Semaphore(_device);
 
 	setCaptureMouse(info.captureMouse);
 }
 
 Window::~Window() {
-	engine::getDevice().waitIdle();
+	_device.waitIdle();
 
 	delete m_finishedBlitting;
 
@@ -53,7 +51,7 @@ Window::~Window() {
 
 	delete m_swapchain;
 
-	vkDestroySurfaceKHR(engine::getDevice().getInstance(), m_surface, nullptr);
+	vkDestroySurfaceKHR(_device.getInstance(), m_surface, nullptr);
 
 	glfwDestroyWindow(m_window);
 }
@@ -141,7 +139,7 @@ void Window::swapBuffers() {
 		.signalSemaphores = {m_finishedBlitting},
 	};
 
-	engine::getDevice().submitCommands({blitCmdInfo}, nullptr);
+	_device.submitCommands({blitCmdInfo}, nullptr);
 
 	m_swapchain->presentCurrent({.waitSemaphores = {m_finishedBlitting}});
 }
