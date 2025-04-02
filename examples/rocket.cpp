@@ -47,8 +47,7 @@ ModelRoot createRocketModel() {
 	float width = ROCKET_WIDTH * WU_PER_METER;
 	float height = ROCKET_HEIGHT * WU_PER_METER;
 
-	ModelRoot rocket = Model::createRoot(
-		"Rocket", {.transform = {.position = ROCKET_INITIAL_POS * WU_PER_METER}});
+	ModelRoot rocket = Model::createRoot("Rocket");
 
 	ModelRoot rocketBody = createOutlinedBrick({
 		.color = WHITE,
@@ -91,10 +90,6 @@ int main(void) {
 
 	root.addModel("Floor", createFloor({.color = PURPLE.setAlpha(0.3)}));
 
-	CameraNode& rocketCamera = root.addCamera(
-		"RocketCamera", camera, {},
-		{.x = (float)WINDOW_WIDTH * 0.5, .width = (float)WINDOW_WIDTH * 0.5});
-
 	CameraNode& playerCamera =
 		root.addCamera("PlayerCamera", camera,
 					   {.position = {2, 1, -14}, .yaw = -3.25f, .pitch = -0.27f},
@@ -108,6 +103,14 @@ int main(void) {
 
 	MeshNode& rocketMesh = root.addModel("Rocket", createRocketModel());
 
+	rocketMesh.addCamera(
+		"RocketCamera", camera,
+		{
+			.position = {0, 0, 0.5},
+			.pitch = M_PI / 2,
+		},
+		{.x = (float)WINDOW_WIDTH * 0.5, .width = (float)WINDOW_WIDTH * 0.5});
+
 	PhysicalSystem system({});
 
 	system.addObject(&rocket);
@@ -119,21 +122,16 @@ int main(void) {
 	while (!window.shouldClose()) {
 		window.pollEvents();
 
-		if (simulate)
+		if (simulate) {
 			system.update(1 / 60.f);
-
-		simulateRocket(rocket, rocketMesh);
+			simulateRocket(rocket, rocketMesh);
+		}
 
 		updateFirstPersonCamera(playerCamera, window);
 
 		if (window.isKeyClicked(GLFW_KEY_ENTER)) {
 			simulate = !simulate;
 		}
-
-		rocketCamera.updateTransform({
-			.position = rocketMesh.getTransform().position + Vec3{0, 0, 0.5},
-			.pitch = M_PI / 2,
-		});
 
 		renderer.beginFrame();
 

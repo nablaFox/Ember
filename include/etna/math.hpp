@@ -52,6 +52,8 @@ public:
 
 			std::cout << "]\n";
 		}
+
+		std::cout << std::endl;
 	}
 
 	static Mat identity() {

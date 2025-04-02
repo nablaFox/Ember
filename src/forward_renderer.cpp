@@ -155,7 +155,7 @@ void Renderer::renderScene(const Scene& scene,
 
 		CameraData cameraData = {
 			.viewProj =
-				cameraNode.camera.getViewProjMatrix(cameraNode.getTransform()),
+				cameraNode.camera.getViewProjMatrix(cameraNode.getWorldMatrix()),
 			.view = cameraNode.getTransform().getViewMatrix(),
 			.proj = cameraNode.camera.getProjMatrix(),
 		};

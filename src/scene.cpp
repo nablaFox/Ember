@@ -13,7 +13,7 @@ SceneNode::SceneNode(Scene* scene,
 	: m_scene(scene),
 	  m_transform(transform),
 	  m_parent(parent),
-	  m_worldTransform(transform.getWorldMatrix()) {}
+	  m_worldMatrix(transform.getWorldMatrix()) {}
 
 MeshNode& SceneNode::addMesh(std::string name,
 							 const MeshHandle mesh,
@@ -30,7 +30,7 @@ MeshNode& SceneNode::addMesh(std::string name,
 
 	m_children.push_back(&res);
 
-	updateChildrenTransform(m_worldTransform);
+	updateChildrenTransform(m_worldMatrix);
 
 	return res;
 }
@@ -50,7 +50,7 @@ CameraNode& SceneNode::addCamera(std::string name,
 
 	m_children.push_back(&res);
 
-	updateChildrenTransform(m_worldTransform);
+	updateChildrenTransform(m_worldMatrix);
 
 	return res;
 }
@@ -83,15 +83,15 @@ MeshNode& SceneNode::addModel(std::string name,
 
 void SceneNode::updateChildrenTransform(Mat4 transform) {
 	for (auto child : m_children) {
-		child->m_worldTransform = transform * child->m_transform.getWorldMatrix();
-		child->updateChildrenTransform(child->m_worldTransform);
+		child->m_worldMatrix = transform * child->m_transform.getWorldMatrix();
+		child->updateChildrenTransform(child->m_worldMatrix);
 	}
 }
 
 void SceneNode::updateTransform(Transform transform) {
 	m_transform = transform;
-	m_worldTransform = transform.getWorldMatrix();
-	updateChildrenTransform(m_worldTransform);
+	m_worldMatrix = transform.getWorldMatrix();
+	updateChildrenTransform(m_worldMatrix);
 }
 
 void SceneNode::updatePosition(Vec3 position) {

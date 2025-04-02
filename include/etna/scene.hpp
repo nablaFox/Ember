@@ -27,7 +27,7 @@ struct SceneNode {
 
 	const Transform& getTransform() const { return m_transform; }
 
-	Mat4 getWorldMatrix() const { return m_worldTransform; }
+	Mat4 getWorldMatrix() const { return m_worldMatrix; }
 
 	void updateTransform(Transform);
 
@@ -42,7 +42,7 @@ protected:
 	SceneNode(Scene*, std::string, Transform, SceneNode* parent = nullptr);
 
 	Transform m_transform;
-	Mat4 m_worldTransform;
+	Mat4 m_worldMatrix;
 
 	SceneNode* m_parent{nullptr};
 	std::vector<SceneNode*> m_children;
