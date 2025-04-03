@@ -96,6 +96,10 @@ bool Window::isKeyClicked(int key) {
 	return clicked;
 }
 
+bool Window::isMouseCaptured() const {
+	return m_creationInfo.captureMouse;
+}
+
 float Window::getMouseX() const {
 	double x, y;
 	glfwGetCursorPos(m_window, &x, &y);
@@ -147,6 +151,8 @@ void Window::swapBuffers() {
 }
 
 void Window::setCaptureMouse(bool capture) {
+	m_creationInfo.captureMouse = capture;
+
 	if (capture) {
 		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		return;

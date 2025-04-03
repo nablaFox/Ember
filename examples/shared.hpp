@@ -77,7 +77,9 @@ inline void updateFirstPersonCamera(CameraNode& camera,
 		window.setCaptureMouse(true);
 	}
 
-	camera.updateTransform(transform);
+	if (window.isMouseCaptured()) {
+		camera.updateTransform(transform);
+	}
 }
 
 struct FloorCreateInfo {
