@@ -8,7 +8,7 @@ constexpr float DEFAULT_SPHERE_RADIUS = 1.0f;
 
 constexpr uint32_t DEFAULT_SPHERE_PRECISION = 100;
 
-constexpr float DEFAULT_UV_CUBE_SIDE = 1.0f;
+constexpr float DEFAULT_CUBE_SIDE = 1.0f;
 
 constexpr float DEFAULT_PYRAMID_HEIGHT = 1.0f;
 
@@ -19,6 +19,8 @@ constexpr float DEFAULT_QUAD_SIDE = 1.0f;
 MeshHandle getSphere();
 
 MeshHandle getUVCube();
+
+MeshHandle getCube();
 
 MeshHandle getPyramid();
 
@@ -35,6 +37,8 @@ void initDefaultPrimitives();
 void initSphere();
 
 void initUVCube();
+
+void initCube();
 
 void initPyramid();
 

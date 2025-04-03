@@ -119,6 +119,44 @@ MeshHandle engine::createUVBrick(float width, float height, float depth) {
 	});
 }
 
+MeshHandle engine::createUVCube(float side) {
+	return createUVBrick(side, side, side);
+}
+
+MeshHandle engine::createBrick(float width, float height, float depth) {
+	std::vector<Vertex> vertices(24);
+
+	for (uint32_t j = 0; j < 3; j++) {
+		for (uint32_t i = 0; i < 2; i++) {
+			float zShift = (depth / 2.f) - i * depth;
+			uint32_t base = i * 4 + 8 * j;
+
+			vertices[base + 0].position = {width / 2.f, -height / 2.f, zShift};
+			vertices[base + 1].position = {-width / 2.f, -height / 2.f, zShift};
+			vertices[base + 2].position = {-width / 2.f, height / 2.f, zShift};
+			vertices[base + 3].position = {width / 2.f, height / 2.f, zShift};
+		}
+	}
+
+	std::vector<Index> indices = {
+		0,	1,	2,	2,	3,	0,	 // Front
+		4,	5,	6,	6,	7,	4,	 // Back
+		10, 14, 15, 15, 11, 10,	 // Top
+		8,	9,	13, 13, 12, 8,	 // Bottom
+		16, 20, 23, 23, 19, 16,	 // Right
+		17, 18, 22, 22, 21, 17	 // Left
+	};
+
+	return Mesh::create({
+		.vertices = std::move(vertices),
+		.indices = std::move(indices),
+	});
+}
+
+MeshHandle engine::createCube(float side) {
+	return createBrick(side, side, side);
+}
+
 MeshHandle engine::createQuad(float width, float height) {
 	std::vector<Vertex> vertices;
 	vertices.resize(4);

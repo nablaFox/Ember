@@ -2,17 +2,17 @@
 #include "physics.hpp"
 #include "shared.hpp"
 
-constexpr float WINDOW_WIDTH = 1100;
-constexpr float WINDOW_HEIGHT = 700;
-constexpr float GRAVITY = 9.81;
-constexpr float WU_PER_METER = 0.04;  // every meter is 0.04 world units (pixels)
+constexpr float WINDOW_WIDTH{1100};
+constexpr float WINDOW_HEIGHT{700};
+constexpr float GRAVITY{9.81};
+constexpr float WU_PER_METER{0.04};	 // every meter is 0.04 world units (pixels)
 
 // Units in SI (meters, kilograms)
-constexpr float ROCKET_MASS = 11000;
-constexpr float ROCKET_INITIAL_VELOCITY = 20;
-constexpr float ROCKET_HEIGHT = 40;
-constexpr float ROCKET_WIDTH = 18;
-constexpr float ROCKET_INIT_HEIGHT = 300;
+constexpr float ROCKET_MASS{11000};
+constexpr float ROCKET_INITIAL_VELOCITY{20};
+constexpr float ROCKET_HEIGHT{40};
+constexpr float ROCKET_WIDTH{18};
+constexpr float ROCKET_INIT_HEIGHT{300};
 const Vec3 ROCKET_INITIAL_POS{0, ROCKET_INIT_HEIGHT, 0};
 constexpr float ROCKET_MINIMAP_SIZE{0.25};
 
@@ -45,8 +45,8 @@ void simulateRocket(PhysicalObject& rocket, MeshNode& rocketMesh) {
 }
 
 ModelRoot createRocketModel() {
-	float width = ROCKET_WIDTH * WU_PER_METER;
-	float height = ROCKET_HEIGHT * WU_PER_METER;
+	const float width = ROCKET_WIDTH * WU_PER_METER;
+	const float height = ROCKET_HEIGHT * WU_PER_METER;
 
 	ModelRoot rocket = Model::createRoot("Rocket");
 

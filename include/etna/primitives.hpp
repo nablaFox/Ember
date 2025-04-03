@@ -8,6 +8,12 @@ MeshHandle createSphere(float radius, uint32_t precision = 100);
 
 MeshHandle createUVBrick(float width, float height, float depth);
 
+MeshHandle createUVCube(float side);
+
+MeshHandle createBrick(float width, float height, float depth);
+
+MeshHandle createCube(float side);
+
 MeshHandle createQuad(float width, float height);
 
 MeshHandle createPyramid(float height, float sideLengt);
