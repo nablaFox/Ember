@@ -54,11 +54,11 @@ int main(void) {
 
 		updateFirstPersonCamera(playerCamera, window);
 
-		renderer.beginFrame();
+		renderer.begin();
 
-		renderer.renderScene(scene, window, playerCamera);
+		renderer.drawScene(window, playerCamera, scene);
 
-		renderer.endFrame();
+		renderer.execute();
 
 		window.swapBuffers();
 	}

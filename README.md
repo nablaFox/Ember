@@ -48,7 +48,7 @@ int main(void) {
 
 		renderer.beginFrame();
 
-		renderer.renderScene(scene, window, playerCamera);
+		renderer.drawScene(scene, window, playerCamera);
 
 		renderer.endFrame();
 

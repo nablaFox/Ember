@@ -11,7 +11,7 @@ struct DirectionalLight {
 	Color color;
 };
 
-struct RenderSettings {
+struct RenderFrameSettings {
 	Color clearColor{0.02f, 0.02f, 0.02f, 1};
 	Color ambientColor;
 	DirectionalLight sun;
@@ -20,12 +20,16 @@ struct RenderSettings {
 	VkAttachmentLoadOp colorLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
 	VkAttachmentLoadOp depthLoadOp{VK_ATTACHMENT_LOAD_OP_CLEAR};
 	bool renderDepth{true};
-	bool clearViewport{true};
 };
 
-constexpr RenderSettings LOAD_PREVIOUS{
+constexpr RenderFrameSettings LOAD_PREVIOUS{
 	.colorLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-	.depthLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+};
+
+struct RenderSettings {
+	Viewport viewport;
+	bool clearViewport{true};
+	Color clearColor{0.02f, 0.02f, 0.02f, 1};
 };
 
 class Renderer {
@@ -38,15 +42,29 @@ public:
 
 	~Renderer();
 
-	void beginFrame();
+	void beginDrawing(const RenderTarget&,
+					  const CameraNode&,
+					  const RenderFrameSettings& = {});
 
-	void endFrame();
+	void endDrawing();
 
-	void renderScene(const Scene&,
-					 const RenderTarget&,
-					 const CameraNode&,
-					 const Viewport& = {},
-					 const RenderSettings = {});
+	void begin();
+
+	void execute();
+
+	void renderScene(const Scene&, const RenderSettings& = {});
+
+	void renderMesh(const MeshNode&, const RenderSettings& = {});
+
+	void renderInstanced(const MeshNode&,
+						 ignis::BufferId instanceBuffer,
+						 const Viewport& = {});
+
+	void drawScene(const RenderTarget&,
+				   const CameraNode&,
+				   const Scene&,
+				   const Viewport& = {},
+				   const RenderFrameSettings& = {});
 
 	ignis::Command& getCommand() const { return *m_framesData[m_currentFrame].cmd; }
 
@@ -60,6 +78,9 @@ private:
 		ignis::BufferId sceneDataBuff;
 	};
 
+	const CameraNode* m_currCamera;
+	const RenderTarget* m_currTarget;
+
 	std::vector<FrameData> m_framesData;
 
 	struct PushConstants {
@@ -71,6 +92,12 @@ private:
 	} m_pushConstants;
 
 	std::vector<ignis::BufferId> m_cameraDataBuffs;
+
+public:
+	Renderer(const Renderer&) = delete;
+	Renderer& operator=(const Renderer&) = delete;
+	Renderer(Renderer&&) = delete;
+	Renderer& operator=(Renderer&&) = delete;
 };
 
 }  // namespace etna

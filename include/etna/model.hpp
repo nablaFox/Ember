@@ -6,6 +6,9 @@
 
 namespace etna {
 
+// PONDER: models are not only made of meshes with materials
+// and scene.addModel should in principle return a SceneNode not just a MeshNode
+
 struct ModelNode {
 	MeshHandle mesh{nullptr};
 	MaterialHandle material{nullptr};

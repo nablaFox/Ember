@@ -129,15 +129,21 @@ int main(void) {
 			simulate = !simulate;
 		}
 
-		renderer.beginFrame();
+		renderer.begin();
 
-		renderer.renderScene(scene, window, playerCamera);
+		renderer.beginDrawing(window, playerCamera);
 
-		renderer.renderScene(
-			scene, window, rocketCamera, rocketViewport,
-			{.colorLoadOp = VK_ATTACHMENT_LOAD_OP_LOAD, .clearViewport = true});
+		renderer.renderScene(scene);
 
-		renderer.endFrame();
+		renderer.endDrawing();
+
+		renderer.beginDrawing(window, rocketCamera, LOAD_PREVIOUS);
+
+		renderer.renderScene(scene, {.viewport = rocketViewport});
+
+		renderer.endDrawing();
+
+		renderer.execute();
 
 		window.swapBuffers();
 	}

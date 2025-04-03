@@ -49,13 +49,13 @@ Renderer::~Renderer() {
 	g_defaultMaterial.reset();
 }
 
-void Renderer::beginFrame() {
+void Renderer::begin() {
 	getCommand().begin();
 
 	m_framesData[m_currentFrame].inFlight->reset();
 }
 
-void Renderer::endFrame() {
+void Renderer::execute() {
 	getCommand().end();
 
 	SubmitCmdInfo cmdInfo{.command = getCommand()};
@@ -73,38 +73,27 @@ void Renderer::endFrame() {
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
 
-// TODO: group meshes by material
-// PONDER: for multi-pass rendering use a render graph where we will automatically
-// handle syncrhonization between resources
-void Renderer::renderScene(const Scene& scene,
-						   const RenderTarget& renderTarget,
-						   const CameraNode& cameraNode,
-						   const Viewport& viewport,
-						   const RenderSettings info) {
-#ifndef NDEBUG
-	for (const auto& [_, node] : scene.getMeshes()) {
-		const MaterialTemplate& materialT = node.material != nullptr
-												? node.material->getTemplate()
-												: g_defaultMaterial->getTemplate();
-
-		const RenderTarget::CreateInfo& renderTargetInfo =
-			renderTarget.getCreationInfo();
-
-		if (materialT.samples != renderTargetInfo.samples) {
-			throw std::runtime_error("Material has different sample count");
-		}
-	}
-#endif
-
+void Renderer::beginDrawing(const RenderTarget& renderTarget,
+							const CameraNode& cameraNode,
+							const RenderFrameSettings& info) {
 	Command& cmd = getCommand();
+	FrameData& frameData = m_framesData[m_currentFrame];
 
-	const Color clearColor{info.clearColor};
+	const SceneData sceneData{
+		.ambientColor = info.ambientColor,
+		.sun = info.sun,
+	};
+
+	cmd.updateBuffer(frameData.sceneDataBuff, &sceneData);
+
+	m_currCamera = &cameraNode;
+	m_currTarget = &renderTarget;
 
 	const VkClearColorValue clearColorValue{
-		clearColor.r,
-		clearColor.g,
-		clearColor.b,
-		clearColor.a,
+		info.clearColor.r,
+		info.clearColor.g,
+		info.clearColor.b,
+		info.clearColor.a,
 	};
 
 	DrawAttachment* drawAttachment = new DrawAttachment({
@@ -122,36 +111,71 @@ void Renderer::renderScene(const Scene& scene,
 						   })
 						 : nullptr;
 
-	const SceneData sceneData{
-		.ambientColor = info.ambientColor,
-		.sun = info.sun,
-	};
+	cmd.beginRender(drawAttachment, depthAttachment);
+}
 
-	BufferId sceneDataBuff = m_framesData[m_currentFrame].sceneDataBuff;
-	cmd.updateBuffer(sceneDataBuff, &sceneData);
+void Renderer::endDrawing() {
+	Command& cmd = getCommand();
+
+	cmd.endRendering();
+
+	if (!m_currTarget->isMultiSampled())
+		return;
+
+	Image& drawImage = *m_currTarget->getDrawImage();
+	Image& resolvedDrawImage = *m_currTarget->getResolvedImage();
+
+	cmd.transitionImageLayout(drawImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+	cmd.transitionImageLayout(resolvedDrawImage,
+							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+	cmd.resolveImage(drawImage, resolvedDrawImage);
+
+	cmd.transitionToOptimalLayout(drawImage);
+	cmd.transitionToOptimalLayout(resolvedDrawImage);
+}
+
+// TODO: group meshes by material
+void Renderer::renderScene(const Scene& scene, const RenderSettings& info) {
+#ifndef NDEBUG
+	for (const auto& [_, node] : scene.getMeshes()) {
+		const MaterialTemplate& materialT = node.material != nullptr
+												? node.material->getTemplate()
+												: g_defaultMaterial->getTemplate();
+
+		const RenderTarget::CreateInfo& renderTargetInfo =
+			m_currTarget->getCreationInfo();
+
+		if (materialT.samples != renderTargetInfo.samples) {
+			throw std::runtime_error("Material has different sample count");
+		}
+	}
+#endif
+
+	Command& cmd = getCommand();
 
 	VkViewport vp{
-		.x = viewport.x,
-		.y = viewport.y,
-		.width = viewport.width,
-		.height = viewport.height,
+		.x = info.viewport.x,
+		.y = info.viewport.y,
+		.width = info.viewport.width,
+		.height = info.viewport.height,
 		.minDepth = 0.f,
 		.maxDepth = 1.f,
 	};
 
 	if (vp.width == 0) {
 		vp.x = 0;
-		vp.width = (float)renderTarget.getExtent().width;
+		vp.width = (float)m_currTarget->getExtent().width;
 	}
 
 	if (vp.height == 0) {
 		vp.y = 0;
-		vp.height = (float)renderTarget.getExtent().height;
+		vp.height = (float)m_currTarget->getExtent().height;
 	}
 
-	const Mat4 view = cameraNode.getViewMatrix();
+	const Mat4 view = m_currCamera->getViewMatrix();
 
-	const Mat4 proj = cameraNode.getProjMatrix(vp.width / vp.height);
+	const Mat4 proj = m_currCamera->getProjMatrix(vp.width / vp.height);
 
 	const CameraData cameraData{
 		.viewProj = proj * view,
@@ -162,8 +186,6 @@ void Renderer::renderScene(const Scene& scene,
 	BufferId cameraDataBuff = _device.createUBO(sizeof(CameraData), &cameraData);
 
 	m_cameraDataBuffs.push_back(cameraDataBuff);
-
-	cmd.beginRender(drawAttachment, depthAttachment);
 
 	// TODO: add ignis utility for clearing the viewport
 	if (info.clearViewport) {
@@ -178,7 +200,11 @@ void Renderer::renderScene(const Scene& scene,
 
 		const VkClearAttachment clearAtt{
 			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-			.clearValue = {clearColorValue},
+			.clearValue =
+				{
+					.color = {info.clearColor.r, info.clearColor.g,
+							  info.clearColor.b, info.clearColor.a},
+				},
 		};
 
 		vkCmdClearAttachments(getCommand().getHandle(), 1, &clearAtt, 1, &clearRect);
@@ -202,8 +228,8 @@ void Renderer::renderScene(const Scene& scene,
 
 		cmd.setViewport(vp);
 
-		cmd.setScissor(
-			{0, 0, renderTarget.getExtent().width, renderTarget.getExtent().height});
+		cmd.setScissor({0, 0, m_currTarget->getExtent().width,
+						m_currTarget->getExtent().height});
 
 		cmd.bindIndexBuffer(*mesh->getIndexBuffer());
 
@@ -211,7 +237,7 @@ void Renderer::renderScene(const Scene& scene,
 			.worldTransform = meshNode.getWorldMatrix(),
 			.vertices = mesh->getVertexBuffer(),
 			.material = materialToUse->getParamsUBO(),
-			.sceneData = sceneDataBuff,
+			.sceneData = m_framesData[m_currentFrame].sceneDataBuff,
 			.cameraData = cameraDataBuff,
 		};
 
@@ -219,22 +245,16 @@ void Renderer::renderScene(const Scene& scene,
 
 		cmd.draw(mesh->indexCount());
 	}
+}
 
-	cmd.endRendering();
+void Renderer::drawScene(const RenderTarget& target,
+						 const CameraNode& cameraNode,
+						 const Scene& scene,
+						 const Viewport& viewport,
+						 const RenderFrameSettings& settings) {
+	beginDrawing(target, cameraNode, settings);
 
-	// PONDER: the resolving should probably not happen here
-	if (!renderTarget.isMultiSampled())
-		return;
+	renderScene(scene, {.viewport = viewport, .clearViewport = false});
 
-	Image& drawImage = *renderTarget.getDrawImage();
-	Image& resolvedDrawImage = *renderTarget.getResolvedImage();
-
-	cmd.transitionImageLayout(drawImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	cmd.transitionImageLayout(resolvedDrawImage,
-							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
-	cmd.resolveImage(drawImage, resolvedDrawImage);
-
-	cmd.transitionToOptimalLayout(drawImage);
-	cmd.transitionToOptimalLayout(resolvedDrawImage);
+	endDrawing();
 }
