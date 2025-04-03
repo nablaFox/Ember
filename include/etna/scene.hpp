@@ -40,8 +40,16 @@ public:
 
 	void render(Renderer&, const CameraNode&, const Viewport& = {});
 
+#ifndef NDEBUG
+	void print() const;
+#endif
+
 private:
 	SceneNode addNodeHelper(SceneNode, const Transform&, const std::string&);
+
+#ifndef NDEBUG
+	std::vector<SceneNode> m_nodes;
+#endif
 
 	std::unordered_map<std::string, MeshNode> m_meshNodes;
 	std::unordered_map<std::string, CameraNode> m_cameraNodes;

@@ -67,6 +67,10 @@ SceneNode Scene::addNode(SceneNode node,
 	node->translate(transform.position);
 	node->rotate(transform.yaw, transform.pitch, transform.roll);
 
+#ifndef NDEBUG
+	m_nodes.push_back(node);
+#endif
+
 	return addNodeHelper(node, transform, newName);
 }
 
@@ -81,15 +85,13 @@ CameraNode Scene::createCameraNode(const scene::CreateCameraNodeInfo& info) {
 MeshNode Scene::addMesh(MeshNode node,
 						const Transform& transform,
 						const std::string& newName) {
-	return std::static_pointer_cast<_MeshNode>(
-		addNodeHelper(node, transform, newName));
+	return std::static_pointer_cast<_MeshNode>(addNode(node, transform, newName));
 }
 
 CameraNode Scene::addCamera(CameraNode node,
 							const Transform& transform,
 							const std::string& newName) {
-	return std::static_pointer_cast<_CameraNode>(
-		addNodeHelper(node, transform, newName));
+	return std::static_pointer_cast<_CameraNode>(addNode(node, transform, newName));
 }
 
 struct CameraData {
@@ -140,3 +142,13 @@ void Scene::render(Renderer& renderer,
 					  {.viewport = vp, .ubo = cameraDataBuff});
 	}
 }
+
+#ifndef NDEBUG
+
+void Scene::print() const {
+	for (const auto& node : m_nodes) {
+		node->print();
+	}
+}
+
+#endif

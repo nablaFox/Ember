@@ -71,6 +71,10 @@ struct _SceneNode {
 
 	const std::vector<SceneNode>& getChildren() const { return m_children; }
 
+#ifndef NDEBUG
+	void print() const;
+#endif
+
 protected:
 	Transform m_transform;
 	Mat4 m_worldMatrix;

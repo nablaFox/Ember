@@ -94,3 +94,25 @@ CameraNode scene::createCameraNode(const CreateCameraNodeInfo& info) {
 SceneNode scene::loadFromPath(const std::string& path) {
 	throw std::runtime_error("Not implemented");
 }
+
+#ifndef NDEBUG
+
+#define GREEN(x) "\033[32m" x "\033[0m"
+#define BLUE(x) "\033[34m" x "\033[0m"
+
+void _SceneNode::print() const {
+	if (m_type == Type::MESH) {
+		std::cout << GREEN("Mesh") << ": " << m_name << std::endl;
+	} else if (m_type == Type::CAMERA) {
+		std::cout << BLUE("Camera") << ": " << m_name << std::endl;
+	} else {
+		std::cout << "Root: " << m_name << std::endl;
+	}
+
+	for (const auto& child : m_children) {
+		std::cout << "  ";
+		child->print();
+	}
+}
+
+#endif
