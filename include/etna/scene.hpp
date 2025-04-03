@@ -5,6 +5,7 @@
 #include <vector>
 #include "transform.hpp"
 #include "camera.hpp"
+#include "renderer.hpp"
 
 namespace etna {
 
@@ -61,7 +62,7 @@ struct MeshNode : public SceneNode {
 struct CameraNode : public SceneNode {
 	using SceneNode::SceneNode;
 
-	Camera camera;	// PONDER: should this be a ptr?
+	Camera camera;
 
 	Mat4 getViewMatrix() const;
 	Mat4 getProjMatrix(float aspect) const;
@@ -89,6 +90,8 @@ public:
 	MeshNode* getMesh(std::string);
 
 	SceneNode createRoot(std::string, Transform);
+
+	void render(Renderer&, const CameraNode&, const Viewport& = {});
 
 private:
 	friend struct SceneNode;

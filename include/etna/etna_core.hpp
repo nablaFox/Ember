@@ -1,6 +1,5 @@
 #include "etna/engine.hpp"
-#include "etna/scene.hpp"
 #include "etna/window.hpp"
-#include "etna/forward_renderer.hpp"
+#include "etna/renderer.hpp"
 #include "etna/default_materials.hpp"
 #include "etna/default_primitives.hpp"

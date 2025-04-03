@@ -6,6 +6,7 @@ Simple C++ 20 graphics engine written with [Ignis](https://github.com/nablaFox/I
 
 ```cpp
 #include "etna/etna_core.hpp"
+#include "etna/scene.hpp"
 
 constexpr uint32_t WINDOW_WIDTH{800};
 constexpr uint32_t WINDOW_HEIGHT{600};
@@ -46,9 +47,9 @@ int main(void) {
 
 		sphere.rotate(0, 0.01, 0.01);
 
-		renderer.beginFrame();
+		renderer.beginFrame(window);
 
-		renderer.drawScene(scene, window, playerCamera);
+		scene.render(renderer, playerCamera);
 
 		renderer.endFrame();
 

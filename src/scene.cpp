@@ -2,6 +2,7 @@
 #include "mesh.hpp"
 #include "material.hpp"
 #include "model.hpp"
+#include "engine.hpp"
 
 using namespace etna;
 using namespace ignis;
@@ -142,4 +143,53 @@ MeshNode* Scene::getMesh(std::string name) {
 
 SceneNode Scene::createRoot(std::string name, Transform transform) {
 	return SceneNode(this, name, transform);
+}
+
+struct CameraData {
+	Mat4 viewproj;
+	Mat4 view;
+	Mat4 proj;
+};
+
+void Scene::render(Renderer& renderer,
+				   const CameraNode& camera,
+				   const Viewport& viewport) {
+	Viewport vp = viewport;
+
+	if (viewport.width == 0) {
+		vp.x = 0;
+		vp.width = (float)renderer.getRenderTarget().getExtent().width;
+	}
+
+	if (viewport.height == 0) {
+		vp.y = 0;
+		vp.height = (float)renderer.getRenderTarget().getExtent().height;
+	}
+
+	const Mat4 view = camera.getViewMatrix();
+
+	const Mat4 proj = camera.getProjMatrix(vp.width / vp.height);
+
+	const CameraData cameraData{
+		.viewproj = proj * view,
+		.view = view,
+		.proj = proj,
+	};
+
+	ignis::BufferId cameraDataBuff =
+		_device.createUBO(sizeof(CameraData), &cameraData);
+
+	renderer.queueForDeletion(cameraDataBuff);
+
+	for (const auto& [_, meshNode] : m_meshNodes) {
+		if (meshNode.mesh == nullptr)
+			continue;
+
+		const MaterialHandle material = meshNode.material;
+		const MeshHandle mesh = meshNode.mesh;
+		const Mat4 worldMatrix = meshNode.getWorldMatrix();
+
+		renderer.draw(mesh, material, worldMatrix,
+					  {.viewport = vp, .ubo = cameraDataBuff});
+	}
 }

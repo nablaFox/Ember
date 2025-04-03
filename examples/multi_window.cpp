@@ -56,22 +56,18 @@ int main(void) {
 			shouldClose = true;
 		}
 
-		renderer.begin();
+		renderer.beginFrame(window1);
 
-		renderer.beginDrawing(window1, camera);
+		scene.render(renderer, camera, viewport1);
+		scene.render(renderer, camera, viewport2);
 
-		renderer.renderScene(scene, {.viewport = viewport1});
-		renderer.renderScene(scene, {.viewport = viewport2});
+		renderer.endFrame();
 
-		renderer.endDrawing();
+		renderer.beginFrame(window2);
 
-		renderer.beginDrawing(window2, camera);
+		scene.render(renderer, camera);
 
-		renderer.renderScene(scene);
-
-		renderer.endDrawing();
-
-		renderer.execute();
+		renderer.endFrame();
 
 		window1.swapBuffers();
 

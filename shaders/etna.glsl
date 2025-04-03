@@ -16,8 +16,9 @@ layout(push_constant) uniform constants {
 	mat4 worldTransform;
 	uint verticesIndex;
 	uint materialIndex;
-	uint sceneData;
-	uint cameraData;
+	uint instanceBufferIndex;
+	uint ubo;
+	uint ssbo;
 } pc;
 
 // Vertices
@@ -36,25 +37,3 @@ DEF_SSBO(VertexBuffer, {
 #define DEF_MATERIAL(Struct) DEF_UBO(Material, Struct)
 
 #define MATERIAL (uMaterial[pc.materialIndex])
-
-// Scene data
-struct DirectionalLight {
-    vec3 direction;     
-    vec4 color;     
-};
-
-DEF_SSBO(SceneData, {
-	vec4 ambientColor;
-	DirectionalLight sun;
-});
-
-#define SCENE (uSceneData[pc.sceneData])
-
-// Other
-DEF_UBO(CameraData, {
-	mat4 viewproj;
-	mat4 view;
-	mat4 proj;
-});
-
-#define CAMERA (uCameraData[pc.cameraData])

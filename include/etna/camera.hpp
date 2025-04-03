@@ -4,13 +4,6 @@
 
 namespace etna {
 
-struct Viewport {
-	float x{0};
-	float y{0};
-	float width{0};
-	float height{0};
-};
-
 struct Camera {
 	float fov{70.f};
 	float near{0.1f};
