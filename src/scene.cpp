@@ -1,125 +1,12 @@
 #include "scene.hpp"
 #include "mesh.hpp"
 #include "material.hpp"
-#include "model.hpp"
 #include "engine.hpp"
 
 using namespace etna;
 using namespace ignis;
 
-SceneNode::SceneNode(Scene* scene,
-					 std::string name,
-					 Transform transform,
-					 SceneNode* parent)
-	: m_scene(scene),
-	  m_transform(transform),
-	  m_parent(parent),
-	  m_worldMatrix(transform.getWorldMatrix()) {}
-
-MeshNode& SceneNode::addMesh(std::string name,
-							 const MeshHandle mesh,
-							 Transform transform,
-							 const MaterialHandle material) {
-	MeshNode node{m_scene, name, transform, this};
-
-	node.mesh = mesh;
-	node.material = material;
-
-	auto result = m_scene->m_meshNodes.emplace(name, std::move(node));
-
-	MeshNode& res = result.first->second;
-
-	m_children.push_back(&res);
-
-	updateChildrenTransform(m_worldMatrix);
-
-	return res;
-}
-
-CameraNode& SceneNode::addCamera(std::string name,
-								 Transform transform,
-								 Viewport viewport,
-								 Camera camera) {
-	CameraNode node{m_scene, name, transform, this};
-
-	node.camera = camera;
-
-	auto result = m_scene->m_cameraNodes.emplace(name, std::move(node));
-
-	CameraNode& res = result.first->second;
-
-	m_children.push_back(&res);
-
-	updateChildrenTransform(m_worldMatrix);
-
-	return res;
-}
-
-static MeshNode& addModelChildren(const ModelRoot root,
-								  SceneNode& sceneNode,
-								  std::string name) {
-	MeshNode& rootNode = sceneNode.addMesh(
-		name, root->node.mesh, root->node.transform, root->node.material);
-
-	for (auto child : root->children) {
-		addModelChildren(child, rootNode, name + "/" + child->name);
-	}
-
-	return rootNode;
-}
-
-MeshNode& SceneNode::addModel(std::string name,
-							  const ModelRoot model,
-							  Transform transform) {
-	assert(model != nullptr && "Model is null");
-
-	MeshNode& toReturn = addModelChildren(model, *this, name);
-
-	toReturn.translate(transform.position);
-	toReturn.rotate(transform.yaw, transform.pitch, transform.roll);
-
-	return toReturn;
-}
-
-void SceneNode::updateChildrenTransform(Mat4 transform) {
-	for (auto child : m_children) {
-		child->m_worldMatrix = transform * child->m_transform.getWorldMatrix();
-		child->updateChildrenTransform(child->m_worldMatrix);
-	}
-}
-
-void SceneNode::updateTransform(Transform transform) {
-	m_transform = transform;
-	m_worldMatrix = transform.getWorldMatrix();
-	updateChildrenTransform(m_worldMatrix);
-}
-
-void SceneNode::updatePosition(Vec3 position) {
-	m_transform.position = position;
-	updateTransform(m_transform);
-}
-
-void SceneNode::translate(Vec3 translation) {
-	m_transform.position += translation;
-	updateTransform(m_transform);
-}
-
-void SceneNode::rotate(float yaw, float pitch, float roll) {
-	m_transform.yaw += yaw;
-	m_transform.pitch += pitch;
-	m_transform.roll += roll;
-	updateTransform(m_transform);
-}
-
-Mat4 CameraNode::getViewMatrix() const {
-	return camera.getViewMatrix(getWorldMatrix());
-}
-
-Mat4 CameraNode::getProjMatrix(float aspect) const {
-	return camera.getProjMatrix(aspect);
-}
-
-Scene::Scene() {}
+Scene::Scene(const CreateInfo&) {}
 
 Scene::~Scene() {}
 
@@ -141,8 +28,68 @@ MeshNode* Scene::getMesh(std::string name) {
 	return &it->second;
 }
 
-SceneNode Scene::createRoot(std::string name, Transform transform) {
-	return SceneNode(this, name, transform);
+SceneNode Scene::addNodeHelper(SceneNode node,
+							   const Transform& transform,
+							   const std::string& newName) {
+	const std::string name = newName.empty() ? node->getName() : newName;
+
+	std::string nameToUse = name;
+
+	if (node->getType() == _SceneNode::Type::MESH) {
+		if (m_meshNodes.find(name) != m_meshNodes.end()) {
+			nameToUse = name + "_" + std::to_string(m_meshNodes.size());
+		}
+
+		m_meshNodes[nameToUse] = std::static_pointer_cast<_MeshNode>(node);
+	}
+
+	else if (node->getType() == _SceneNode::Type::CAMERA) {
+		if (m_cameraNodes.find(name) != m_cameraNodes.end()) {
+			nameToUse = name + "_" + std::to_string(m_cameraNodes.size());
+		}
+
+		m_cameraNodes[nameToUse] = std::static_pointer_cast<_CameraNode>(node);
+	}
+
+	for (auto& child : node->getChildren()) {
+		addNodeHelper(child, transform, newName);
+	}
+
+	return node;
+}
+
+SceneNode Scene::addNode(SceneNode node,
+						 const Transform& transform,
+						 const std::string& newName) {
+	if (node == nullptr)
+		return nullptr;
+
+	node->translate(transform.position);
+	node->rotate(transform.yaw, transform.pitch, transform.roll);
+
+	return addNodeHelper(node, transform, newName);
+}
+
+MeshNode Scene::createMeshNode(const scene::CreateMeshNodeInfo& info) {
+	return addMesh(scene::createMeshNode(info));
+}
+
+CameraNode Scene::createCameraNode(const scene::CreateCameraNodeInfo& info) {
+	return addCamera(scene::createCameraNode(info));
+}
+
+MeshNode Scene::addMesh(MeshNode node,
+						const Transform& transform,
+						const std::string& newName) {
+	return std::static_pointer_cast<_MeshNode>(
+		addNodeHelper(node, transform, newName));
+}
+
+CameraNode Scene::addCamera(CameraNode node,
+							const Transform& transform,
+							const std::string& newName) {
+	return std::static_pointer_cast<_CameraNode>(
+		addNodeHelper(node, transform, newName));
 }
 
 struct CameraData {
@@ -166,9 +113,9 @@ void Scene::render(Renderer& renderer,
 		vp.height = (float)renderer.getRenderTarget().getExtent().height;
 	}
 
-	const Mat4 view = camera.getViewMatrix();
+	const Mat4 view = camera->getViewMatrix();
 
-	const Mat4 proj = camera.getProjMatrix(vp.width / vp.height);
+	const Mat4 proj = camera->getProjMatrix(vp.width / vp.height);
 
 	const CameraData cameraData{
 		.viewproj = proj * view,
@@ -182,12 +129,12 @@ void Scene::render(Renderer& renderer,
 	renderer.queueForDeletion(cameraDataBuff);
 
 	for (const auto& [_, meshNode] : m_meshNodes) {
-		if (meshNode.mesh == nullptr)
+		if (meshNode->mesh == nullptr)
 			continue;
 
-		const MaterialHandle material = meshNode.material;
-		const MeshHandle mesh = meshNode.mesh;
-		const Mat4 worldMatrix = meshNode.getWorldMatrix();
+		const MaterialHandle material = meshNode->material;
+		const MeshHandle mesh = meshNode->mesh;
+		const Mat4 worldMatrix = meshNode->getWorldMatrix();
 
 		renderer.draw(mesh, material, worldMatrix,
 					  {.viewport = vp, .ubo = cameraDataBuff});

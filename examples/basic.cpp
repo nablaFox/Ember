@@ -13,38 +13,41 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Scene scene;
+	Scene scene({});
 
-	SceneNode root = scene.createRoot("root", {});
+	scene.createMeshNode({
+		.name = "Sphere1",
+		.mesh = engine::getSphere(),
+		.transform =
+			{
+				.position = {1.5, 0.5, -5},
+				.pitch = M_PI / 2,
+				.scale = Vec3(0.5),
+			},
+		.material = engine::createGridMaterial({
+			.color = BLUE * 0.08,
+			.gridColor = BLUE,
+			.gridSpacing = 0.1,
+			.thickness = 0.005,
+		}),
+	});
 
-	// geometry
-	root.addMesh("Sphere1", engine::getSphere(),
-				 {
-					 .position = {1.5, 0.5, -5},
-					 .pitch = M_PI / 2,
-					 .scale = Vec3(0.5),
-				 },
-				 engine::createGridMaterial({
-					 .color = BLUE * 0.08,
-					 .gridColor = BLUE,
-					 .gridSpacing = 0.1,
-					 .thickness = 0.005,
-				 }));
+	scene.createMeshNode({
+		.name = "Sphere2",
+		.mesh = engine::getSphere(),
+		.transform = {.position = {0, 2.5, -9}},
+		.material = engine::createPointMaterial(GREEN),
+	});
 
-	root.addMesh("Sphere2", engine::getSphere(), {.position = {0, 2.5, -9}},
-				 engine::createPointMaterial(GREEN));
+	scene.addNode(createOutlinedBrick({}),
+				  {.position = {-2.5, 0.5, -5}, .yaw = M_PI / 4});
 
-	root.addModel("OutlinedBrick", createOutlinedBrick({}),
-				  {
-					  .position = {-2.5, 0.5, -5},
-					  .yaw = M_PI / 4,
-				  });
+	scene.addNode(createFloor({.color = PURPLE.setAlpha(0.3)}));
 
-	root.addModel("Floor", createFloor({.color = PURPLE.setAlpha(0.3)}));
-
-	// camera
-	CameraNode& playerCamera =
-		root.addCamera("PlayerCamera", {.position = {0, 1, 0}});
+	CameraNode playerCamera = scene.createCameraNode({
+		.name = "PlayerCamera",
+		.transform = {.position = {0, 1, 0}},
+	});
 
 	// rendering
 	Renderer renderer({});

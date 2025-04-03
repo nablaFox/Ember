@@ -134,6 +134,16 @@ public:
 
 		return matrix /= scalar;
 	}
+
+	bool operator==(const Mat& other) const {
+		for (std::size_t i = 0; i < Rows * Cols; i++) {
+			if (elements[i] != other.elements[i]) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 };
 
 template <typename T, std::size_t Rows>

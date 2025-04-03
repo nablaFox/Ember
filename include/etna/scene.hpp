@@ -1,76 +1,18 @@
 #pragma once
 
-#include <memory>
 #include <unordered_map>
-#include <vector>
-#include "transform.hpp"
-#include "camera.hpp"
+#include "scene_graph.hpp"
 #include "renderer.hpp"
 
 namespace etna {
 
-class Scene;
-struct MeshNode;
-class Material;
-class Mesh;
-struct CameraNode;
-class Model;
-
-struct SceneNode {
-	MeshNode& addMesh(std::string,
-					  const std::shared_ptr<Mesh>,
-					  Transform,
-					  const std::shared_ptr<Material> = nullptr);
-
-	MeshNode& addModel(std::string, const std::shared_ptr<Model>, Transform = {});
-
-	CameraNode& addCamera(std::string, Transform, Viewport = {}, Camera = {});
-
-	const Transform& getTransform() const { return m_transform; }
-
-	Mat4 getWorldMatrix() const { return m_worldMatrix; }
-
-	void updateTransform(Transform);
-
-	void updatePosition(Vec3);
-
-	void translate(Vec3);
-
-	void rotate(float yaw, float pitch, float roll);
-
-protected:
-	friend class Scene;
-	SceneNode(Scene*, std::string, Transform, SceneNode* parent = nullptr);
-
-	Transform m_transform;
-	Mat4 m_worldMatrix;
-
-	SceneNode* m_parent{nullptr};
-	std::vector<SceneNode*> m_children;
-	Scene* m_scene;
-
-	void updateChildrenTransform(Mat4);
-};
-
-struct MeshNode : public SceneNode {
-	using SceneNode::SceneNode;
-
-	std::shared_ptr<Material> material;
-	std::shared_ptr<Mesh> mesh;
-};
-
-struct CameraNode : public SceneNode {
-	using SceneNode::SceneNode;
-
-	Camera camera;
-
-	Mat4 getViewMatrix() const;
-	Mat4 getProjMatrix(float aspect) const;
-};
-
 class Scene {
 public:
-	Scene();
+	struct CreateInfo {
+		uint32_t maxLights{0};
+	};
+
+	Scene(const CreateInfo&);
 	~Scene();
 
 	const std::unordered_map<std::string, MeshNode>& getMeshes() const {
@@ -89,12 +31,17 @@ public:
 
 	MeshNode* getMesh(std::string);
 
-	SceneNode createRoot(std::string, Transform);
+	SceneNode addNode(SceneNode, const Transform& = {}, const std::string& = "");
+	MeshNode addMesh(MeshNode, const Transform& = {}, const std::string& = "");
+	CameraNode addCamera(CameraNode, const Transform& = {}, const std::string& = "");
+
+	MeshNode createMeshNode(const scene::CreateMeshNodeInfo&);
+	CameraNode createCameraNode(const scene::CreateCameraNodeInfo&);
 
 	void render(Renderer&, const CameraNode&, const Viewport& = {});
 
 private:
-	friend struct SceneNode;
+	SceneNode addNodeHelper(SceneNode, const Transform&, const std::string&);
 
 	std::unordered_map<std::string, MeshNode> m_meshNodes;
 	std::unordered_map<std::string, CameraNode> m_cameraNodes;

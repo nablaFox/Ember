@@ -23,29 +23,35 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Scene scene;
-	SceneNode root = scene.createRoot("root", {});
+	Scene scene({});
 
-	MeshNode& sphere = root.addMesh("Sphere", engine::getSphere(),
-					{
-						.position = {0, 0, -3},
-						.scale = Vec3(0.5),
-					},
-					engine::createGridMaterial({
-						.color = BLUE * 0.08,
-						.gridColor = BLUE,
-						.gridSpacing = 0.1,
-						.thickness = 0.005,
-					}));
+	MeshNode sphere = scene.createMeshNode({
+		.name = "Sphere",
+		.mesh = engine::getSphere(),
+		.transform =
+			{
+				.position = {0, 0, -3},
+				.scale = Vec3(0.5),
+			},
+		.material = engine::createGridMaterial({
+			.color = BLUE * 0.08,
+			.gridColor = BLUE,
+			.gridSpacing = 0.1,
+			.thickness = 0.005,
+		}),
+	});
 
-	CameraNode& playerCamera = root.addCamera("PlayerCamera", {.position = Vec3(0)});
+	CameraNode playerCamera = scene.createCameraNode({
+		.name = "PlayerCamera",
+		.transform = {.position = {0, 0, 1}},
+	});
 
 	Renderer renderer({});
 
 	while (!window.shouldClose()) {
 		window.pollEvents();
 
-		sphere.rotate(0, 0.01, 0.01);
+		sphere->rotate(0, 0.01, 0.01);
 
 		renderer.beginFrame(window);
 

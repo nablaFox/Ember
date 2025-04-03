@@ -1,3 +1,4 @@
+#include "default_primitives.hpp"
 #include "engine.hpp"
 #include "physics.hpp"
 #include "shared.hpp"
@@ -16,7 +17,7 @@ constexpr float ROCKET_INIT_HEIGHT{300};
 const Vec3 ROCKET_INITIAL_POS{0, ROCKET_INIT_HEIGHT, 0};
 constexpr float ROCKET_MINIMAP_SIZE{0.25};
 
-void simulateRocket(PhysicalObject& rocket, MeshNode& rocketMesh) {
+void simulateRocket(PhysicalObject& rocket, SceneNode rocketMesh) {
 	std::cout << "\033[2J\033[1;1H";
 
 	const float currHeight = rocket.pos[1] - (ROCKET_HEIGHT / 2);
@@ -41,32 +42,31 @@ void simulateRocket(PhysicalObject& rocket, MeshNode& rocketMesh) {
 
 	rocket.force = {0, decForce - weight, 0};
 
-	rocketMesh.updatePosition(rocket.pos * WU_PER_METER);
+	rocketMesh->updatePosition(rocket.pos * WU_PER_METER);
 }
 
-ModelRoot createRocketModel() {
+SceneNode createRocketModel() {
 	const float width = ROCKET_WIDTH * WU_PER_METER;
 	const float height = ROCKET_HEIGHT * WU_PER_METER;
 
-	ModelRoot rocket = Model::createRoot("Rocket");
+	SceneNode rocket = scene::createRoot("Rocket");
 
-	ModelRoot rocketBody = createOutlinedBrick({
+	rocket->add(createOutlinedBrick({
 		.color = WHITE,
 		.outlineColor = BLACK,
+		.name = "Body",
 		.outlineThickness = 0.01,
 		.width = width,
 		.height = height,
 		.depth = width,
-	});
+	}));
 
-	ModelNode rocketNose{
+	rocket->add(scene::createMeshNode({
+		.name = "Nose",
 		.mesh = engine::getPyramid(),
-		.material = engine::createColorMaterial(RED),
 		.transform = {.position = {0, height / 2, 0}},
-	};
-
-	rocket->add("Body", rocketBody);
-	rocket->add("Nose", rocketNose);
+		.material = engine::createColorMaterial(RED),
+	}));
 
 	return rocket;
 }
@@ -81,13 +81,14 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Scene scene;
-	SceneNode root = scene.createRoot("root", {});
+	Scene scene({});
 
-	root.addModel("Floor", createFloor({.color = PURPLE.setAlpha(0.3)}));
+	scene.addNode(createFloor({.color = PURPLE.setAlpha(0.3)}));
 
-	CameraNode& playerCamera = root.addCamera(
-		"PlayerCamera", {.position = {2, 1, -14}, .yaw = -3.25f, .pitch = -0.27f});
+	CameraNode playerCamera = scene.createCameraNode({
+		.name = "PlayerCamera",
+		.transform = {.position = {2, 1, -14}, .yaw = -3.25f, .pitch = -0.27f},
+	});
 
 	PhysicalObject rocket{
 		.mass = ROCKET_MASS,
@@ -95,7 +96,7 @@ int main(void) {
 		.pos = ROCKET_INITIAL_POS,
 	};
 
-	MeshNode& rocketMesh = root.addModel("Rocket", createRocketModel());
+	SceneNode rocketMesh = scene.addNode(createRocketModel());
 
 	const Viewport rocketViewport{
 		.x = WINDOW_WIDTH * (1 - ROCKET_MINIMAP_SIZE),
@@ -104,8 +105,10 @@ int main(void) {
 		.height = WINDOW_WIDTH * ROCKET_MINIMAP_SIZE,
 	};
 
-	CameraNode& rocketCamera = rocketMesh.addCamera(
-		"RocketCamera", {.position = {0, 0, 0.5}, .pitch = M_PI / 2});
+	CameraNode rocketCamera = rocketMesh->createCameraNode({
+		.name = "RocketCamera",
+		.transform = {.position = {0, 0, 0.5}, .pitch = M_PI / 2},
+	});
 
 	PhysicalSystem system({});
 

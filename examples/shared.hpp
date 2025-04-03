@@ -1,7 +1,7 @@
 #pragma once
 
 #include "etna/etna_core.hpp"
-#include "etna/model.hpp"
+#include "scene.hpp"
 
 using namespace etna;
 
@@ -15,7 +15,7 @@ struct FirstPersonMovementOpts {
 inline void updateFirstPersonCamera(CameraNode& camera,
 									Window& window,
 									FirstPersonMovementOpts opts = {}) {
-	Transform transform = camera.getTransform();
+	Transform transform = camera->getTransform();
 
 	transform.yaw += window.mouseDeltaX() * opts.sensitivity;
 	transform.pitch += window.mouseDeltaY() * opts.sensitivity;
@@ -74,7 +74,7 @@ inline void updateFirstPersonCamera(CameraNode& camera,
 	}
 
 	if (window.isMouseCaptured()) {
-		camera.updateTransform(transform);
+		camera->updateTransform(transform);
 	}
 }
 
@@ -86,7 +86,7 @@ struct FloorCreateInfo {
 	float floorScale{1000};
 };
 
-inline ModelRoot createFloor(const FloorCreateInfo& info) {
+inline SceneNode createFloor(const FloorCreateInfo& info) {
 	MeshHandle quad = engine::getQuad();
 
 	MaterialHandle mainGridMaterial = engine::createTransparentGridMaterial({
@@ -109,11 +109,19 @@ inline ModelRoot createFloor(const FloorCreateInfo& info) {
 		.scale = Vec3(info.floorScale),
 	};
 
-	ModelRoot floor = Model::createRoot("Floor", {.transform = transform});
+	SceneNode floor = scene::createRoot("Floor", transform);
 
-	floor->add("MainGrid", {.mesh = quad, .material = mainGridMaterial});
+	floor->add(scene::createMeshNode({
+		.name = "MainGrid",
+		.mesh = quad,
+		.material = mainGridMaterial,
+	}));
 
-	floor->add("SubGrid", {.mesh = quad, .material = subGridMaterial});
+	floor->add(scene::createMeshNode({
+		.name = "SubGrid",
+		.mesh = quad,
+		.material = subGridMaterial,
+	}));
 
 	return floor;
 }
@@ -121,13 +129,14 @@ inline ModelRoot createFloor(const FloorCreateInfo& info) {
 struct OutlinedBrickCreateInfo {
 	Color color{WHITE};
 	Color outlineColor{};
+	std::string name{"OutlinedBrick"};
 	float outlineThickness{0.01};
 	float width{1};
 	float height{1};
 	float depth{1};
 };
 
-inline ModelRoot createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
+inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 	MeshHandle cube = engine::getUVCube();
 
 	MaterialHandle material = engine::createBrickOutlinedMaterial({
@@ -140,7 +149,10 @@ inline ModelRoot createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 		.scale = Vec3(info.width, info.height, info.depth),
 	};
 
-	return Model::createRoot(
-		"OutlinedBrick",
-		{.mesh = cube, .material = material, .transform = transform});
+	return scene::createMeshNode({
+		.name = info.name,
+		.mesh = cube,
+		.transform = transform,
+		.material = material,
+	});
 }

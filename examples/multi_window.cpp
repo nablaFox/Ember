@@ -21,15 +21,17 @@ int main(void) {
 		.title = "Etna Window 2",
 	});
 
-	Scene scene;
+	Scene scene({});
 
-	SceneNode root = scene.createRoot("root", {});
-
-	root.addMesh("Brick", engine::getCube(),
-				 {
-					 .position = {0.f, 0.f, -2.f},
-					 .scale = {1.f, 1.f, 2.f},
-				 });
+	scene.createMeshNode({
+		.name = "Brick",
+		.mesh = engine::getCube(),
+		.transform =
+			{
+				.position = {0.f, 0.f, -2.f},
+				.scale = {1.f, 1.f, 2.f},
+			},
+	});
 
 	Viewport const viewport1{
 		.width = WINDOW_WIDTH / 2.f,
@@ -40,7 +42,10 @@ int main(void) {
 		.width = WINDOW_WIDTH / 2.f,
 	};
 
-	CameraNode& camera = root.addCamera("Camera1", {.position = {0, 0, 1}});
+	CameraNode camera = scene.createCameraNode({
+		.name = "Main Camera",
+		.transform = {.position = {0, 0, 1}},
+	});
 
 	Renderer renderer({});
 
