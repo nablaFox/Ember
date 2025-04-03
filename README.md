@@ -5,10 +5,12 @@ Simple C++ 20 graphics engine written with [Ignis](https://github.com/nablaFox/I
 ### Example
 
 ```cpp
-#include "shared.hpp"
+#include "etna/etna_core.hpp"
 
 constexpr uint32_t WINDOW_WIDTH{800};
 constexpr uint32_t WINDOW_HEIGHT{600};
+
+using namespace etna;
 
 int main(void) {
 	engine::init();
@@ -25,7 +27,7 @@ int main(void) {
 
 	MeshNode& sphere = root.addMesh("Sphere", engine::getSphere(),
 					{
-						.position = {1.5, 0.5, -5},
+						.position = {0, 0, -3},
 						.scale = Vec3(0.5),
 					},
 					engine::createGridMaterial({
@@ -35,14 +37,12 @@ int main(void) {
 						.thickness = 0.005,
 					}));
 
-	CameraNode& playerCamera = root.addCamera("PlayerCamera", {.position = {0, 1, 0}});
+	CameraNode& playerCamera = root.addCamera("PlayerCamera", {.position = Vec3(0)});
 
 	Renderer renderer({});
 
 	while (!window.shouldClose()) {
 		window.pollEvents();
-
-		updateFirstPersonCamera(playerCamera, window);
 
 		sphere.rotate(0, 0.01, 0.01);
 

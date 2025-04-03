@@ -2,6 +2,7 @@
 #include "ignis/fence.hpp"
 #include "default_materials.hpp"
 #include "mesh.hpp"
+#include "engine.hpp"
 
 using namespace ignis;
 using namespace etna;

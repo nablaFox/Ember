@@ -1,10 +1,6 @@
 #pragma once
 
-#include "etna/forward_renderer.hpp"
-#include "etna/default_materials.hpp"
-#include "etna/default_primitives.hpp"
-#include "etna/scene.hpp"
-#include "etna/window.hpp"
+#include "etna/etna_core.hpp"
 #include "etna/model.hpp"
 
 using namespace etna;

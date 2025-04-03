@@ -1,6 +1,7 @@
+#include "ignis/fence.hpp"
 #include "scene.hpp"
 #include "render_target.hpp"
-#include "engine.hpp"
+#include "color.hpp"
 
 namespace etna {
 
@@ -11,7 +12,7 @@ struct DirectionalLight {
 };
 
 struct RenderSettings {
-	Color clearColor{engine::ETNA_CLEAR_COLOR};
+	Color clearColor{0.02f, 0.02f, 0.02f, 1};
 	Color ambientColor;
 	DirectionalLight sun;
 	VkAttachmentStoreOp colorStoreOp{VK_ATTACHMENT_STORE_OP_STORE};
