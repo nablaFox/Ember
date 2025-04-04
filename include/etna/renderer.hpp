@@ -76,15 +76,6 @@ private:
 	uint32_t m_framesInFlight;
 	uint32_t m_currentFrame{0};
 
-	struct PushConstants {
-		Mat4 worldTransform;
-		ignis::BufferId vertices;
-		ignis::BufferId material;
-		ignis::BufferId instanceBuffer;
-		ignis::BufferId ubo;
-		ignis::BufferId ssbo;
-	} m_pushConstants;
-
 public:
 	Renderer(const Renderer&) = delete;
 	Renderer& operator=(const Renderer&) = delete;

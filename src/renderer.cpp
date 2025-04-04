@@ -124,7 +124,7 @@ void Renderer::drawInstanced(uint32_t instanceCount, const DrawSettings& setting
 
 	cmd.bindIndexBuffer(*settings.mesh->getIndexBuffer());
 
-	m_pushConstants = {
+	const engine::PushConstants m_pushConstants{
 		.worldTransform = settings.transform,
 		.vertices = settings.mesh->getVertexBuffer(),
 		.material = materialToUse->getParamsUBO(),

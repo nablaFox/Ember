@@ -38,6 +38,12 @@ protected:
 	ignis::Image* m_resolvedImage{nullptr};
 
 	CreateInfo m_creationInfo;
+
+public:
+	RenderTarget(const RenderTarget&) = delete;
+	RenderTarget(RenderTarget&&) = delete;
+	RenderTarget& operator=(const RenderTarget&) = delete;
+	RenderTarget& operator=(RenderTarget&&) = delete;
 };
 
 }  // namespace etna

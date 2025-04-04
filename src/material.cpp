@@ -8,9 +8,13 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	: m_paramsSize(info.paramsSize) {
 	const uint32_t sampleCount{engine::clampSampleCount(info.samples)};
 
+	for (const auto& shaderPath : info.shaders) {
+		m_shaders.push_back(engine::newShader(shaderPath));
+	}
+
 	PipelineCreateInfo pipelineInfo{
 		.device = &_device,
-		.shaders = std::move(info.shaders),
+		.shaders = m_shaders,
 		.colorFormat = engine::COLOR_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
@@ -46,6 +50,10 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 }
 
 MaterialTemplate::~MaterialTemplate() {
+	for (ignis::Shader* shader : m_shaders) {
+		delete shader;
+	}
+
 	delete m_pipeline;
 }
 

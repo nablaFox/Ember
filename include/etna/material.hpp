@@ -33,6 +33,7 @@ public:
 private:
 	MaterialTemplate(const CreateInfo&);
 
+	std::vector<ignis::Shader*> m_shaders;
 	ignis::Pipeline* m_pipeline{nullptr};
 
 	size_t m_paramsSize{0};
