@@ -14,11 +14,7 @@ Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFligh
 
 	for (uint32_t i{0}; i < m_framesInFlight; i++) {
 		m_frames[i].inFlight = new ignis::Fence(_device);
-
-		m_frames[i].cmd = new ignis::Command({
-			.device = _device,
-			.queue = engine::getGraphicsQueue(),
-		});
+		m_frames[i].cmd = engine::newGraphicsCommand();
 	}
 
 	g_defaultMaterial = engine::createColorMaterial(WHITE);

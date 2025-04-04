@@ -28,10 +28,7 @@ Window::Window(const CreateInfo& info)
 		.presentMode = VK_PRESENT_MODE_MAILBOX_KHR,
 	});
 
-	m_blitCmd = new Command({
-		.device = _device,
-		.queue = _device.getQueue(0),
-	});
+	m_blitCmd = engine::newGraphicsCommand();
 
 	m_imageAvailable = new Semaphore(_device);
 

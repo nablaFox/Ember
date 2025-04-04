@@ -6,15 +6,12 @@ using namespace etna;
 
 MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	: m_paramsSize(info.paramsSize) {
-	uint32_t sampleCount =
-		(info.samples == 0 || info.samples > engine::getMaxAllowedSampleCount())
-			? engine::getMaxAllowedSampleCount()
-			: info.samples;
+	const uint32_t sampleCount{engine::clampSampleCount(info.samples)};
 
 	PipelineCreateInfo pipelineInfo{
 		.device = &_device,
 		.shaders = std::move(info.shaders),
-		.colorFormat = engine::ETNA_COLOR_FORMAT,
+		.colorFormat = engine::COLOR_FORMAT,
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
@@ -28,7 +25,7 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	}
 
 	if (info.enableDepth) {
-		pipelineInfo.depthFormat = engine::ETNA_DEPTH_FORMAT;
+		pipelineInfo.depthFormat = engine::DEPTH_FORMAT;
 		pipelineInfo.enableDepthTest = true;
 		pipelineInfo.enableDepthWrite = true;
 	}

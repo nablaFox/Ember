@@ -5,11 +5,7 @@ using namespace ignis;
 using namespace etna;
 
 RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
-	const uint32_t maxSampleCount = engine::getMaxAllowedSampleCount();
-
-	const uint32_t sampleCount = (info.samples == 0 || info.samples > maxSampleCount)
-									 ? maxSampleCount
-									 : info.samples;
+	const uint32_t sampleCount{engine::clampSampleCount(info.samples)};
 
 	m_creationInfo.samples = sampleCount;
 
@@ -19,7 +15,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	m_drawImage = new Image(_device.createDrawAttachmentImage({
 		.width = info.extent.width,
 		.height = info.extent.height,
-		.format = engine::ETNA_COLOR_FORMAT,
+		.format = engine::COLOR_FORMAT,
 		.sampleCount = sampleCountBits,
 	}));
 
@@ -27,7 +23,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 		m_resolvedImage = new Image(_device.createDrawAttachmentImage({
 			.width = info.extent.width,
 			.height = info.extent.height,
-			.format = engine::ETNA_COLOR_FORMAT,
+			.format = engine::COLOR_FORMAT,
 			.sampleCount = VK_SAMPLE_COUNT_1_BIT,
 		}));
 	}
@@ -35,28 +31,18 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	m_depthImage = new Image(_device.createDepthAttachmentImage({
 		.width = info.extent.width,
 		.height = info.extent.height,
-		.format = engine::ETNA_DEPTH_FORMAT,
+		.format = engine::DEPTH_FORMAT,
 		.sampleCount = sampleCountBits,
 	}));
 
-	Command cmd({.device = _device, .queue = engine::getUploadQueue()});
+	etna::engine::immediateSubmit([&](ignis::Command& cmd) {
+		cmd.transitionToOptimalLayout(*m_drawImage);
 
-	cmd.begin();
+		cmd.transitionToOptimalLayout(*m_depthImage);
 
-	cmd.transitionToOptimalLayout(*m_drawImage);
-
-	cmd.transitionToOptimalLayout(*m_depthImage);
-
-	if (isMultiSampled())
-		cmd.transitionToOptimalLayout(*m_resolvedImage);
-
-	cmd.end();
-
-	SubmitCmdInfo uploadCmdInfo{.command = cmd};
-
-	_device.submitCommands({uploadCmdInfo}, nullptr);
-
-	_device.waitIdle();
+		if (isMultiSampled())
+			cmd.transitionToOptimalLayout(*m_resolvedImage);
+	});
 }
 
 RenderTarget::~RenderTarget() {

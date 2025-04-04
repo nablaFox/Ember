@@ -6,25 +6,14 @@ using namespace etna;
 using namespace ignis;
 
 Mesh::Mesh(const CreateInfo& info) {
-	Command uploadCmd({.device = _device, .queue = engine::getUploadQueue()});
-
 	m_vertexBuffer = _device.createSSBO(info.vertices.size() * sizeof(Vertex));
 
 	m_indexBuffer = new Buffer(_device.createIndexBuffer32(info.indices.size()));
 
-	uploadCmd.begin();
-
-	uploadCmd.updateBuffer(m_vertexBuffer, info.vertices.data());
-
-	uploadCmd.updateBuffer(*m_indexBuffer, info.indices.data());
-
-	uploadCmd.end();
-
-	SubmitCmdInfo uploadCmdInfo{.command = uploadCmd};
-
-	_device.submitCommands({uploadCmdInfo}, nullptr);
-
-	_device.waitIdle();
+	etna::engine::immediateSubmit([&](ignis::Command& cmd) {
+		cmd.updateBuffer(m_vertexBuffer, info.vertices.data());
+		cmd.updateBuffer(*m_indexBuffer, info.indices.data());
+	});
 }
 
 Mesh::~Mesh() {

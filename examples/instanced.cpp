@@ -34,17 +34,7 @@ void updateInstanceData(ignis::BufferId instanceBuffer) {
 		instances[i].color = Color(1.0f, 1.0f, 1.0f, 1.0f) * brightness;
 	}
 
-	ignis::Command updateTransforms({
-		.device = _device,
-		.queue = engine::getUploadQueue(),
-	});
-
-	updateTransforms.begin();
-	updateTransforms.updateBuffer(instanceBuffer, instances.data());
-	updateTransforms.end();
-
-	_device.submitCommands({{.command = updateTransforms}}, nullptr);
-	_device.waitIdle();
+	engine::immediateUpdate(instanceBuffer, instances.data());
 }
 
 int main(void) {
