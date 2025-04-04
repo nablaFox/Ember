@@ -12,11 +12,9 @@ struct FirstPersonMovementOpts {
 	float sensitivity{0.001f};
 };
 
-inline Transform getFirstPersonMovement(Window& window,
+inline Transform getFirstPersonMovement(Transform& transform,
+										Window& window,
 										const FirstPersonMovementOpts opts = {}) {
-	// TEMP
-	static Transform transform;
-
 	transform.yaw += window.mouseDeltaX() * opts.sensitivity;
 	transform.pitch += window.mouseDeltaY() * opts.sensitivity;
 
@@ -79,7 +77,8 @@ inline Transform getFirstPersonMovement(Window& window,
 inline void updateFirstPersonCamera(CameraNode camera,
 									Window& window,
 									FirstPersonMovementOpts opts = {}) {
-	camera->updateTransform(getFirstPersonMovement(window, opts));
+	Transform transform = camera->getTransform();
+	camera->updateTransform(getFirstPersonMovement(transform, window, opts));
 }
 
 struct FloorCreateInfo {

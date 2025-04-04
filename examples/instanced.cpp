@@ -60,6 +60,7 @@ int main(void) {
 	Renderer renderer({});
 
 	Camera camera({.aspect = WINDOW_WIDTH / WINDOW_HEIGHT});
+	Transform cameraTransform{};
 
 	ignis::BufferId instanceBuffer =
 		_device.createSSBO(INSTANCE_COUNT * sizeof(InstanceData));
@@ -85,7 +86,7 @@ int main(void) {
 
 		renderer.endFrame();
 
-		camera.updateTransform(getFirstPersonMovement(window));
+		camera.updateTransform(getFirstPersonMovement(cameraTransform, window));
 
 		updateInstanceData(instanceBuffer);
 
