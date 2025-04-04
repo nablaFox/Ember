@@ -65,4 +65,6 @@ int main(void) {
 
 		window.swapBuffers();
 	}
+
+	return 0;
 }

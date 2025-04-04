@@ -19,6 +19,8 @@ struct CreateMeshNodeInfo {
 	MeshHandle mesh;
 	Transform transform;
 	MaterialHandle material{nullptr};
+	ignis::BufferId instanceBuffer{IGNIS_INVALID_BUFFER_ID};
+	uint32_t instanceCount{1};
 };
 
 struct CreateCameraNodeInfo {
@@ -77,8 +79,12 @@ protected:
 struct _MeshNode : public _SceneNode {
 	using _SceneNode::_SceneNode;
 
+	~_MeshNode();
+
 	MaterialHandle material;
 	MeshHandle mesh;
+	ignis::BufferId instanceBuffer;
+	uint32_t instanceCount;
 };
 
 struct _CameraNode : public _SceneNode {

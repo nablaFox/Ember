@@ -1,4 +1,5 @@
 #include "scene_graph.hpp"
+#include "engine.hpp"
 
 using namespace etna;
 
@@ -73,8 +74,16 @@ MeshNode scene::createMeshNode(const CreateMeshNodeInfo& info) {
 
 	node->mesh = info.mesh;
 	node->material = info.material;
+	node->instanceBuffer = info.instanceBuffer;
+	node->instanceCount = info.instanceCount;
 
 	return node;
+}
+
+_MeshNode::~_MeshNode() {
+	if (instanceBuffer != IGNIS_INVALID_BUFFER_ID) {
+		_device.destroyBuffer(instanceBuffer);
+	}
 }
 
 CameraNode scene::createCameraNode(const CreateCameraNodeInfo& info) {

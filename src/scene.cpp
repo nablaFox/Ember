@@ -131,6 +131,8 @@ void Scene::render(Renderer& renderer,
 			.transform = worldMatrix,
 			.viewport = vp,
 			.ubo = cameraNode->camera->getDataBuffer(),
+			.instanceBuffer = meshNode->instanceBuffer,
+			.instanceCount = meshNode->instanceCount,
 		});
 	}
 }

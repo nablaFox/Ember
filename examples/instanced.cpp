@@ -11,7 +11,7 @@ struct InstanceData {
 	Color color;
 };
 
-void updateInstanceData(ignis::BufferId instanceBuffer) {
+void updateInstancedCube(MeshNode cube) {
 	std::array<InstanceData, INSTANCE_COUNT> instances;
 
 	constexpr uint32_t gridColumns = 5;
@@ -34,7 +34,7 @@ void updateInstanceData(ignis::BufferId instanceBuffer) {
 		instances[i].color = Color(1.0f, 1.0f, 1.0f, 1.0f) * brightness;
 	}
 
-	engine::immediateUpdate(instanceBuffer, instances.data());
+	engine::immediateUpdate(cube->instanceBuffer, instances.data());
 }
 
 int main(void) {
@@ -49,39 +49,40 @@ int main(void) {
 
 	Renderer renderer({});
 
-	Camera camera({.aspect = WINDOW_WIDTH / WINDOW_HEIGHT});
-	Transform cameraTransform{};
+	Scene scene({});
 
-	ignis::BufferId instanceBuffer =
-		_device.createSSBO(INSTANCE_COUNT * sizeof(InstanceData));
+	CameraNode cameraNode = scene.createCameraNode({
+		.name = "Main Camera",
+		.transform = {.position = {0, 0, 1}},
+	});
 
-	const DrawSettings drawCube{
+	MeshNode cube = scene.createMeshNode({
+		.name = "Cube",
 		.mesh = engine::getCube(),
 		.material = Material::create({
 			.shaders = {"examples/instanced.vert.spv",
 						"examples/instanced.frag.spv"},
 			.paramsSize = sizeof(Color),
 		}),
-		.viewport = {.width = WINDOW_WIDTH, .height = WINDOW_HEIGHT},
-		.instanceBuffer = instanceBuffer,
-		.ubo = camera.getDataBuffer(),
-	};
+		.instanceBuffer = _device.createSSBO(INSTANCE_COUNT * sizeof(InstanceData)),
+		.instanceCount = INSTANCE_COUNT,
+	});
 
 	while (!window.shouldClose()) {
 		window.pollEvents();
 
+		updateFirstPersonCamera(cameraNode, window);
+
+		updateInstancedCube(cube);
+
 		renderer.beginFrame(window);
 
-		renderer.drawInstanced(INSTANCE_COUNT, drawCube);
+		scene.render(renderer, cameraNode);
 
 		renderer.endFrame();
-
-		camera.updateTransform(getFirstPersonMovement(cameraTransform, window));
-
-		updateInstanceData(instanceBuffer);
 
 		window.swapBuffers();
 	}
 
-	_device.destroyBuffer(instanceBuffer);
+	return 0;
 }

@@ -1,10 +1,11 @@
 #!/bin/bash
 
 SCRIPT_PATH=$(dirname "$0")
+BUILD_DIR="$SCRIPT_PATH/../build"
 
-cmake --build $SCRIPT_PATH/../build
+cmake --build "$BUILD_DIR"
 
-cd $SCRIPT_PATH/../build
+cd "$BUILD_DIR" || exit 1
 
 if [ -z "$1" ]; then
 	echo "No demo specified. Please provide a demo name."

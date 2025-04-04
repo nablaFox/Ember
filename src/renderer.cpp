@@ -96,10 +96,11 @@ void Renderer::endFrame() {
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
 
-void Renderer::drawInstanced(uint32_t instanceCount, const DrawSettings& settings) {
+void Renderer::draw(const DrawSettings& settings) {
 	Command& cmd = getCommand();
 
 	assert(settings.mesh != nullptr && "Mesh is null");
+	assert(settings.instanceCount > 0 && "Instance count is zero");
 
 	VkViewport vp{
 		.x = settings.viewport.x,
@@ -135,11 +136,7 @@ void Renderer::drawInstanced(uint32_t instanceCount, const DrawSettings& setting
 
 	cmd.pushConstants(pipeline, m_pushConstants);
 
-	cmd.drawInstanced(settings.mesh->indexCount(), instanceCount);
-}
-
-void Renderer::draw(const DrawSettings& settings) {
-	drawInstanced(1, settings);
+	cmd.drawInstanced(settings.mesh->indexCount(), settings.instanceCount);
 }
 
 void Renderer::clearViewport(Viewport vp, Color color) {
