@@ -26,25 +26,14 @@ int main(void) {
 	scene.createMeshNode({
 		.name = "Brick",
 		.mesh = engine::getCube(),
-		.transform =
-			{
-				.position = {0.f, 0.f, -2.f},
-				.scale = {1.f, 1.f, 2.f},
-			},
+		.transform = {.scale = {1.f, 1.f, 2.f}},
 	});
 
-	Viewport const viewport1{
-		.width = WINDOW_WIDTH / 2.f,
-	};
-
-	Viewport const viewport2{
-		.x = WINDOW_WIDTH / 2.f,
-		.width = WINDOW_WIDTH / 2.f,
-	};
+	scene.addNode(createFloor({}));
 
 	CameraNode camera = scene.createCameraNode({
 		.name = "Main Camera",
-		.transform = {.position = {0, 0, 1}},
+		.transform = {.position = {0, 0.5, 3}},
 	});
 
 	Renderer renderer({});
@@ -63,8 +52,9 @@ int main(void) {
 
 		renderer.beginFrame(window1);
 
-		scene.render(renderer, camera, viewport1);
-		scene.render(renderer, camera, viewport2);
+		scene.render(renderer, camera, {.width = WINDOW_WIDTH / 2.f});
+		scene.render(renderer, camera,
+					 {.x = WINDOW_WIDTH / 2.f, .width = WINDOW_WIDTH / 2.f});
 
 		renderer.endFrame();
 

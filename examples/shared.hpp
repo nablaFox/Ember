@@ -82,7 +82,7 @@ inline void updateFirstPersonCamera(CameraNode camera,
 }
 
 struct FloorCreateInfo {
-	Color color{};
+	Color color{PURPLE.setAlpha(0.3)};
 	float gridSize{1};
 	float lineThickness{0.02};
 	float height{0};
@@ -143,10 +143,12 @@ struct OutlinedBrickCreateInfo {
 	float width{1};
 	float height{1};
 	float depth{1};
+	bool transparent{false};
 };
 
 inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 	static MaterialTemplateHandle g_outlineTemplate{nullptr};
+	static MaterialTemplateHandle g_outlineTemplateTransparent{nullptr};
 
 	if (g_outlineTemplate == nullptr) {
 		g_outlineTemplate = MaterialTemplate::create({
@@ -155,6 +157,17 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 		});
 
 		engine::queueForDeletion([=] { g_outlineTemplate.reset(); });
+	}
+
+	// PONDER: maybe enable dynamic transparency
+	if (g_outlineTemplateTransparent == nullptr && info.transparent) {
+		g_outlineTemplateTransparent = MaterialTemplate::create({
+			.shaders = {"default.vert.spv", "examples/brick_outline.frag.spv"},
+			.paramsSize = sizeof(OutlineMaterialParams),
+			.transparency = true,
+		});
+
+		engine::queueForDeletion([=] { g_outlineTemplateTransparent.reset(); });
 	}
 
 	MeshHandle cube = engine::getUVCube();
@@ -166,7 +179,8 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 	};
 
 	MaterialHandle material = Material::create({
-		.templateHandle = g_outlineTemplate,
+		.templateHandle =
+			info.transparent ? g_outlineTemplateTransparent : g_outlineTemplate,
 		.params = &outlineParams,
 	});
 
@@ -181,3 +195,87 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 		.material = material,
 	});
 }
+
+struct OutlinedCubeCreateInfo {
+	Color color{WHITE};
+	Color outlineColor{};
+	std::string name{"OutlinedCube"};
+	float outlineThickness{0.01};
+	float size{1};
+};
+
+inline MeshNode createBox(const OutlinedCubeCreateInfo& info) {
+	return createOutlinedBrick({
+		.color = info.color,
+		.outlineColor = info.outlineColor,
+		.name = info.name,
+		.outlineThickness = info.outlineThickness,
+		.width = info.size,
+		.height = info.size,
+		.depth = info.size,
+		.transparent = true,
+	});
+}
+
+struct InstanceData {
+	Mat4 transform;
+	Color color;
+};
+
+struct InstanceMeshCreateInfo {
+	std::string name{"InstancedMesh"};
+	MeshHandle mesh{nullptr};
+	uint32_t instanceCount{0};
+};
+
+inline MeshNode createInstancedMesh(const InstanceMeshCreateInfo& info) {
+	static MaterialHandle g_instancedMaterial{nullptr};
+
+	if (g_instancedMaterial == nullptr) {
+		g_instancedMaterial = Material::create({
+			.shaders = {"examples/instanced.vert.spv",
+						"examples/instanced.frag.spv"},
+		});
+
+		engine::queueForDeletion([=] { g_instancedMaterial.reset(); });
+	}
+
+	return scene::createMeshNode({
+		.name = "InstancedMesh",
+		.mesh = info.mesh,
+		.material = g_instancedMaterial,
+		.instanceBuffer = engine::getDevice().createSSBO(info.instanceCount *
+														 sizeof(InstanceData)),
+		.instanceCount = info.instanceCount,
+	});
+}
+
+struct PhysicalObject {
+	float mass{1};
+	etna::Vec3 force{};
+	etna::Vec3 acc{};
+	etna::Vec3 vel{};
+	etna::Vec3 pos{};  // position in physics world
+
+	void update(float dt, float timeStep = 1.f / 60.f) {
+		if (dt > 0.25f) {
+			dt = 0.25f;
+		}
+
+		float timeAccumulator{0};
+
+		timeAccumulator += dt;
+
+		while (timeAccumulator >= timeStep) {
+			etna::Vec3 oldAcc = acc;
+
+			pos += vel * timeStep + oldAcc * etna::square(timeStep) * 0.5f;
+
+			etna::Vec3 newAcc = force / mass;
+
+			vel += (oldAcc + newAcc) * timeStep * 0.5f;
+
+			timeAccumulator -= timeStep;
+		}
+	}
+};

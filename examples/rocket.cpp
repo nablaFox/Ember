@@ -1,6 +1,3 @@
-#include "default_primitives.hpp"
-#include "engine.hpp"
-#include "physics.hpp"
 #include "shared.hpp"
 
 constexpr float WINDOW_WIDTH{1100};
@@ -42,6 +39,7 @@ void simulateRocket(PhysicalObject& rocket, SceneNode rocketMesh) {
 
 	rocket.force = {0, decForce - weight, 0};
 
+	rocket.update(1.0 / 60.0f);	 // TEMP: (we should use real delta time)
 	rocketMesh->updatePosition(rocket.pos * WU_PER_METER);
 }
 
@@ -83,7 +81,7 @@ int main(void) {
 
 	Scene scene({});
 
-	scene.addNode(createFloor({.color = PURPLE.setAlpha(0.3)}));
+	scene.addNode(createFloor({}));
 
 	CameraNode playerCamera = scene.createCameraNode({
 		.name = "PlayerCamera",
@@ -110,10 +108,6 @@ int main(void) {
 		.transform = {.position = {0, 0, 0.5}, .pitch = M_PI / 2},
 	});
 
-	PhysicalSystem system({});
-
-	system.addObject(&rocket);
-
 	Renderer renderer({});
 
 	bool simulate{false};
@@ -122,7 +116,6 @@ int main(void) {
 		window.pollEvents();
 
 		if (simulate) {
-			system.update(1 / 60.f);
 			simulateRocket(rocket, rocketMesh);
 		}
 

@@ -66,7 +66,7 @@ int main(void) {
 
 **Output**:
 
-![Etna Demo Gif](./examples/example.gif)
+![Etna Demo Gif](./docs/example.gif)
 
 For more check-out [`examples`](./examples).
 

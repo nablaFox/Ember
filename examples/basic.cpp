@@ -42,7 +42,7 @@ int main(void) {
 	scene.addNode(createOutlinedBrick({}),
 				  {.position = {-2.5, 0.5, -5}, .yaw = M_PI / 4});
 
-	scene.addNode(createFloor({.color = PURPLE.setAlpha(0.3)}));
+	scene.addNode(createFloor({}));
 
 	CameraNode playerCamera = scene.createCameraNode({
 		.name = "PlayerCamera",

@@ -6,12 +6,7 @@ constexpr uint32_t INSTANCE_COUNT{25};
 
 using namespace etna;
 
-struct InstanceData {
-	Mat4 transform;
-	Color color;
-};
-
-void updateInstancedCube(MeshNode cube) {
+void initInstancedCube(MeshNode cube) {
 	std::array<InstanceData, INSTANCE_COUNT> instances;
 
 	constexpr uint32_t gridColumns = 5;
@@ -47,33 +42,27 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Renderer renderer({});
-
 	Scene scene({});
 
 	CameraNode cameraNode = scene.createCameraNode({
 		.name = "Main Camera",
-		.transform = {.position = {0, 0, 1}},
+		.transform = {.position = {0, 0, 10}},
 	});
 
-	MeshNode cube = scene.createMeshNode({
+	MeshNode cube = scene.addMesh(createInstancedMesh({
 		.name = "Cube",
 		.mesh = engine::getCube(),
-		.material = Material::create({
-			.shaders = {"examples/instanced.vert.spv",
-						"examples/instanced.frag.spv"},
-			.paramsSize = sizeof(Color),
-		}),
-		.instanceBuffer = _device.createSSBO(INSTANCE_COUNT * sizeof(InstanceData)),
 		.instanceCount = INSTANCE_COUNT,
-	});
+	}));
+
+	Renderer renderer({});
+
+	initInstancedCube(cube);
 
 	while (!window.shouldClose()) {
 		window.pollEvents();
 
 		updateFirstPersonCamera(cameraNode, window);
-
-		updateInstancedCube(cube);
 
 		renderer.beginFrame(window);
 
