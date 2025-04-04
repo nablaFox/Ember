@@ -91,56 +91,20 @@ SceneNode scene::loadFromFile(const std::string& path) {
 	throw std::runtime_error("Not implemented");
 }
 
-CameraNode scene::searchCamera(const SceneNode root, const std::string& name) {
-	if (root == nullptr)
-		return nullptr;
-
-	CameraNode camera;
-
-	if (root->getType() == _SceneNode::Type::CAMERA && root->getName() == name) {
-		return std::static_pointer_cast<_CameraNode>(root);
-	}
-
-	for (const auto& child : root->getChildren()) {
-		camera = searchCamera(child, name);
-		if (camera != nullptr)
-			break;
-	}
-
-	return camera;
-}
-
-MeshNode scene::searchMesh(const SceneNode root, const std::string& name) {
-	if (root == nullptr)
-		return nullptr;
-
-	MeshNode mesh;
-
-	if (root->getType() == _SceneNode::Type::MESH && root->getName() == name) {
-		return std::static_pointer_cast<_MeshNode>(root);
-	}
-
-	for (const auto& child : root->getChildren()) {
-		mesh = searchMesh(child, name);
-		if (mesh != nullptr)
-			break;
-	}
-
-	return mesh;
-}
-
 #ifndef NDEBUG
 
 #define GREEN(x) "\033[32m" x "\033[0m"
 #define BLUE(x) "\033[34m" x "\033[0m"
 
-void _SceneNode::print() const {
+void _SceneNode::print(const std::string& givenName) const {
+	const std::string name = givenName.empty() ? m_name : givenName;
+
 	if (m_type == Type::MESH) {
-		std::cout << GREEN("Mesh") << ": " << m_name << std::endl;
+		std::cout << GREEN("Mesh") << ": " << name << std::endl;
 	} else if (m_type == Type::CAMERA) {
-		std::cout << BLUE("Camera") << ": " << m_name << std::endl;
+		std::cout << BLUE("Camera") << ": " << name << std::endl;
 	} else {
-		std::cout << "Root: " << m_name << std::endl;
+		std::cout << "Root: " << name << std::endl;
 	}
 
 	for (const auto& child : m_children) {

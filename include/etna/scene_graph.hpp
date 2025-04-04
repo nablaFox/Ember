@@ -60,7 +60,7 @@ struct _SceneNode {
 	const std::vector<SceneNode>& getChildren() const { return m_children; }
 
 #ifndef NDEBUG
-	void print() const;
+	void print(const std::string& givenName = "") const;
 #endif
 
 protected:
@@ -99,10 +99,6 @@ MeshNode createMeshNode(const CreateMeshNodeInfo&);
 CameraNode createCameraNode(const CreateCameraNodeInfo&);
 
 SceneNode loadFromFile(const std::string& path);
-
-CameraNode searchCamera(const SceneNode root, const std::string& name);
-
-MeshNode searchMesh(const SceneNode root, const std::string& name);
 
 }  // namespace scene
 

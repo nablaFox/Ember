@@ -143,8 +143,6 @@ void Renderer::draw(const DrawSettings& settings) {
 }
 
 void Renderer::clearViewport(Viewport vp, Color color) {
-	// TODO: use ignis utility
-
 	const VkClearColorValue clearColorValue{
 		color.r,
 		color.g,
@@ -152,19 +150,5 @@ void Renderer::clearViewport(Viewport vp, Color color) {
 		color.a,
 	};
 
-	const VkClearRect clearRect{
-		.rect =
-			{
-				{(int32_t)vp.x, (int32_t)vp.y},
-				{(uint32_t)vp.width, (uint32_t)vp.height},
-			},
-		.layerCount = 1,
-	};
-
-	const VkClearAttachment clearAtt{
-		.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-		.clearValue = {clearColorValue},
-	};
-
-	vkCmdClearAttachments(getCommand().getHandle(), 1, &clearAtt, 1, &clearRect);
+	getCommand().clearViewport(vp.x, vp.y, vp.width, vp.height, clearColorValue);
 }
