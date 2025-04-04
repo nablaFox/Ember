@@ -1,43 +1,61 @@
 #pragma once
 
+#include <memory>
+#include "ignis/types.hpp"
 #include "transform.hpp"
+#include "math.hpp"
 
 namespace etna {
 
-struct Camera {
-	float fov{70.f};
-	float near{0.1f};
-	float far{100.f};
+class Camera {
+public:
+	struct CreateInfo {
+		float fov{60.f};
+		float near{0.1f};
+		float far{100.f};
+		float aspect{1.f};
+		Transform transform{};
+	};
 
-	Mat4 getProjMatrix(float aspect) const {
-		const float fovAngle = fov * M_PI / 180;
+	Camera(const CreateInfo&);
 
-		const float top = near * tanf(fovAngle / 2);
+	~Camera();
 
-		const float right = top * aspect;
+	Mat4 getProjMatrix() const { return m_projMatrix; }
 
-		return {
-			{near / right, 0, 0, 0},
-			{0, -near / top, 0, 0},
-			{0, 0, far / (near - far), near * far / (near - far)},
-			{0, 0, -1, 0},
-		};
-	}
+	Mat4 getViewMatrix() const { return m_viewMatrix; };
 
-	Mat4 getViewMatrix(const Mat4& M) const {
-		const Mat4 R{
-			{M(0, 0), M(0, 1), M(0, 2), 0},
-			{M(1, 0), M(1, 1), M(1, 2), 0},
-			{M(2, 0), M(2, 1), M(2, 2), 0},
-			{0, 0, 0, 1},
-		};
+	Mat4 getViewProjMatrix() const { return m_projMatrix * m_viewMatrix; }
 
-		const Vec3 translation{M(0, 3), M(1, 3), M(2, 3)};
+	ignis::BufferId getDataBuffer() const { return m_cameraData; }
 
-		const Mat4 T = Transform::getTransMatrix(translation * -1);
+	void updateTransform(const Transform&);
+	void updateTransform(const Mat4&);
 
-		return R * T;
-	}
+	void updateFov(float);
+	void updateAspect(float);
+	void updateNear(float);
+	void updateFar(float);
+
+private:
+	struct CameraData {
+		Mat4 viewproj;
+		Mat4 view;
+		Mat4 proj;
+	};
+
+	float m_fov;
+	float m_near;
+	float m_far;
+	float m_aspect;
+
+	Mat4 m_worldMatrix;
+	Mat4 m_projMatrix;
+	Mat4 m_viewMatrix;
+
+	ignis::BufferId m_cameraData{IGNIS_INVALID_BUFFER_ID};
 };
+
+using CameraHandle = std::shared_ptr<Camera>;
 
 }  // namespace etna

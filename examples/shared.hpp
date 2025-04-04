@@ -12,7 +12,7 @@ struct FirstPersonMovementOpts {
 	float sensitivity{0.001f};
 };
 
-inline void updateFirstPersonCamera(CameraNode& camera,
+inline void updateFirstPersonCamera(CameraNode camera,
 									Window& window,
 									FirstPersonMovementOpts opts = {}) {
 	Transform transform = camera->getTransform();

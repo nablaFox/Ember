@@ -30,7 +30,10 @@ MeshNode createMeshNode(const CreateMeshNodeInfo&);
 struct CreateCameraNodeInfo {
 	std::string name;
 	Transform transform;
-	Camera camera;
+	float fov{60.f};
+	float near{0.1f};
+	float far{100.f};
+	float aspect{1.f};
 };
 
 CameraNode createCameraNode(const CreateCameraNodeInfo&);
@@ -96,7 +99,7 @@ struct _MeshNode : public _SceneNode {
 struct _CameraNode : public _SceneNode {
 	using _SceneNode::_SceneNode;
 
-	Camera camera;
+	CameraHandle camera;
 
 	Mat4 getViewMatrix() const;
 	Mat4 getProjMatrix(float aspect) const;

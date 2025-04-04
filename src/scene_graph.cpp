@@ -28,9 +28,12 @@ CameraNode _SceneNode::createCameraNode(const scene::CreateCameraNodeInfo& info)
 	return node;
 }
 
-CameraNode createCameraNode(const scene::CreateCameraNodeInfo&);
-
 void _SceneNode::updateChildrenTransform(const Mat4& transform) {
+	if (m_type == Type::CAMERA) {
+		_CameraNode* cameraNode = static_cast<_CameraNode*>(this);
+		cameraNode->camera->updateTransform(m_worldMatrix);
+	}
+
 	for (auto child : m_children) {
 		child->m_worldMatrix = transform * child->m_transform.getWorldMatrix();
 		child->updateChildrenTransform(child->m_worldMatrix);
@@ -60,14 +63,6 @@ void _SceneNode::rotate(float yaw, float pitch, float roll) {
 	updateTransform(m_transform);
 }
 
-Mat4 _CameraNode::getViewMatrix() const {
-	return camera.getViewMatrix(getWorldMatrix());
-}
-
-Mat4 _CameraNode::getProjMatrix(float aspect) const {
-	return camera.getProjMatrix(aspect);
-}
-
 SceneNode scene::createRoot(const std::string& name, const Transform& transform) {
 	return std::make_shared<_SceneNode>(_SceneNode::Type::ROOT, name, transform);
 }
@@ -86,7 +81,13 @@ CameraNode scene::createCameraNode(const CreateCameraNodeInfo& info) {
 	CameraNode node = std::make_shared<_CameraNode>(_SceneNode::Type::CAMERA,
 													info.name, info.transform);
 
-	node->camera = info.camera;
+	node->camera = std::shared_ptr<Camera>(new Camera({
+		.fov = info.fov,
+		.near = info.near,
+		.far = info.far,
+		.aspect = info.aspect,
+		.transform = info.transform,
+	}));
 
 	return node;
 }

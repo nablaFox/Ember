@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <deque>
 #include "ignis/command.hpp"
 #include "ignis/fence.hpp"
 #include "mesh.hpp"
@@ -68,8 +67,6 @@ public:
 
 	const RenderTarget& getRenderTarget() const { return *m_currTarget; }
 
-	void queueForDeletion(ignis::BufferId buffer);
-
 private:
 	struct FrameData {
 		ignis::Fence* inFlight;
@@ -91,8 +88,6 @@ private:
 		ignis::BufferId ubo;
 		ignis::BufferId ssbo;
 	} m_pushConstants;
-
-	std::deque<ignis::BufferId> m_deletionQueue;
 
 public:
 	Renderer(const Renderer&) = delete;

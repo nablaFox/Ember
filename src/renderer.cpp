@@ -98,12 +98,6 @@ void Renderer::endFrame() {
 	m_frames[m_currentFrame].inFlight->wait();
 
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
-
-	for (auto& buff : m_deletionQueue) {
-		_device.destroyBuffer(buff);
-	}
-
-	m_deletionQueue.clear();
 }
 
 void Renderer::drawInstanced(uint32_t instanceCount,
@@ -187,8 +181,4 @@ void Renderer::clearViewport(Viewport vp, Color color) {
 	};
 
 	vkCmdClearAttachments(getCommand().getHandle(), 1, &clearAtt, 1, &clearRect);
-}
-
-void Renderer::queueForDeletion(ignis::BufferId buffer) {
-	m_deletionQueue.push_back(buffer);
 }
