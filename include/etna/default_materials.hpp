@@ -20,15 +20,6 @@ MaterialHandle createGridMaterial(GridMaterialParams);
 
 MaterialHandle createTransparentGridMaterial(GridMaterialParams);
 
-struct OutlineMaterialParams {
-	Color color{WHITE};
-	Color outline{BLACK};
-	float thickness{0.01f};
-};
-
-// TEMP: this should be an example
-MaterialHandle createBrickOutlinedMaterial(OutlineMaterialParams);
-
 void initDefaultMaterials();
 
 void initColorMaterial();

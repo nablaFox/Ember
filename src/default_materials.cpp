@@ -7,7 +7,6 @@ MaterialTemplateHandle g_colorMaterialTemplate{nullptr};
 MaterialTemplateHandle g_pointMaterialTemplate{nullptr};
 MaterialTemplateHandle g_gridTemplate{nullptr};
 MaterialTemplateHandle g_transparentGridTemplate{nullptr};
-MaterialTemplateHandle g_brickOutlineMaterialTemplate{nullptr};
 
 MaterialHandle engine::createColorMaterial(Color color) {
 	initColorMaterial();
@@ -45,21 +44,11 @@ MaterialHandle engine::createTransparentGridMaterial(GridMaterialParams params) 
 	});
 }
 
-MaterialHandle engine::createBrickOutlinedMaterial(OutlineMaterialParams params) {
-	initBrickOutlineMaterial();
-
-	return Material::create({
-		.templateHandle = g_brickOutlineMaterialTemplate,
-		.params = &params,
-	});
-}
-
 void engine::initDefaultMaterials() {
 	initColorMaterial();
 	initPointMaterial();
 	initGridMaterial();
 	initTransparentGridMaterial();
-	initBrickOutlineMaterial();
 }
 
 void engine::initColorMaterial() {
@@ -114,17 +103,4 @@ void engine::initTransparentGridMaterial() {
 	});
 
 	queueForDeletion([=] { g_transparentGridTemplate.reset(); });
-}
-
-void engine::initBrickOutlineMaterial() {
-	if (g_brickOutlineMaterialTemplate != nullptr) {
-		return;
-	}
-
-	g_brickOutlineMaterialTemplate = MaterialTemplate::create({
-		.shaders = {"default.vert.spv", "brick_outline.frag.spv"},
-		.paramsSize = sizeof(OutlineMaterialParams),
-	});
-
-	queueForDeletion([=] { g_brickOutlineMaterialTemplate.reset(); });
 }

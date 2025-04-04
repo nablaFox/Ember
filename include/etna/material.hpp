@@ -44,7 +44,7 @@ class Material {
 public:
 	struct CreateInfo {
 		std::shared_ptr<MaterialTemplate> templateHandle;
-		void* params{nullptr};
+		const void* params{nullptr};
 	};
 
 	Material(const CreateInfo&);

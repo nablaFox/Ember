@@ -126,6 +126,12 @@ inline SceneNode createFloor(const FloorCreateInfo& info) {
 	return floor;
 }
 
+struct OutlineMaterialParams {
+	Color color{WHITE};
+	Color outline{BLACK};
+	float thickness{0.01f};
+};
+
 struct OutlinedBrickCreateInfo {
 	Color color{WHITE};
 	Color outlineColor{};
@@ -137,12 +143,29 @@ struct OutlinedBrickCreateInfo {
 };
 
 inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
+	static MaterialTemplateHandle g_outlineTemplate{nullptr};
+
+	if (g_outlineTemplate == nullptr) {
+		g_outlineTemplate = MaterialTemplate::create({
+			.shaders = {"default.vert.spv",
+						"../examples/shaders/brick_outline.frag.spv"},
+			.paramsSize = sizeof(OutlineMaterialParams),
+		});
+
+		engine::queueForDeletion([=] { g_outlineTemplate.reset(); });
+	}
+
 	MeshHandle cube = engine::getUVCube();
 
-	MaterialHandle material = engine::createBrickOutlinedMaterial({
+	const OutlineMaterialParams outlineParams{
 		.color = info.color,
 		.outline = info.outlineColor,
 		.thickness = info.outlineThickness,
+	};
+
+	MaterialHandle material = Material::create({
+		.templateHandle = g_outlineTemplate,
+		.params = &outlineParams,
 	});
 
 	Transform transform{
