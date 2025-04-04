@@ -150,8 +150,7 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 
 	if (g_outlineTemplate == nullptr) {
 		g_outlineTemplate = MaterialTemplate::create({
-			.shaders = {"default.vert.spv",
-						"../examples/shaders/brick_outline.frag.spv"},
+			.shaders = {"default.vert.spv", "examples/brick_outline.frag.spv"},
 			.paramsSize = sizeof(OutlineMaterialParams),
 		});
 

@@ -4,7 +4,7 @@
 layout (location = 0) out vec4 outColor;
 layout (location = 0) in vec2 uv;
 
-#include "../../shaders/etna.glsl"
+#include "etna.glsl"
 
 DEF_MATERIAL({
 	vec4 color;

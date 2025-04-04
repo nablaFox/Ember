@@ -68,7 +68,13 @@ int main(void) {
 
 ![Etna Demo Gif](./examples/example.gif)
 
-You can find more examples in the `examples` directory.
+For more check-out [`examples`](./examples).
+
+You can use the `./examples/run.sh` script utility to easily run an example:
+
+```bash
+./examples/run.sh rocket
+```
 
 ### Building
 
@@ -76,3 +82,12 @@ You can find more examples in the `examples` directory.
 cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
+
+### Dependencies
+
+- [Ignis](https://github.com/nablaFox/Ignis)
+- [GLFW](https://github.com/glfw/glfw)
+
+### Documentation
+
+Work in progress.

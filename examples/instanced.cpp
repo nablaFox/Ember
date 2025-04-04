@@ -58,8 +58,8 @@ int main(void) {
 	const DrawSettings drawCube{
 		.mesh = engine::getCube(),
 		.material = Material::create({
-			.shaders = {"../examples/shaders/instanced.vert.spv",
-						"../examples/shaders/instanced.frag.spv"},
+			.shaders = {"examples/instanced.vert.spv",
+						"examples/instanced.frag.spv"},
 			.paramsSize = sizeof(Color),
 		}),
 		.viewport = {.width = WINDOW_WIDTH, .height = WINDOW_HEIGHT},

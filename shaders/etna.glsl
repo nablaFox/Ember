@@ -38,10 +38,19 @@ DEF_SSBO(VertexBuffer, {
 
 #define MATERIAL (uMaterial[pc.materialIndex])
 
-// Instance
+// Instanced
 #define DEF_INSTANCE_DATA(Struct) \
 layout(std430, set = 0, binding = STORAGE_BUFFER_BINDING) readonly buffer InstanceDataBuffer { \
     Struct instances[]; \
 } bInstanceDataBuffer[] \
 
 #define I (bInstanceDataBuffer[pc.instanceBufferIndex].instances[gl_InstanceIndex])
+
+// Camera
+DEF_UBO(CameraData, {
+	mat4 viewproj;
+	mat4 view;
+	mat4 proj;
+});
+
+#define CAMERA (uCameraData[pc.ubo])

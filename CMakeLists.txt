@@ -11,7 +11,6 @@ option(ETNA_BUILD_EXAMPLES "Build the examples" ON)
 file(GLOB ETNA_SRC "src/*.cpp")
 add_library(etna STATIC ${ETNA_SRC})
 
-# Dependencies
 CPMAddPackage(
   NAME Ignis
   GITHUB_REPOSITORY nablaFox/Ignis
@@ -56,19 +55,41 @@ if(ETNA_BUILD_EXAMPLES)
 
 	set(SHADER_SPV_FILES)
 
-	# TODO: place example shaders in a more convenient location
 	foreach(SHADER_SOURCE ${ALL_SHADER_SOURCES})
-	  file(RELATIVE_PATH SHADER_REL_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${SHADER_SOURCE})
-	  set(SHADER_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${SHADER_REL_PATH}.spv")
-	  get_filename_component(SHADER_OUTPUT_DIR ${SHADER_OUTPUT} DIRECTORY)
-	  file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIR})
-	  add_custom_command(
-		OUTPUT ${SHADER_OUTPUT}
-		COMMAND ${GLSLC} ${SHADER_SOURCE} -o ${SHADER_OUTPUT}
-		DEPENDS ${SHADER_SOURCE}
-		COMMENT "Compiling ${SHADER_REL_PATH} to SPIR-V"
-	  )
-	  list(APPEND SHADER_SPV_FILES ${SHADER_OUTPUT})
+ 		get_filename_component(SHADER_DIR ${SHADER_SOURCE} DIRECTORY)
+        file(RELATIVE_PATH SHADER_REL_DIR ${CMAKE_CURRENT_SOURCE_DIR} ${SHADER_DIR})
+        get_filename_component(SHADER_NAME ${SHADER_SOURCE} NAME)
+
+        set(GLSLC_ARGS)
+        set(SHADER_TYPE)
+        set(SHADER_DEPENDENCIES ${SHADER_SOURCE})
+
+    	if(SHADER_REL_DIR STREQUAL "examples/shaders")
+            set(SHADER_TYPE "examples")
+            list(APPEND GLSLC_ARGS "-I${CMAKE_CURRENT_SOURCE_DIR}/shaders")
+        elseif(SHADER_REL_DIR STREQUAL "shaders")
+            set(SHADER_TYPE "engine")
+        else()
+            message(FATAL_ERROR "Unknown shader directory: ${SHADER_REL_DIR}")
+        endif()
+
+        if(NOT SHADER_TYPE)
+             message(FATAL_ERROR "Internal error: SHADER_TYPE not set for ${SHADER_SOURCE}")
+        endif()
+
+        set(SHADER_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER_TYPE}/${SHADER_NAME}.spv")
+        get_filename_component(SHADER_OUTPUT_DIR ${SHADER_OUTPUT} DIRECTORY)
+        file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIR})
+
+        add_custom_command(
+            OUTPUT ${SHADER_OUTPUT}
+            COMMAND ${GLSLC} ${GLSLC_ARGS} ${SHADER_SOURCE} -o ${SHADER_OUTPUT}
+            DEPENDS ${SHADER_DEPENDENCIES}
+            COMMENT "Compiling ${SHADER_NAME} (${SHADER_TYPE}) to SPIR-V"
+            VERBATIM
+        )
+
+        list(APPEND SHADER_SPV_FILES ${SHADER_OUTPUT})
 	endforeach()
 
 	file(GLOB EXAMPLES_SRC "examples/*.cpp")
