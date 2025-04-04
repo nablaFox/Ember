@@ -9,57 +9,21 @@ Scene::Scene(const CreateInfo&) {}
 
 Scene::~Scene() {}
 
-CameraNode* Scene::getCamera(std::string name) {
-	auto it = m_cameraNodes.find(name);
-
-	if (it == m_cameraNodes.end())
-		return nullptr;
-
-	return &it->second;
-}
-
-MeshNode* Scene::getMesh(std::string name) {
-	auto it = m_meshNodes.find(name);
-
-	if (it == m_meshNodes.end())
-		return nullptr;
-
-	return &it->second;
-}
-
-SceneNode Scene::addNodeHelper(SceneNode node,
+static SceneNode addNodeHelper(SceneNode node,
 							   const Transform& transform,
-							   const std::string& newName) {
-	const std::string name = newName.empty() ? node->getName() : newName;
-
-	std::string nameToUse = name;
-
+							   std::vector<MeshNode>& meshes) {
 	if (node->getType() == _SceneNode::Type::MESH) {
-		if (m_meshNodes.find(name) != m_meshNodes.end()) {
-			nameToUse = name + "_" + std::to_string(m_meshNodes.size());
-		}
-
-		m_meshNodes[nameToUse] = std::static_pointer_cast<_MeshNode>(node);
-	}
-
-	else if (node->getType() == _SceneNode::Type::CAMERA) {
-		if (m_cameraNodes.find(name) != m_cameraNodes.end()) {
-			nameToUse = name + "_" + std::to_string(m_cameraNodes.size());
-		}
-
-		m_cameraNodes[nameToUse] = std::static_pointer_cast<_CameraNode>(node);
+		meshes.push_back(std::static_pointer_cast<_MeshNode>(node));
 	}
 
 	for (auto& child : node->getChildren()) {
-		addNodeHelper(child, transform, newName);
+		addNodeHelper(child, transform, meshes);
 	}
 
 	return node;
 }
 
-SceneNode Scene::addNode(SceneNode node,
-						 const Transform& transform,
-						 const std::string& newName) {
+SceneNode Scene::addNode(SceneNode node, const Transform& transform) {
 	if (node == nullptr)
 		return nullptr;
 
@@ -70,27 +34,23 @@ SceneNode Scene::addNode(SceneNode node,
 	m_nodes.push_back(node);
 #endif
 
-	return addNodeHelper(node, transform, newName);
+	return addNodeHelper(node, transform, m_meshNodes);
 }
 
-MeshNode Scene::createMeshNode(const scene::CreateMeshNodeInfo& info) {
+MeshNode Scene::createMeshNode(const CreateMeshNodeInfo& info) {
 	return addMesh(scene::createMeshNode(info));
 }
 
-CameraNode Scene::createCameraNode(const scene::CreateCameraNodeInfo& info) {
+CameraNode Scene::createCameraNode(const CreateCameraNodeInfo& info) {
 	return addCamera(scene::createCameraNode(info));
 }
 
-MeshNode Scene::addMesh(MeshNode node,
-						const Transform& transform,
-						const std::string& newName) {
-	return std::static_pointer_cast<_MeshNode>(addNode(node, transform, newName));
+MeshNode Scene::addMesh(MeshNode node, const Transform& transform) {
+	return std::static_pointer_cast<_MeshNode>(addNode(node, transform));
 }
 
-CameraNode Scene::addCamera(CameraNode node,
-							const Transform& transform,
-							const std::string& newName) {
-	return std::static_pointer_cast<_CameraNode>(addNode(node, transform, newName));
+CameraNode Scene::addCamera(CameraNode node, const Transform& transform) {
+	return std::static_pointer_cast<_CameraNode>(addNode(node, transform));
 }
 
 void Scene::render(Renderer& renderer,
@@ -110,7 +70,7 @@ void Scene::render(Renderer& renderer,
 
 	cameraNode->camera->updateAspect(vp.width / vp.height);
 
-	for (const auto& [_, meshNode] : m_meshNodes) {
+	for (const auto& meshNode : m_meshNodes) {
 		if (meshNode->mesh == nullptr)
 			continue;
 
@@ -126,6 +86,32 @@ void Scene::render(Renderer& renderer,
 			.ubo = cameraNode->camera->getDataBuffer(),
 		});
 	}
+}
+
+CameraNode Scene::searchCamera(const std::string& name) {
+	CameraNode camera;
+
+	for (const auto& node : m_nodes) {
+		camera = scene::searchCamera(node, name);
+
+		if (camera != nullptr)
+			break;
+	}
+
+	return camera;
+}
+
+MeshNode Scene::searchMesh(const std::string& name) {
+	MeshNode mesh;
+
+	for (const auto& node : m_nodes) {
+		mesh = scene::searchMesh(node, name);
+
+		if (mesh != nullptr)
+			break;
+	}
+
+	return mesh;
 }
 
 #ifndef NDEBUG

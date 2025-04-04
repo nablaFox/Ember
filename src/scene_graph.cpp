@@ -16,13 +16,13 @@ SceneNode _SceneNode::add(SceneNode node) {
 	return newNode;
 }
 
-MeshNode _SceneNode::createMeshNode(const scene::CreateMeshNodeInfo& info) {
+MeshNode _SceneNode::createMeshNode(const CreateMeshNodeInfo& info) {
 	MeshNode node = scene::createMeshNode(info);
 	add(node);
 	return node;
 }
 
-CameraNode _SceneNode::createCameraNode(const scene::CreateCameraNodeInfo& info) {
+CameraNode _SceneNode::createCameraNode(const CreateCameraNodeInfo& info) {
 	CameraNode node = scene::createCameraNode(info);
 	add(node);
 	return node;
@@ -81,19 +81,52 @@ CameraNode scene::createCameraNode(const CreateCameraNodeInfo& info) {
 	CameraNode node = std::make_shared<_CameraNode>(_SceneNode::Type::CAMERA,
 													info.name, info.transform);
 
-	node->camera = std::shared_ptr<Camera>(new Camera({
-		.fov = info.fov,
-		.near = info.near,
-		.far = info.far,
-		.aspect = info.aspect,
-		.transform = info.transform,
-	}));
+	node->camera = std::shared_ptr<Camera>(new Camera(info.cameraInfo));
+	node->camera->updateTransform(info.transform);
 
 	return node;
 }
 
-SceneNode scene::loadFromPath(const std::string& path) {
+SceneNode scene::loadFromFile(const std::string& path) {
 	throw std::runtime_error("Not implemented");
+}
+
+CameraNode scene::searchCamera(const SceneNode root, const std::string& name) {
+	if (root == nullptr)
+		return nullptr;
+
+	CameraNode camera;
+
+	if (root->getType() == _SceneNode::Type::CAMERA && root->getName() == name) {
+		return std::static_pointer_cast<_CameraNode>(root);
+	}
+
+	for (const auto& child : root->getChildren()) {
+		camera = searchCamera(child, name);
+		if (camera != nullptr)
+			break;
+	}
+
+	return camera;
+}
+
+MeshNode scene::searchMesh(const SceneNode root, const std::string& name) {
+	if (root == nullptr)
+		return nullptr;
+
+	MeshNode mesh;
+
+	if (root->getType() == _SceneNode::Type::MESH && root->getName() == name) {
+		return std::static_pointer_cast<_MeshNode>(root);
+	}
+
+	for (const auto& child : root->getChildren()) {
+		mesh = searchMesh(child, name);
+		if (mesh != nullptr)
+			break;
+	}
+
+	return mesh;
 }
 
 #ifndef NDEBUG

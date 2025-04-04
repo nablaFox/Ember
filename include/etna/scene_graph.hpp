@@ -14,10 +14,6 @@ using SceneNode = std::shared_ptr<_SceneNode>;
 using MeshNode = std::shared_ptr<_MeshNode>;
 using CameraNode = std::shared_ptr<_CameraNode>;
 
-namespace scene {
-
-SceneNode createRoot(const std::string&, const Transform& = {});
-
 struct CreateMeshNodeInfo {
 	std::string name;
 	MeshHandle mesh;
@@ -25,22 +21,11 @@ struct CreateMeshNodeInfo {
 	MaterialHandle material{nullptr};
 };
 
-MeshNode createMeshNode(const CreateMeshNodeInfo&);
-
 struct CreateCameraNodeInfo {
 	std::string name;
 	Transform transform;
-	float fov{60.f};
-	float near{0.1f};
-	float far{100.f};
-	float aspect{1.f};
+	Camera::CreateInfo cameraInfo;
 };
-
-CameraNode createCameraNode(const CreateCameraNodeInfo&);
-
-SceneNode loadFromPath(const std::string&);
-
-}  // namespace scene
 
 struct _SceneNode {
 	enum class Type {
@@ -53,8 +38,8 @@ struct _SceneNode {
 
 	SceneNode add(SceneNode);
 
-	MeshNode createMeshNode(const scene::CreateMeshNodeInfo&);
-	CameraNode createCameraNode(const scene::CreateCameraNodeInfo&);
+	MeshNode createMeshNode(const CreateMeshNodeInfo&);
+	CameraNode createCameraNode(const CreateCameraNodeInfo&);
 
 	const Transform& getTransform() const { return m_transform; }
 
@@ -104,5 +89,21 @@ struct _CameraNode : public _SceneNode {
 	Mat4 getViewMatrix() const;
 	Mat4 getProjMatrix(float aspect) const;
 };
+
+namespace scene {
+
+SceneNode createRoot(const std::string&, const Transform& = {});
+
+MeshNode createMeshNode(const CreateMeshNodeInfo&);
+
+CameraNode createCameraNode(const CreateCameraNodeInfo&);
+
+SceneNode loadFromFile(const std::string& path);
+
+CameraNode searchCamera(const SceneNode root, const std::string& name);
+
+MeshNode searchMesh(const SceneNode root, const std::string& name);
+
+}  // namespace scene
 
 }  // namespace etna

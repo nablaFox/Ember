@@ -14,7 +14,6 @@ public:
 		float near{0.1f};
 		float far{100.f};
 		float aspect{1.f};
-		Transform transform{};
 	};
 
 	Camera(const CreateInfo&);

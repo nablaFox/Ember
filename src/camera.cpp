@@ -38,7 +38,7 @@ Camera::Camera(const CreateInfo& info)
 	  m_near(info.near),
 	  m_far(info.far),
 	  m_aspect(info.aspect),
-	  m_worldMatrix(info.transform.getWorldMatrix()) {
+	  m_worldMatrix(Mat4::identity()) {
 	m_projMatrix = calcProjMatrix(m_aspect, m_fov, m_near, m_far);
 	m_viewMatrix = calcViewMatrix(m_worldMatrix);
 
