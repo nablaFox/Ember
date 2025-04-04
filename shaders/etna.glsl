@@ -10,7 +10,7 @@
 
 #define DEF_SSBO(Name, Struct) \
  layout(set = 0, binding = STORAGE_BUFFER_BINDING) \
- readonly buffer Name Struct u##Name[] 
+ readonly buffer Name Struct b##Name[]
 
 layout(push_constant) uniform constants {
 	mat4 worldTransform;
@@ -31,9 +31,17 @@ DEF_SSBO(VertexBuffer, {
 	Vertex vertices[];
 });
 
-#define V (uVertexBuffer[pc.verticesIndex].vertices[gl_VertexIndex])
+#define V (bVertexBuffer[pc.verticesIndex].vertices[gl_VertexIndex])
 
 // Material
 #define DEF_MATERIAL(Struct) DEF_UBO(Material, Struct)
 
 #define MATERIAL (uMaterial[pc.materialIndex])
+
+// Instance
+#define DEF_INSTANCE_DATA(Struct) \
+layout(std430, set = 0, binding = STORAGE_BUFFER_BINDING) readonly buffer InstanceDataBuffer { \
+    Struct instances[]; \
+} bInstanceDataBuffer[] \
+
+#define I (bInstanceDataBuffer[pc.instanceBufferIndex].instances[gl_InstanceIndex])

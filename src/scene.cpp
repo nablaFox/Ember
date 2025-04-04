@@ -118,8 +118,13 @@ void Scene::render(Renderer& renderer,
 		const MeshHandle mesh = meshNode->mesh;
 		const Mat4 worldMatrix = meshNode->getWorldMatrix();
 
-		renderer.draw(mesh, material, worldMatrix,
-					  {.viewport = vp, .ubo = cameraNode->camera->getDataBuffer()});
+		renderer.draw({
+			.mesh = mesh,
+			.material = material,
+			.transform = worldMatrix,
+			.viewport = vp,
+			.ubo = cameraNode->camera->getDataBuffer(),
+		});
 	}
 }
 

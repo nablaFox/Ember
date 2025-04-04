@@ -9,14 +9,6 @@ struct Transform {
 	float yaw{0}, pitch{0}, roll{0};
 	Vec3 scale{1, 1, 1};
 
-	Mat4 getWorldMatrix() const {
-		return getTransMatrix() * getScaleMatrix() * getRotMatrix();
-	}
-
-	Mat4 getTransMatrix() const { return getTransMatrix(position); }
-
-	Mat4 getScaleMatrix() const { return getScaleMatrix(scale); }
-
 	static Mat4 getScaleMatrix(Vec3 scale) {
 		return {
 			{scale[0], 0, 0, 0},
@@ -35,7 +27,7 @@ struct Transform {
 		};
 	}
 
-	Mat4 getYawMatrix() const {
+	static Mat4 getYawMatrix(float yaw) {
 		return {
 			{cosf(yaw), 0, sinf(yaw), 0},
 			{0, 1, 0, 0},
@@ -44,7 +36,7 @@ struct Transform {
 		};
 	}
 
-	Mat4 getPitchMatrix() const {
+	static Mat4 getPitchMatrix(float pitch) {
 		return {
 			{1, 0, 0, 0},
 			{0, cosf(pitch), -sinf(pitch), 0},
@@ -53,7 +45,7 @@ struct Transform {
 		};
 	}
 
-	Mat4 getRollMatrix() const {
+	static Mat4 getRollMatrix(float roll) {
 		return {
 			{cosf(roll), -sinf(roll), 0, 0},
 			{sinf(roll), cosf(roll), 0, 0},
@@ -61,6 +53,20 @@ struct Transform {
 			{0, 0, 0, 1},
 		};
 	}
+
+	Mat4 getWorldMatrix() const {
+		return getTransMatrix() * getScaleMatrix() * getRotMatrix();
+	}
+
+	Mat4 getTransMatrix() const { return getTransMatrix(position); }
+
+	Mat4 getScaleMatrix() const { return getScaleMatrix(scale); }
+
+	Mat4 getYawMatrix() const { return getYawMatrix(yaw); }
+
+	Mat4 getPitchMatrix() const { return getPitchMatrix(pitch); }
+
+	Mat4 getRollMatrix() const { return getRollMatrix(roll); }
 
 	Mat4 getRotMatrix() const {
 		return getPitchMatrix() * getYawMatrix() * getRollMatrix();

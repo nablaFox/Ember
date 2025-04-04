@@ -96,3 +96,9 @@ Material::~Material() {
 	if (m_paramsUBO != IGNIS_INVALID_BUFFER_ID)
 		_device.destroyBuffer(m_paramsUBO);
 }
+
+void Material::updateParams(const void* data) const {
+	if (m_paramsUBO != IGNIS_INVALID_BUFFER_ID) {
+		_device.updateBuffer(m_paramsUBO, data);
+	}
+}

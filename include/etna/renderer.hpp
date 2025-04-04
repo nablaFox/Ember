@@ -26,7 +26,10 @@ struct Viewport {
 	float height{0};
 };
 
-struct RenderSettings {
+struct DrawSettings {
+	MeshHandle mesh{nullptr};
+	MaterialHandle material{nullptr};
+	Mat4 transform{};
 	Viewport viewport;
 	ignis::BufferId instanceBuffer{IGNIS_INVALID_BUFFER_ID};
 	ignis::BufferId ubo{IGNIS_INVALID_BUFFER_ID};
@@ -50,16 +53,9 @@ public:
 	void beginFrame(const RenderTarget&, const RenderFrameSettings& = {});
 	void endFrame();
 
-	void draw(const MeshHandle,
-			  const MaterialHandle = nullptr,
-			  const Mat4& = {},
-			  const RenderSettings& = {});
+	void draw(const DrawSettings& = {});
 
-	void drawInstanced(uint32_t instanceCount,
-					   const MeshHandle,
-					   const MaterialHandle,
-					   const Mat4& = {},
-					   const RenderSettings& = {});
+	void drawInstanced(uint32_t instanceCount, const DrawSettings& = {});
 
 	void clearViewport(Viewport viewport, Color color = {});
 

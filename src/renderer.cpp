@@ -100,14 +100,10 @@ void Renderer::endFrame() {
 	m_currentFrame = (m_currentFrame + 1) % m_framesInFlight;
 }
 
-void Renderer::drawInstanced(uint32_t instanceCount,
-							 const MeshHandle mesh,
-							 const MaterialHandle material,
-							 const Mat4& transform,
-							 const RenderSettings& settings) {
+void Renderer::drawInstanced(uint32_t instanceCount, const DrawSettings& settings) {
 	Command& cmd = getCommand();
 
-	assert(mesh != nullptr && "Mesh is null");
+	assert(settings.mesh != nullptr && "Mesh is null");
 
 	VkViewport vp{
 		.x = settings.viewport.x,
@@ -119,7 +115,7 @@ void Renderer::drawInstanced(uint32_t instanceCount,
 	};
 
 	const MaterialHandle materialToUse =
-		material != nullptr ? material : g_defaultMaterial;
+		settings.material != nullptr ? settings.material : g_defaultMaterial;
 
 	Pipeline& pipeline = materialToUse->getTemplate().getPipeline();
 
@@ -130,11 +126,11 @@ void Renderer::drawInstanced(uint32_t instanceCount,
 	cmd.setScissor(
 		{0, 0, m_currTarget->getExtent().width, m_currTarget->getExtent().height});
 
-	cmd.bindIndexBuffer(*mesh->getIndexBuffer());
+	cmd.bindIndexBuffer(*settings.mesh->getIndexBuffer());
 
 	m_pushConstants = {
-		.worldTransform = transform,
-		.vertices = mesh->getVertexBuffer(),
+		.worldTransform = settings.transform,
+		.vertices = settings.mesh->getVertexBuffer(),
 		.material = materialToUse->getParamsUBO(),
 		.instanceBuffer = settings.instanceBuffer,
 		.ubo = settings.ubo,
@@ -143,17 +139,11 @@ void Renderer::drawInstanced(uint32_t instanceCount,
 
 	cmd.pushConstants(pipeline, m_pushConstants);
 
-	if (instanceCount == 1)
-		cmd.draw(mesh->indexCount());
-	else
-		cmd.drawInstanced(instanceCount, mesh->indexCount());
+	cmd.drawInstanced(settings.mesh->indexCount(), instanceCount);
 }
 
-void Renderer::draw(const MeshHandle mesh,
-					const MaterialHandle material,
-					const Mat4& transform,
-					const RenderSettings& settings) {
-	drawInstanced(1, mesh, material, transform, settings);
+void Renderer::draw(const DrawSettings& settings) {
+	drawInstanced(1, settings);
 }
 
 void Renderer::clearViewport(Viewport vp, Color color) {

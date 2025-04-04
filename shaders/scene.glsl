@@ -13,12 +13,4 @@ DEF_SSBO(SceneData, {
 	DirectionalLight sun;
 });
 
-#define SCENE (uSceneData[pc.ssbo])
-
-DEF_UBO(CameraData, {
-	mat4 viewproj;
-	mat4 view;
-	mat4 proj;
-});
-
-#define CAMERA (uCameraData[pc.ubo])
+#define SCENE (bSceneData[pc.ssbo])

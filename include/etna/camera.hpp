@@ -10,7 +10,7 @@ namespace etna {
 class Camera {
 public:
 	struct CreateInfo {
-		float fov{60.f};
+		float fov{70.f};
 		float near{0.1f};
 		float far{100.f};
 		float aspect{1.f};
