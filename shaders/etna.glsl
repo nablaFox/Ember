@@ -9,11 +9,11 @@
  uniform Name Struct u##Name[]
 
 #define DEF_SSBO(Name, Struct) \
- layout(set = 0, binding = STORAGE_BUFFER_BINDING) \
+ layout(std430, set = 0, binding = STORAGE_BUFFER_BINDING) \
  readonly buffer Name Struct b##Name[]
 
 layout(push_constant) uniform constants {
-	mat4 transform;
+	mat4 model;
 	uint vertices;
 	uint material;
 	uint instanceBuff;
@@ -25,6 +25,7 @@ layout(push_constant) uniform constants {
 // Vertices
 struct Vertex {
     vec3 position;
+	vec3 normal;
 	vec2 uv;
 };
 
@@ -55,7 +56,7 @@ DEF_UBO(CameraData, {
 });
 
 // Lights
-DEF_UBO(DirectionalLight, {
+DEF_UBO(DirectionalLights, {
 	vec3 direction;
 	float intensity;
 	vec4 color;

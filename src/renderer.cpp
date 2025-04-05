@@ -126,12 +126,13 @@ void Renderer::draw(const DrawSettings& settings) {
 	cmd.bindIndexBuffer(*settings.mesh->getIndexBuffer());
 
 	const engine::PushConstants m_pushConstants{
-		.worldTransform = settings.transform,
+		.model = settings.transform,
 		.vertices = settings.mesh->getVertexBuffer(),
 		.material = materialToUse->getParamsUBO(),
 		.instanceBuffer = settings.instanceBuffer,
 		.buff1 = settings.buff1,
 		.buff2 = settings.buff2,
+		.buff3 = settings.buff3,
 	};
 
 	cmd.pushConstants(pipeline, m_pushConstants);

@@ -44,7 +44,7 @@ constexpr ignis::DepthFormat DEPTH_FORMAT{ignis::DepthFormat::D32_SFLOAT};
 constexpr uint32_t MAX_SAMPLE_COUNT{8};
 
 struct PushConstants {
-	Mat4 worldTransform;
+	Mat4 model;
 	ignis::BufferId vertices;
 	ignis::BufferId material;
 	ignis::BufferId instanceBuffer;

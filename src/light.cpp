@@ -3,15 +3,18 @@
 
 using namespace etna;
 
-DirectionalLight::DirectionalLight(Vec3 direction, float intensity, Color color)
-	: m_direction(direction.normalize()), m_intensity(intensity), m_color(color) {
+DirectionalLight::DirectionalLight(const CreateInfo& info)
+	: m_direction(info.direction),
+	  m_intensity(info.intensity),
+	  m_color(info.color),
+	  m_name(info.name) {
 	const DirectionalLightData lightData{
 		.direction = m_direction,
 		.intensity = m_intensity,
 		.color = m_color,
 	};
 
-	m_buffer = _device.createSSBO(sizeof(DirectionalLightData), &lightData);
+	m_buffer = _device.createUBO(sizeof(DirectionalLightData), &lightData);
 }
 
 DirectionalLight::~DirectionalLight() {

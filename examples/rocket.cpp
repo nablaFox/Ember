@@ -79,7 +79,7 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Scene scene({});
+	Scene scene;
 
 	scene.addNode(createFloor({}));
 

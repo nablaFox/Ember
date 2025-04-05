@@ -56,96 +56,62 @@ MeshHandle engine::createSphere(float radius, uint32_t precision) {
 	});
 }
 
-MeshHandle engine::createUVBrick(float width, float height, float depth) {
-	std::vector<Vertex> vertices(24);
-
-	for (uint32_t j = 0; j < 3; j++) {
-		for (uint32_t i = 0; i < 2; i++) {
-			float zShift = (depth / 2.f) - i * depth;
-			uint32_t base = i * 4 + 8 * j;
-
-			vertices[base + 0].position = {width / 2.f, -height / 2.f, zShift};
-			vertices[base + 1].position = {-width / 2.f, -height / 2.f, zShift};
-			vertices[base + 2].position = {-width / 2.f, height / 2.f, zShift};
-			vertices[base + 3].position = {width / 2.f, height / 2.f, zShift};
-		}
-	}
-
-	// front and back
-	for (uint32_t face = 0; face < 2; ++face) {
-		uint32_t offset = face * 4;
-		vertices[offset + 0].uv = {1.0f, 0.0f};
-		vertices[offset + 1].uv = {0.0f, 0.0f};
-		vertices[offset + 2].uv = {0.0f, 1.0f};
-		vertices[offset + 3].uv = {1.0f, 1.0f};
-	}
-
-	// bottom
-	vertices[8].uv = {0.0f, 1.0f};
-	vertices[9].uv = {0.0f, 0.0f};
-	vertices[13].uv = {1.0f, 0.0f};
-	vertices[12].uv = {1.0f, 1.0f};
-
-	// top
-	vertices[10].uv = {0.0f, 1.0f};
-	vertices[14].uv = {0.0f, 0.0f};
-	vertices[15].uv = {1.0f, 0.0f};
-	vertices[11].uv = {1.0f, 1.0f};
-
-	// right
-	vertices[16].uv = {0.0f, 1.0f};
-	vertices[20].uv = {0.0f, 0.0f};
-	vertices[23].uv = {1.0f, 0.0f};
-	vertices[19].uv = {1.0f, 1.0f};
-
-	// left
-	vertices[17].uv = {0.0f, 1.0f};
-	vertices[18].uv = {0.0f, 0.0f};
-	vertices[22].uv = {1.0f, 0.0f};
-	vertices[21].uv = {1.0f, 1.0f};
-
-	std::vector<Index> indices = {
-		0,	1,	2,	2,	3,	0,	 // Front
-		4,	5,	6,	6,	7,	4,	 // Back
-		10, 14, 15, 15, 11, 10,	 // Top
-		8,	9,	13, 13, 12, 8,	 // Bottom
-		16, 20, 23, 23, 19, 16,	 // Right
-		17, 18, 22, 22, 21, 17	 // Left
-	};
-
-	return Mesh::create({
-		.vertices = std::move(vertices),
-		.indices = std::move(indices),
-	});
-}
-
-MeshHandle engine::createUVCube(float side) {
-	return createUVBrick(side, side, side);
-}
-
 MeshHandle engine::createBrick(float width, float height, float depth) {
-	std::vector<Vertex> vertices(24);
+	std::vector<Vertex> vertices;
+	std::vector<Index> indices;
+	vertices.reserve(24);
+	indices.reserve(36);
 
-	for (uint32_t j = 0; j < 3; j++) {
-		for (uint32_t i = 0; i < 2; i++) {
-			float zShift = (depth / 2.f) - i * depth;
-			uint32_t base = i * 4 + 8 * j;
+	const float hx = width * 0.5f;
+	const float hy = height * 0.5f;
+	const float hz = depth * 0.5f;
 
-			vertices[base + 0].position = {width / 2.f, -height / 2.f, zShift};
-			vertices[base + 1].position = {-width / 2.f, -height / 2.f, zShift};
-			vertices[base + 2].position = {-width / 2.f, height / 2.f, zShift};
-			vertices[base + 3].position = {width / 2.f, height / 2.f, zShift};
-		}
+	// Front face (z+)
+	vertices.push_back({{-hx, -hy, hz}, {0, 0, 1}, {0, 0}});
+	vertices.push_back({{hx, -hy, hz}, {0, 0, 1}, {1, 0}});
+	vertices.push_back({{hx, hy, hz}, {0, 0, 1}, {1, 1}});
+	vertices.push_back({{-hx, hy, hz}, {0, 0, 1}, {0, 1}});
+
+	// Back face (z-)
+	vertices.push_back({{hx, -hy, -hz}, {0, 0, -1}, {0, 0}});
+	vertices.push_back({{-hx, -hy, -hz}, {0, 0, -1}, {1, 0}});
+	vertices.push_back({{-hx, hy, -hz}, {0, 0, -1}, {1, 1}});
+	vertices.push_back({{hx, hy, -hz}, {0, 0, -1}, {0, 1}});
+
+	// Left face (x-)
+	vertices.push_back({{-hx, -hy, -hz}, {-1, 0, 0}, {0, 0}});
+	vertices.push_back({{-hx, -hy, hz}, {-1, 0, 0}, {1, 0}});
+	vertices.push_back({{-hx, hy, hz}, {-1, 0, 0}, {1, 1}});
+	vertices.push_back({{-hx, hy, -hz}, {-1, 0, 0}, {0, 1}});
+
+	// Right face (x+)
+	vertices.push_back({{hx, -hy, hz}, {1, 0, 0}, {0, 0}});
+	vertices.push_back({{hx, -hy, -hz}, {1, 0, 0}, {1, 0}});
+	vertices.push_back({{hx, hy, -hz}, {1, 0, 0}, {1, 1}});
+	vertices.push_back({{hx, hy, hz}, {1, 0, 0}, {0, 1}});
+
+	// Top face (y+)
+	vertices.push_back({{-hx, hy, hz}, {0, 1, 0}, {0, 0}});
+	vertices.push_back({{hx, hy, hz}, {0, 1, 0}, {1, 0}});
+	vertices.push_back({{hx, hy, -hz}, {0, 1, 0}, {1, 1}});
+	vertices.push_back({{-hx, hy, -hz}, {0, 1, 0}, {0, 1}});
+
+	// Bottom face (y-)
+	vertices.push_back({{-hx, -hy, -hz}, {0, -1, 0}, {0, 0}});
+	vertices.push_back({{hx, -hy, -hz}, {0, -1, 0}, {1, 0}});
+	vertices.push_back({{hx, -hy, hz}, {0, -1, 0}, {1, 1}});
+	vertices.push_back({{-hx, -hy, hz}, {0, -1, 0}, {0, 1}});
+
+	for (uint32_t i = 0; i < 6; ++i) {
+		Index start = i * 4;
+		indices.push_back(start);
+		indices.push_back(start + 1);
+		indices.push_back(start + 2);
+
+		indices.push_back(start);
+		indices.push_back(start + 2);
+		indices.push_back(start + 3);
 	}
-
-	std::vector<Index> indices = {
-		0,	1,	2,	2,	3,	0,	 // Front
-		4,	5,	6,	6,	7,	4,	 // Back
-		10, 14, 15, 15, 11, 10,	 // Top
-		8,	9,	13, 13, 12, 8,	 // Bottom
-		16, 20, 23, 23, 19, 16,	 // Right
-		17, 18, 22, 22, 21, 17	 // Left
-	};
 
 	return Mesh::create({
 		.vertices = std::move(vertices),

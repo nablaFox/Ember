@@ -55,38 +55,44 @@ if(ETNA_BUILD_EXAMPLES)
 
 	set(SHADER_SPV_FILES)
 
-	foreach(SHADER_SOURCE ${ALL_SHADER_SOURCES})
- 		get_filename_component(SHADER_DIR ${SHADER_SOURCE} DIRECTORY)
-        file(RELATIVE_PATH SHADER_REL_DIR ${CMAKE_CURRENT_SOURCE_DIR} ${SHADER_DIR})
-        get_filename_component(SHADER_NAME ${SHADER_SOURCE} NAME)
+foreach(SHADER_SOURCE ${ALL_SHADER_SOURCES})
+    get_filename_component(SHADER_DIR ${SHADER_SOURCE} DIRECTORY)
+    file(RELATIVE_PATH SHADER_REL_DIR ${CMAKE_CURRENT_SOURCE_DIR} ${SHADER_DIR})
+    get_filename_component(SHADER_NAME ${SHADER_SOURCE} NAME)
 
-        set(GLSLC_ARGS)
-        set(SHADER_TYPE)
-        set(SHADER_DEPENDENCIES ${SHADER_SOURCE})
+    set(GLSLC_ARGS)
+    set(SHADER_DEPENDENCIES ${SHADER_SOURCE})
 
-    	if(SHADER_REL_DIR STREQUAL "examples/shaders")
-			string(REPLACE "shaders/" "examples/shaders/" SHADER_NAME ${SHADER_NAME})
-            list(APPEND GLSLC_ARGS "-I${CMAKE_CURRENT_SOURCE_DIR}/shaders")
-        endif()
+    set(OUTPUT_SUBDIR "") 
+    if(SHADER_REL_DIR STREQUAL "examples/shaders")
+        set(OUTPUT_SUBDIR "examples")
+        list(APPEND GLSLC_ARGS "-I${CMAKE_CURRENT_SOURCE_DIR}/shaders")
+	endif()
 
-        set(SHADER_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER_NAME}.spv")
-        get_filename_component(SHADER_OUTPUT_DIR ${SHADER_OUTPUT} DIRECTORY)
-        file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIR})
+    set(BASE_SHADER_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+    if(OUTPUT_SUBDIR)
+        set(SHADER_OUTPUT "${BASE_SHADER_OUTPUT_DIR}/${OUTPUT_SUBDIR}/${SHADER_NAME}.spv")
+    else()
+        set(SHADER_OUTPUT "${BASE_SHADER_OUTPUT_DIR}/${SHADER_NAME}.spv")
+    endif()
 
-        add_custom_command(
-            OUTPUT ${SHADER_OUTPUT}
-            COMMAND ${GLSLC} ${GLSLC_ARGS} ${SHADER_SOURCE} -o ${SHADER_OUTPUT}
-            DEPENDS ${SHADER_DEPENDENCIES}
-            COMMENT "Compiling ${SHADER_NAME} (${SHADER_TYPE}) to SPIR-V"
-            VERBATIM
-        )
+    get_filename_component(SHADER_OUTPUT_DIR ${SHADER_OUTPUT} DIRECTORY)
+    file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIR})
 
-        list(APPEND SHADER_SPV_FILES ${SHADER_OUTPUT})
-	endforeach()
+    add_custom_command(
+        OUTPUT ${SHADER_OUTPUT}
+        COMMAND ${GLSLC} ${GLSLC_ARGS} ${SHADER_SOURCE} -o ${SHADER_OUTPUT}
+        DEPENDS ${SHADER_DEPENDENCIES}
+        COMMENT "Compiling ${SHADER_REL_DIR}/${SHADER_NAME} to ${SHADER_OUTPUT}"
+        VERBATIM
+    )
 
-	file(GLOB EXAMPLES_SRC "examples/*.cpp")
+    list(APPEND SHADER_SPV_FILES ${SHADER_OUTPUT})
+endforeach()
 
 	add_custom_target(compile_shaders ALL DEPENDS ${SHADER_SPV_FILES})
+
+	file(GLOB EXAMPLES_SRC "examples/*.cpp")
 
 	foreach(EXAMPLE_SRC ${EXAMPLES_SRC})
 		get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)

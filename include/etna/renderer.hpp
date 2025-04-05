@@ -33,6 +33,7 @@ struct DrawSettings {
 	Viewport viewport;
 	ignis::BufferId buff1{IGNIS_INVALID_BUFFER_ID};
 	ignis::BufferId buff2{IGNIS_INVALID_BUFFER_ID};
+	ignis::BufferId buff3{IGNIS_INVALID_BUFFER_ID};
 	ignis::BufferId instanceBuffer{IGNIS_INVALID_BUFFER_ID};
 	uint32_t instanceCount{1};
 };

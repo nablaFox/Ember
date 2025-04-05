@@ -5,7 +5,6 @@
 using namespace etna;
 
 MeshHandle g_sphere{nullptr};
-MeshHandle g_uvCube{nullptr};
 MeshHandle g_cube{nullptr};
 MeshHandle g_pyramid{nullptr};
 MeshHandle g_quad{nullptr};
@@ -14,12 +13,6 @@ MeshHandle engine::getSphere() {
 	initSphere();
 
 	return g_sphere;
-}
-
-MeshHandle engine::getUVCube() {
-	initUVCube();
-
-	return g_uvCube;
 }
 
 MeshHandle engine::getCube() {
@@ -42,7 +35,6 @@ MeshHandle engine::getQuad() {
 
 void engine::initDefaultPrimitives() {
 	initSphere();
-	initUVCube();
 	initPyramid();
 	initQuad();
 }
@@ -55,16 +47,6 @@ void engine::initSphere() {
 	g_sphere = createSphere(DEFAULT_SPHERE_RADIUS, DEFAULT_SPHERE_PRECISION);
 
 	engine::queueForDeletion([=] { g_sphere.reset(); });
-}
-
-void engine::initUVCube() {
-	if (g_uvCube != nullptr) {
-		return;
-	}
-
-	g_uvCube = createUVCube(DEFAULT_CUBE_SIDE);
-
-	engine::queueForDeletion([=] { g_uvCube.reset(); });
 }
 
 void engine::initCube() {

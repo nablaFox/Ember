@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "scene_graph.hpp"
 #include "renderer.hpp"
+#include "light.hpp"
 
 namespace etna {
 
@@ -11,29 +12,28 @@ struct SceneRenderInfo {
 	Color ambient{WHITE};
 };
 
-struct SceneData {
-	Color ambient;
-	ignis::BufferId camera;
-	ignis::BufferId* lights;
-};
+// Note: directional lights are not in the scene graph hierarchy
+using LightHandle = std::shared_ptr<DirectionalLight>;
 
 class Scene {
 public:
+	// Note: if we use a dynamic amount of them we need an SSBO
+	static constexpr uint32_t MAX_LIGHTS = 16;
+
 	Scene();
 	~Scene();
 
 	SceneNode addNode(SceneNode, const Transform& = {});
 	MeshNode addMesh(MeshNode, const Transform& = {});
 	CameraNode addCamera(CameraNode, const Transform& = {});
-	LightNode addLight(LightNode, const Transform& = {});
+	LightHandle addLight(const DirectionalLight::CreateInfo&);
 
 	MeshNode createMeshNode(const CreateMeshNodeInfo&);
 	CameraNode createCameraNode(const CreateCameraNodeInfo&);
-	LightNode createLightNode(const CreateLightNodeInfo&);
 
 	MeshNode getMesh(const std::string& name) const;
 	CameraNode getCamera(const std::string& name) const;
-	LightNode getLight(const std::string& name) const;
+	LightHandle getLight(const std::string& name) const;
 
 	void removeMesh(const std::string&);
 	void removeCamera(const std::string&);
@@ -53,11 +53,19 @@ private:
 
 	std::unordered_map<std::string, MeshNode> m_meshes;
 	std::unordered_map<std::string, CameraNode> m_camera;
-	std::unordered_map<std::string, LightNode> m_lights;
+	std::unordered_map<std::string, LightHandle> m_lights;
 
 	void addNodeHelper(SceneNode node, const Transform& transform);
+	void updateLights();
 
 	ignis::BufferId m_sceneBuffer{IGNIS_INVALID_BUFFER_ID};
+	ignis::BufferId m_lightsBuffer{IGNIS_INVALID_BUFFER_ID};
+
+	struct SceneData {
+		Color ambient;
+		ignis::BufferId lights;
+		uint32_t lightCount;
+	};
 
 public:
 	Scene(const Scene&) = delete;

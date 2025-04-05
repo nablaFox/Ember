@@ -21,7 +21,7 @@ int main(void) {
 		.title = "Etna Window 2",
 	});
 
-	Scene scene({});
+	Scene scene;
 
 	scene.createMeshNode({
 		.name = "Brick",

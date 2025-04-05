@@ -9,10 +9,9 @@
 namespace etna {
 
 struct Vertex {
-	Vec3 position;
-	float padding;
-	Vec2 uv;
-	float padding2[2];
+	alignas(16) Vec3 position;
+	alignas(16) Vec3 normal;
+	alignas(8) Vec2 uv;
 };
 
 typedef uint32_t Index;

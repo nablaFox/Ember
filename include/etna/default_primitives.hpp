@@ -18,8 +18,6 @@ constexpr float DEFAULT_QUAD_SIDE = 1.0f;
 
 MeshHandle getSphere();
 
-MeshHandle getUVCube();
-
 MeshHandle getCube();
 
 MeshHandle getPyramid();
@@ -35,8 +33,6 @@ MeshHandle getCone();
 void initDefaultPrimitives();
 
 void initSphere();
-
-void initUVCube();
 
 void initCube();
 

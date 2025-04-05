@@ -100,16 +100,6 @@ CameraNode scene::createCameraNode(const CreateCameraNodeInfo& info) {
 	return node;
 }
 
-LightNode scene::createLightNode(const CreateLightNodeInfo& info) {
-	LightNode node = std::make_shared<_LightNode>(_SceneNode::Type::LIGHT, info.name,
-												  info.transform);
-
-	node->light = std::shared_ptr<DirectionalLight>(
-		new DirectionalLight(info.direction, info.intensity, info.color));
-
-	return node;
-}
-
 #ifndef NDEBUG
 
 #define GREEN(x) "\033[32m" x "\033[0m"

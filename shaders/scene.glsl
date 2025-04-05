@@ -2,15 +2,24 @@
 
 #include "etna.glsl"
 
+#define MAX_LIGHTS 16
+
+DEF_UBO(SceneLights, {
+	uint lights[MAX_LIGHTS];
+});
+
 DEF_UBO(SceneData, {
 	vec4 ambientColor;
-	uint lights[];
+	uint lightsBuffer;
+	uint lightCount;
 });
 
 #define SCENE (uSceneData[pc.buff1])
 
 #define CAMERA (uCameraData[pc.buff2])
 
-#define LIGHT(x) (uDirectionalLight[SCENE.lights[x]])
+#define LIGHTS (uSceneLights[SCENE.lightsBuffer])
+
+#define LIGHT(i) (uDirectionalLights[LIGHTS.lights[i]])
 
 #define AMBIENT (SCENE.ambientColor)

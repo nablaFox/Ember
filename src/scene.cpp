@@ -7,10 +7,12 @@ using namespace ignis;
 
 Scene::Scene() {
 	m_sceneBuffer = _device.createUBO(sizeof(SceneData));
+	m_lightsBuffer = _device.createUBO(sizeof(ignis::BufferId) * Scene::MAX_LIGHTS);
 }
 
 Scene::~Scene() {
 	_device.destroyBuffer(m_sceneBuffer);
+	_device.destroyBuffer(m_lightsBuffer);
 }
 
 void Scene::addNodeHelper(SceneNode node, const Transform& transform) {
@@ -25,11 +27,6 @@ void Scene::addNodeHelper(SceneNode node, const Transform& transform) {
 	else if (node->getType() == _SceneNode::Type::CAMERA) {
 		auto cameraNode = std::static_pointer_cast<_CameraNode>(node);
 		m_camera[cameraNode->getName()] = cameraNode;
-	}
-
-	else if (node->getType() == _SceneNode::Type::LIGHT) {
-		auto lightNode = std::static_pointer_cast<_LightNode>(node);
-		m_lights[lightNode->getName()] = lightNode;
 	}
 
 	for (auto& child : node->getChildren()) {
@@ -59,10 +56,6 @@ CameraNode Scene::addCamera(CameraNode node, const Transform& transform) {
 	return std::static_pointer_cast<_CameraNode>(addNode(node, transform));
 }
 
-LightNode Scene::addLight(LightNode node, const Transform& transform) {
-	return std::static_pointer_cast<_LightNode>(addNode(node, transform));
-}
-
 MeshNode Scene::createMeshNode(const CreateMeshNodeInfo& info) {
 	return addMesh(scene::createMeshNode(info));
 }
@@ -71,8 +64,28 @@ CameraNode Scene::createCameraNode(const CreateCameraNodeInfo& info) {
 	return addCamera(scene::createCameraNode(info));
 }
 
-LightNode Scene::createLightNode(const CreateLightNodeInfo& info) {
-	return addLight(scene::createLightNode(info));
+LightHandle Scene::addLight(const DirectionalLight::CreateInfo& info) {
+	LightHandle light = std::make_shared<DirectionalLight>(info);
+
+	m_lights[info.name] = light;
+
+	std::vector<ignis::BufferId> lights;
+
+	for (const auto& [_, light] : m_lights) {
+		if (light->getIntensity() > 0) {
+			lights.push_back(light->getDataBuffer());
+		}
+	}
+
+	if (lights.size() > Scene::MAX_LIGHTS) {
+		throw std::runtime_error("Too many lights in the scene");
+	}
+
+	if (lights.size() > 0) {
+		_device.updateBuffer(m_lightsBuffer, lights.data());
+	}
+
+	return light;
 }
 
 MeshNode Scene::getMesh(const std::string& name) const {
@@ -95,7 +108,7 @@ CameraNode Scene::getCamera(const std::string& name) const {
 	return nullptr;
 }
 
-LightNode Scene::getLight(const std::string& name) const {
+LightHandle Scene::getLight(const std::string& name) const {
 	auto it = m_lights.find(name);
 
 	if (it != m_lights.end()) {
@@ -151,18 +164,10 @@ void Scene::render(Renderer& renderer,
 		vp.height = (float)renderer.getRenderTarget().getExtent().height;
 	}
 
-	std::vector<ignis::BufferId> lights;
-
-	for (const auto& [_, lightNode] : m_lights) {
-		if (lightNode->light->getIntensity() > 0) {
-			lights.push_back(lightNode->light->getDataBuffer());
-		}
-	}
-
 	const SceneData sceneData{
 		.ambient = info.ambient,
-		.camera = cameraNode->camera->getDataBuffer(),
-		.lights = lights.data(),
+		.lights = m_lightsBuffer,
+		.lightCount = static_cast<uint32_t>(m_lights.size()),
 	};
 
 	_device.updateBuffer(m_sceneBuffer, &sceneData);

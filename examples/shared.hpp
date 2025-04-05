@@ -170,7 +170,7 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 		engine::queueForDeletion([=] { g_outlineTemplateTransparent.reset(); });
 	}
 
-	MeshHandle cube = engine::getUVCube();
+	MeshHandle cube = engine::getCube();
 
 	const OutlineMaterialParams outlineParams{
 		.color = info.color,
