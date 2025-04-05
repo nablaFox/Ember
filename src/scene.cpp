@@ -202,6 +202,16 @@ void Scene::print() const {
 		node->print();
 	}
 
+	for (const auto& [name, light] : m_lights) {
+		std::cout << "\033[33m" << name << "\033[0m" << ": ";
+		std::cout << light->getIntensity() << " ";
+
+		const Vec3& dir = light->getDirection();
+
+		std::cout << "[" << dir[0] << " " << dir[1] << " " << dir[2] << "]"
+				  << std::endl;
+	}
+
 	std::cout << std::endl;
 }
 
