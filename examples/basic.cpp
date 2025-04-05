@@ -13,7 +13,7 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Scene scene({});
+	Scene scene;
 
 	scene.createMeshNode({
 		.name = "Sphere1",

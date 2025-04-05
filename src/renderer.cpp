@@ -130,8 +130,8 @@ void Renderer::draw(const DrawSettings& settings) {
 		.vertices = settings.mesh->getVertexBuffer(),
 		.material = materialToUse->getParamsUBO(),
 		.instanceBuffer = settings.instanceBuffer,
-		.ubo = settings.ubo,
-		.ssbo = settings.ssbo,
+		.buff1 = settings.buff1,
+		.buff2 = settings.buff2,
 	};
 
 	cmd.pushConstants(pipeline, m_pushConstants);

@@ -65,19 +65,11 @@ if(ETNA_BUILD_EXAMPLES)
         set(SHADER_DEPENDENCIES ${SHADER_SOURCE})
 
     	if(SHADER_REL_DIR STREQUAL "examples/shaders")
-            set(SHADER_TYPE "examples")
+			string(REPLACE "shaders/" "examples/shaders/" SHADER_NAME ${SHADER_NAME})
             list(APPEND GLSLC_ARGS "-I${CMAKE_CURRENT_SOURCE_DIR}/shaders")
-        elseif(SHADER_REL_DIR STREQUAL "shaders")
-            set(SHADER_TYPE "engine")
-        else()
-            message(FATAL_ERROR "Unknown shader directory: ${SHADER_REL_DIR}")
         endif()
 
-        if(NOT SHADER_TYPE)
-             message(FATAL_ERROR "Internal error: SHADER_TYPE not set for ${SHADER_SOURCE}")
-        endif()
-
-        set(SHADER_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER_TYPE}/${SHADER_NAME}.spv")
+        set(SHADER_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/shaders/${SHADER_NAME}.spv")
         get_filename_component(SHADER_OUTPUT_DIR ${SHADER_OUTPUT} DIRECTORY)
         file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIR})
 

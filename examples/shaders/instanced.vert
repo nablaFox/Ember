@@ -1,7 +1,7 @@
 #version 450
 #extension GL_GOOGLE_include_directive : require
 
-#include "etna.glsl"
+#include "scene.glsl"
 
 layout (location = 0) out vec4 outColor;
 

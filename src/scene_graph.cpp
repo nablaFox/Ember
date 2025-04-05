@@ -68,6 +68,10 @@ SceneNode scene::createRoot(const std::string& name, const Transform& transform)
 	return std::make_shared<_SceneNode>(_SceneNode::Type::ROOT, name, transform);
 }
 
+SceneNode scene::loadFromFile(const std::string& path) {
+	throw std::runtime_error("Not implemented");
+}
+
 MeshNode scene::createMeshNode(const CreateMeshNodeInfo& info) {
 	MeshNode node = std::make_shared<_MeshNode>(_SceneNode::Type::MESH, info.name,
 												info.transform);
@@ -96,8 +100,14 @@ CameraNode scene::createCameraNode(const CreateCameraNodeInfo& info) {
 	return node;
 }
 
-SceneNode scene::loadFromFile(const std::string& path) {
-	throw std::runtime_error("Not implemented");
+LightNode scene::createLightNode(const CreateLightNodeInfo& info) {
+	LightNode node = std::make_shared<_LightNode>(_SceneNode::Type::LIGHT, info.name,
+												  info.transform);
+
+	node->light = std::shared_ptr<DirectionalLight>(
+		new DirectionalLight(info.direction, info.intensity, info.color));
+
+	return node;
 }
 
 #ifndef NDEBUG

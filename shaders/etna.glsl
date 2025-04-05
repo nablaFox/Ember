@@ -13,12 +13,13 @@
  readonly buffer Name Struct b##Name[]
 
 layout(push_constant) uniform constants {
-	mat4 worldTransform;
-	uint verticesIndex;
-	uint materialIndex;
-	uint instanceBufferIndex;
-	uint ubo;
-	uint ssbo;
+	mat4 transform;
+	uint vertices;
+	uint material;
+	uint instanceBuff;
+	uint buff1;
+	uint buff2;
+	uint buff3;
 } pc;
 
 // Vertices
@@ -31,12 +32,12 @@ DEF_SSBO(VertexBuffer, {
 	Vertex vertices[];
 });
 
-#define V (bVertexBuffer[pc.verticesIndex].vertices[gl_VertexIndex])
+#define V (bVertexBuffer[pc.vertices].vertices[gl_VertexIndex])
 
 // Material
 #define DEF_MATERIAL(Struct) DEF_UBO(Material, Struct)
 
-#define MATERIAL (uMaterial[pc.materialIndex])
+#define MATERIAL (uMaterial[pc.material])
 
 // Instanced
 #define DEF_INSTANCE_DATA(Struct) \
@@ -44,7 +45,7 @@ layout(std430, set = 0, binding = STORAGE_BUFFER_BINDING) readonly buffer Instan
     Struct instances[]; \
 } bInstanceDataBuffer[] \
 
-#define I (bInstanceDataBuffer[pc.instanceBufferIndex].instances[gl_InstanceIndex])
+#define I (bInstanceDataBuffer[pc.instanceBuff].instances[gl_InstanceIndex])
 
 // Camera
 DEF_UBO(CameraData, {
@@ -53,4 +54,9 @@ DEF_UBO(CameraData, {
 	mat4 proj;
 });
 
-#define CAMERA (uCameraData[pc.ubo])
+// Lights
+DEF_UBO(DirectionalLight, {
+	vec3 direction;
+	float intensity;
+	vec4 color;
+});

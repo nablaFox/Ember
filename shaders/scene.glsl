@@ -2,15 +2,15 @@
 
 #include "etna.glsl"
 
-struct DirectionalLight {
-	vec3 direction;
-	vec3 color;
-	float intensity;
-};
-
-DEF_SSBO(SceneData, {
+DEF_UBO(SceneData, {
 	vec4 ambientColor;
-	DirectionalLight sun;
+	uint lights[];
 });
 
-#define SCENE (bSceneData[pc.ssbo])
+#define SCENE (uSceneData[pc.buff1])
+
+#define CAMERA (uCameraData[pc.buff2])
+
+#define LIGHT(x) (uDirectionalLight[SCENE.lights[x]])
+
+#define AMBIENT (SCENE.ambientColor)

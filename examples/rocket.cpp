@@ -135,7 +135,7 @@ int main(void) {
 
 		renderer.clearViewport(rocketViewport, BLACK);
 
-		scene.render(renderer, rocketCamera, rocketViewport);
+		scene.render(renderer, rocketCamera, {.viewport = rocketViewport});
 
 		renderer.endFrame();
 

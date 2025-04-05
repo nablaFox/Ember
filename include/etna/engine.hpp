@@ -48,8 +48,9 @@ struct PushConstants {
 	ignis::BufferId vertices;
 	ignis::BufferId material;
 	ignis::BufferId instanceBuffer;
-	ignis::BufferId ubo;
-	ignis::BufferId ssbo;
+	ignis::BufferId buff1;
+	ignis::BufferId buff2;
+	ignis::BufferId buff3;
 };
 
 }  // namespace etna::engine

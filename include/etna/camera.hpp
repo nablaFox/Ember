@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include "ignis/types.hpp"
 #include "transform.hpp"
 #include "math.hpp"
@@ -54,7 +53,5 @@ private:
 
 	ignis::BufferId m_cameraData{IGNIS_INVALID_BUFFER_ID};
 };
-
-using CameraHandle = std::shared_ptr<Camera>;
 
 }  // namespace etna

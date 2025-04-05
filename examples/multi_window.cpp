@@ -52,9 +52,11 @@ int main(void) {
 
 		renderer.beginFrame(window1);
 
-		scene.render(renderer, camera, {.width = WINDOW_WIDTH / 2.f});
-		scene.render(renderer, camera,
-					 {.x = WINDOW_WIDTH / 2.f, .width = WINDOW_WIDTH / 2.f});
+		scene.render(renderer, camera, {.viewport = {.width = WINDOW_WIDTH / 2.f}});
+
+		scene.render(
+			renderer, camera,
+			{.viewport = {.x = WINDOW_WIDTH / 2.f, .width = WINDOW_WIDTH / 2.f}});
 
 		renderer.endFrame();
 

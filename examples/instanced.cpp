@@ -42,7 +42,7 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Scene scene({});
+	Scene scene;
 
 	CameraNode cameraNode = scene.createCameraNode({
 		.name = "Main Camera",
