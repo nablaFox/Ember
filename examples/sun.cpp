@@ -27,23 +27,25 @@ int main(void) {
 	});
 
 	scene.addLight({
-		.name = "Light",
-		.direction = {1, -1, 0},
-		.intensity = 0.8,
-		.color = WHITE,
+		.name = "Sun",
+		.direction = {-1, -1, 0},
 	});
 
 	// rendering
 	Renderer renderer({});
+
+	scene.print();
 
 	while (!window.shouldClose()) {
 		window.pollEvents();
 
 		updateFirstPersonCamera(playerCamera, window);
 
+		cube->rotate(0, 0.01, 0.01);
+
 		renderer.beginFrame(window);
 
-		scene.render(renderer, playerCamera);
+		scene.render(renderer, playerCamera, {.ambient = WHITE * 0.1});
 
 		renderer.endFrame();
 

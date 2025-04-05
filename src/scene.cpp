@@ -195,14 +195,23 @@ void Scene::render(Renderer& renderer,
 	}
 }
 
+void Scene::print() const {
 #ifndef NDEBUG
 
-void Scene::print() const {
 	for (const auto& node : m_roots) {
 		node->print();
 	}
 
-	std::cout << std::endl;
-}
+	for (const auto& [name, light] : m_lights) {
+		std::cout << "\033[33m" << name << "\033[0m" << ": ";
+		std::cout << light->getIntensity() << " ";
 
+		const Vec3& dir = light->getDirection();
+
+		std::cout << "[" << dir[0] << " " << dir[1] << " " << dir[2] << "]"
+				  << std::endl;
+	}
+
+	std::cout << std::endl;
 #endif
+}

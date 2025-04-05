@@ -44,9 +44,7 @@ public:
 public:
 	const std::vector<SceneNode>& getRoots() const { return m_roots; }
 
-#ifndef NDEBUG
 	void print() const;
-#endif
 
 private:
 	std::vector<SceneNode> m_roots;

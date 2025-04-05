@@ -9,9 +9,9 @@ namespace etna {
 struct DirectionalLight {
 	struct CreateInfo {
 		std::string name;
-		Vec3 direction;
+		Vec3 direction{0, 0, -1};
 		float intensity{1.f};
-		Color color;
+		Color color{WHITE};
 	};
 
 	DirectionalLight(const CreateInfo&);
@@ -23,6 +23,16 @@ struct DirectionalLight {
 	float getIntensity() const { return m_intensity; }
 
 	std::string getName() const { return m_name; }
+
+	void translate(const Vec3&);
+
+	void updateDirection(const Vec3&);
+
+	void updateIntensity(float);
+
+	void updateColor(const Color&);
+
+	void update(const CreateInfo&);
 
 private:
 	Vec3 m_direction;
