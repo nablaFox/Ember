@@ -90,7 +90,7 @@ struct FloorCreateInfo {
 };
 
 inline SceneNode createFloor(const FloorCreateInfo& info) {
-	MeshHandle quad = engine::getQuad();
+	MeshHandle mesh = engine::getQuad();
 
 	MaterialHandle mainGridMaterial = engine::createTransparentGridMaterial({
 		.color = INVISIBLE,
@@ -116,13 +116,13 @@ inline SceneNode createFloor(const FloorCreateInfo& info) {
 
 	floor->add(scene::createMeshNode({
 		.name = "MainGrid",
-		.mesh = quad,
+		.mesh = mesh,
 		.material = mainGridMaterial,
 	}));
 
 	floor->add(scene::createMeshNode({
 		.name = "SubGrid",
-		.mesh = quad,
+		.mesh = mesh,
 		.material = subGridMaterial,
 	}));
 

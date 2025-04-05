@@ -11,13 +11,5 @@ DEF_MATERIAL({
 });
 
 void main() {
-    vec3 N = normalize(inNormal);
-
-    outColor = AMBIENT * MATERIAL.color;
-
-    for (uint i = 0; i < SCENE.lightCount; i++) {
-        vec3 lightDir = normalize(-LIGHT(i).direction);
-        float diff = max(dot(N, lightDir), 0.0);
-        outColor += MATERIAL.color * (diff * LIGHT(i).intensity * LIGHT(i).color);
-    }
+	outColor = lighten(MATERIAL.color, inNormal);
 }

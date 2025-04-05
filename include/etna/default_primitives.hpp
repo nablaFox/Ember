@@ -6,7 +6,7 @@ namespace etna::engine {
 
 constexpr float DEFAULT_SPHERE_RADIUS = 1.0f;
 
-constexpr uint32_t DEFAULT_SPHERE_PRECISION = 100;
+constexpr uint32_t DEFAULT_SPHERE_PRECISION = 200;
 
 constexpr float DEFAULT_CUBE_SIDE = 1.0f;
 

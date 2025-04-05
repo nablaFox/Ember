@@ -39,4 +39,6 @@ inline Color PURPLE = Color::RGB(167, 152, 220);
 
 inline Color INVISIBLE = Color{.r = 0, .g = 0, .b = 0, .a = 0};
 
+inline Color CELESTE = Color::RGB(135, 206, 250);
+
 };	// namespace etna

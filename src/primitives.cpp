@@ -19,8 +19,10 @@ MeshHandle engine::createSphere(float radius, uint32_t precision) {
 			float y = sinf(theta) * sinf(phi);
 			float z = cosf(theta);
 
-			vertices[i * (precision + 1) + j] =
-				Vertex{.position = Vec3{x, y, z} * radius};
+			vertices[i * (precision + 1) + j] = Vertex{
+				.position = Vec3{x, y, z} * radius,
+				.normal = Vec3{x, y, z},
+			};
 		}
 	}
 

@@ -23,3 +23,18 @@ DEF_UBO(SceneData, {
 #define LIGHT(i) (uDirectionalLights[LIGHTS.lights[i]])
 
 #define AMBIENT (SCENE.ambientColor)
+
+vec4 lighten(vec4 color, vec3 normal) {
+	vec3 N = normalize(normal);
+
+	vec4 outColor = AMBIENT * color;
+
+    for (uint i = 0; i < SCENE.lightCount; i++) {
+        vec3 lightDir = normalize(-LIGHT(i).direction);
+        float diff = max(dot(N, lightDir), 0.0);
+        outColor += color * (diff * LIGHT(i).intensity * LIGHT(i).color);
+    }
+
+	return outColor;
+}
+
