@@ -41,4 +41,6 @@ inline Color INVISIBLE = Color{.r = 0, .g = 0, .b = 0, .a = 0};
 
 inline Color CELESTE = Color::RGB(135, 206, 250);
 
+inline Color YELLOW = Color::RGB(255, 255, 0);
+
 };	// namespace etna

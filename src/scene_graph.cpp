@@ -35,6 +35,14 @@ void _SceneNode::updateChildrenTransform(const Mat4& transform) {
 		cameraNode->camera->updateTransform(m_worldMatrix);
 	}
 
+	else if (m_type == Type::LIGHT) {
+		_LightNode* lightNode = static_cast<_LightNode*>(this);
+		auto light = lightNode->light;
+
+		light->updateDirection(Transform::getRotMatrix3(transform) *
+							   light->getDirection());
+	}
+
 	for (auto child : m_children) {
 		child->m_worldMatrix = transform * child->m_transform.getWorldMatrix();
 		child->updateChildrenTransform(child->m_worldMatrix);
@@ -100,21 +108,40 @@ CameraNode scene::createCameraNode(const CreateCameraNodeInfo& info) {
 	return node;
 }
 
+LightNode scene::createLightNode(const DirectionalLight::CreateInfo& info) {
+	LightNode node = std::make_shared<_LightNode>(_SceneNode::Type::LIGHT, info.name,
+												  Transform{});
+
+	node->light = std::make_shared<DirectionalLight>(info);
+
+	return node;
+}
+
 #ifndef NDEBUG
 
 #define GREEN(x) "\033[32m" x "\033[0m"
 #define BLUE(x) "\033[34m" x "\033[0m"
+#define YELLOW(x) "\033[33m" x "\033[0m"
+
+const char* _SceneNode::getTypeLabel() const {
+	switch (m_type) {
+		case _SceneNode::Type::MESH:
+			return GREEN("Mesh");
+		case _SceneNode::Type::CAMERA:
+			return BLUE("Camera");
+		case _SceneNode::Type::LIGHT:
+			return YELLOW("Light");
+		case _SceneNode::Type::ROOT:
+			return "Root";
+		default:
+			return "Unknown";
+	}
+}
 
 void _SceneNode::print(const std::string& givenName) const {
 	const std::string name = givenName.empty() ? m_name : givenName;
 
-	if (m_type == Type::MESH) {
-		std::cout << GREEN("Mesh") << ": " << name << std::endl;
-	} else if (m_type == Type::CAMERA) {
-		std::cout << BLUE("Camera") << ": " << name << std::endl;
-	} else {
-		std::cout << "Root: " << name << std::endl;
-	}
+	std::cout << getTypeLabel() << ": " << name << std::endl;
 
 	for (const auto& child : m_children) {
 		std::cout << "  ";

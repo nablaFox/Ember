@@ -3,15 +3,11 @@
 
 using namespace etna;
 
-DirectionalLight::DirectionalLight(const CreateInfo& info)
-	: m_direction(info.direction),
-	  m_intensity(info.intensity),
-	  m_color(info.color),
-	  m_name(info.name) {
+DirectionalLight::DirectionalLight(const CreateInfo& info) : m_info(info) {
 	const DirectionalLightData lightData{
-		.direction = m_direction,
-		.intensity = m_intensity,
-		.color = m_color,
+		.direction = info.direction,
+		.intensity = info.intensity,
+		.color = info.color,
 	};
 
 	m_buffer = _device.createUBO(sizeof(DirectionalLightData), &lightData);
@@ -22,15 +18,10 @@ DirectionalLight::~DirectionalLight() {
 }
 
 void DirectionalLight::update(const CreateInfo& info) {
-	m_direction = info.direction;
-	m_intensity = info.intensity;
-	m_color = info.color;
-	m_name = info.name;
-
 	const DirectionalLightData lightData{
-		.direction = m_direction,
-		.intensity = m_intensity,
-		.color = m_color,
+		.direction = info.direction,
+		.intensity = info.intensity,
+		.color = info.color,
 	};
 
 	_device.updateBuffer(m_buffer, &lightData);
@@ -38,32 +29,27 @@ void DirectionalLight::update(const CreateInfo& info) {
 
 void DirectionalLight::updateDirection(const Vec3& direction) {
 	update({
-		.name = m_name,
+		.name = getName(),
 		.direction = direction,
-		.intensity = m_intensity,
-		.color = m_color,
+		.intensity = getIntensity(),
+		.color = getColor(),
 	});
 }
 
 void DirectionalLight::updateIntensity(float intensity) {
 	update({
-		.name = m_name,
-		.direction = m_direction,
+		.name = getName(),
+		.direction = getDirection(),
 		.intensity = intensity,
-		.color = m_color,
+		.color = getColor(),
 	});
 }
 
 void DirectionalLight::updateColor(const Color& color) {
 	update({
-		.name = m_name,
-		.direction = m_direction,
-		.intensity = m_intensity,
+		.name = getName(),
+		.direction = getDirection(),
+		.intensity = getIntensity(),
 		.color = color,
 	});
-}
-
-void DirectionalLight::translate(const Vec3& translation) {
-	m_direction += translation;
-	updateDirection(m_direction);
 }

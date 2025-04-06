@@ -3,7 +3,6 @@
 #include <unordered_map>
 #include "scene_graph.hpp"
 #include "renderer.hpp"
-#include "light.hpp"
 
 namespace etna {
 
@@ -11,9 +10,6 @@ struct SceneRenderInfo {
 	Viewport viewport;
 	Color ambient{WHITE};
 };
-
-// Note: directional lights are not in the scene graph hierarchy
-using LightHandle = std::shared_ptr<DirectionalLight>;
 
 class Scene {
 public:
@@ -26,14 +22,14 @@ public:
 	SceneNode addNode(SceneNode, const Transform& = {});
 	MeshNode addMesh(MeshNode, const Transform& = {});
 	CameraNode addCamera(CameraNode, const Transform& = {});
-	LightHandle addLight(const DirectionalLight::CreateInfo&);
 
 	MeshNode createMeshNode(const CreateMeshNodeInfo&);
 	CameraNode createCameraNode(const CreateCameraNodeInfo&);
+	LightNode createLightNode(const DirectionalLight::CreateInfo&);
 
 	MeshNode getMesh(const std::string& name) const;
 	CameraNode getCamera(const std::string& name) const;
-	LightHandle getLight(const std::string& name) const;
+	LightNode getLight(const std::string& name) const;
 
 	void removeMesh(const std::string&);
 	void removeCamera(const std::string&);
@@ -51,7 +47,7 @@ private:
 
 	std::unordered_map<std::string, MeshNode> m_meshes;
 	std::unordered_map<std::string, CameraNode> m_camera;
-	std::unordered_map<std::string, LightHandle> m_lights;
+	std::unordered_map<std::string, LightNode> m_lights;
 
 	void addNodeHelper(SceneNode node, const Transform& transform);
 	void updateLights();

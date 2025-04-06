@@ -22,18 +22,13 @@ int main(void) {
 		.transform = {.position = {0, 1.5, 6}},
 	});
 
-	scene.addLight({
-		.name = "Sun",
-		.direction = {1, -1, 0},
-	});
-
 	scene.createMeshNode({
-		.name = "Floor",
+		.name = "Earth",
 		.mesh = engine::getSphere(),
 		.transform =
 			{
-				.position = {0, -200, 0},
-				.scale = Vec3(200),
+				.position = {0, -20, 0},
+				.scale = Vec3(20),
 			},
 		.material = engine::createGridMaterial({
 			.color = WHITE,
@@ -57,21 +52,25 @@ int main(void) {
 		.material = engine::createColorMaterial(BLUE),
 	});
 
-	// rendering
-	Renderer renderer({});
+	LightNode sun = scene.createLightNode({
+		.name = "Sun",
+		.direction = {0, -1, 0},
+	});
 
-	scene.print();
+	Renderer renderer({});
 
 	while (!window.shouldClose()) {
 		window.pollEvents();
 
 		updateFirstPersonCamera(playerCamera, window, {.flyAround = true});
 
+		sun->rotate(0, 0.01, 0);
+
 		cube->rotate(0, 0.01, 0.01);
 
 		renderer.beginFrame(window, {.clearColor = CELESTE});
 
-		scene.render(renderer, playerCamera, {.ambient = WHITE * 0.1});
+		scene.render(renderer, playerCamera, {.ambient = WHITE * 0.3});
 
 		renderer.endFrame();
 

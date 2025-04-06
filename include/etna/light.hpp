@@ -19,12 +19,10 @@ struct DirectionalLight {
 
 	ignis::BufferId getDataBuffer() const { return m_buffer; }
 
-	Vec3 getDirection() const { return m_direction; }
-	float getIntensity() const { return m_intensity; }
-
-	std::string getName() const { return m_name; }
-
-	void translate(const Vec3&);
+	Vec3 getDirection() const { return m_info.direction; }
+	float getIntensity() const { return m_info.intensity; }
+	std::string getName() const { return m_info.name; }
+	Color getColor() const { return m_info.color; }
 
 	void updateDirection(const Vec3&);
 
@@ -35,10 +33,7 @@ struct DirectionalLight {
 	void update(const CreateInfo&);
 
 private:
-	Vec3 m_direction;
-	float m_intensity;
-	Color m_color;
-	std::string m_name;
+	CreateInfo m_info;
 
 	ignis::BufferId m_buffer{IGNIS_INVALID_BUFFER_ID};
 

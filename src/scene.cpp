@@ -29,6 +29,27 @@ void Scene::addNodeHelper(SceneNode node, const Transform& transform) {
 		m_camera[cameraNode->getName()] = cameraNode;
 	}
 
+	else if (node->getType() == _SceneNode::Type::LIGHT) {
+		auto lightNode = std::static_pointer_cast<_LightNode>(node);
+		m_lights[lightNode->getName()] = lightNode;
+
+		std::vector<ignis::BufferId> lights;
+
+		for (const auto& [_, light] : m_lights) {
+			if (light->light->getIntensity() > 0) {
+				lights.push_back(light->light->getDataBuffer());
+			}
+		}
+
+		if (lights.size() > Scene::MAX_LIGHTS) {
+			throw std::runtime_error("Too many lights in the scene");
+		}
+
+		if (lights.size() > 0) {
+			_device.updateBuffer(m_lightsBuffer, lights.data());
+		}
+	}
+
 	for (auto& child : node->getChildren()) {
 		addNodeHelper(child, transform);
 	}
@@ -64,28 +85,14 @@ CameraNode Scene::createCameraNode(const CreateCameraNodeInfo& info) {
 	return addCamera(scene::createCameraNode(info));
 }
 
-LightHandle Scene::addLight(const DirectionalLight::CreateInfo& info) {
-	LightHandle light = std::make_shared<DirectionalLight>(info);
+LightNode Scene::createLightNode(const DirectionalLight::CreateInfo& info) {
+	LightNode lightNode = scene::createLightNode(info);
 
-	m_lights[info.name] = light;
+	m_lights[info.name] = lightNode;
 
-	std::vector<ignis::BufferId> lights;
+	addNode(lightNode);
 
-	for (const auto& [_, light] : m_lights) {
-		if (light->getIntensity() > 0) {
-			lights.push_back(light->getDataBuffer());
-		}
-	}
-
-	if (lights.size() > Scene::MAX_LIGHTS) {
-		throw std::runtime_error("Too many lights in the scene");
-	}
-
-	if (lights.size() > 0) {
-		_device.updateBuffer(m_lightsBuffer, lights.data());
-	}
-
-	return light;
+	return lightNode;
 }
 
 MeshNode Scene::getMesh(const std::string& name) const {
@@ -108,7 +115,7 @@ CameraNode Scene::getCamera(const std::string& name) const {
 	return nullptr;
 }
 
-LightHandle Scene::getLight(const std::string& name) const {
+LightNode Scene::getLight(const std::string& name) const {
 	auto it = m_lights.find(name);
 
 	if (it != m_lights.end()) {
@@ -200,16 +207,6 @@ void Scene::print() const {
 
 	for (const auto& node : m_roots) {
 		node->print();
-	}
-
-	for (const auto& [name, light] : m_lights) {
-		std::cout << "\033[33m" << name << "\033[0m" << ": ";
-		std::cout << light->getIntensity() << " ";
-
-		const Vec3& dir = light->getDirection();
-
-		std::cout << "[" << dir[0] << " " << dir[1] << " " << dir[2] << "]"
-				  << std::endl;
 	}
 
 	std::cout << std::endl;
