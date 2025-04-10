@@ -64,7 +64,7 @@ int main(void) {
 
 		updateFirstPersonCamera(playerCamera, window, {.flyAround = true});
 
-		sun->rotate(0, 0.01, 0);
+		sun->rotate(0, 0.005, 0);
 
 		cube->rotate(0, 0.01, 0.01);
 

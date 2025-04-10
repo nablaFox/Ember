@@ -81,15 +81,7 @@ struct Transform {
 		};
 	}
 
-	// PONDER: maybe add a getSubMatrix method to Mat
-	Mat3 getRotationMat3() const {
-		Mat4 rot4 = getRotMatrix();
-		return {
-			{rot4(0, 0), rot4(0, 1), rot4(0, 2)},
-			{rot4(1, 0), rot4(1, 1), rot4(1, 2)},
-			{rot4(2, 0), rot4(2, 1), rot4(2, 2)},
-		};
-	}
+	Mat3 getRotMatrix3() const { return getRotMatrix3(getRotMatrix()); }
 
 	Vec3 forward() const {
 		Vec3 const res{

@@ -97,9 +97,6 @@ struct _CameraNode : public _SceneNode {
 	using _SceneNode::_SceneNode;
 
 	std::shared_ptr<Camera> camera;
-
-	Mat4 getViewMatrix() const;
-	Mat4 getProjMatrix(float aspect) const;
 };
 
 struct _LightNode : public _SceneNode {
