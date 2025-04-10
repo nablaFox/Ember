@@ -21,18 +21,17 @@ Window::Window(const CreateInfo& info)
 		throw std::runtime_error("failed to create window surface!");
 	}
 
-	m_swapchain = new Swapchain({
-		.device = &_device,
+	m_swapchain = new Swapchain(_device.createSwapchain({
 		.extent = {info.width, info.height},
 		.surface = m_surface,
 		.presentMode = VK_PRESENT_MODE_MAILBOX_KHR,
-	});
+	}));
 
 	m_blitCmd = engine::newGraphicsCommand();
 
-	m_imageAvailable = new Semaphore(_device);
+	m_imageAvailable = new Semaphore(_device.createSemaphore());
 
-	m_finishedBlitting = new Semaphore(_device);
+	m_finishedBlitting = new Semaphore(_device.createSemaphore());
 
 	setCaptureMouse(info.captureMouse);
 
@@ -136,7 +135,7 @@ void Window::swapBuffers() {
 
 	m_blitCmd->end();
 
-	SubmitCmdInfo blitCmdInfo{
+	const SubmitCmdInfo blitCmdInfo{
 		.command = *m_blitCmd,
 		.waitSemaphores = {m_imageAvailable},
 		.signalSemaphores = {m_finishedBlitting},
@@ -144,7 +143,7 @@ void Window::swapBuffers() {
 
 	_device.submitCommands({blitCmdInfo}, nullptr);
 
-	m_swapchain->presentCurrent({.waitSemaphores = {m_finishedBlitting}});
+	engine::presentCurrent(*m_swapchain, {m_finishedBlitting});
 }
 
 void Window::setCaptureMouse(bool capture) {

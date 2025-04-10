@@ -1,6 +1,7 @@
 #include "renderer.hpp"
 #include "engine.hpp"
 #include "default_materials.hpp"
+#include "fence.hpp"
 
 using namespace etna;
 using namespace ignis;
@@ -13,7 +14,7 @@ Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFligh
 	m_frames.resize(m_framesInFlight);
 
 	for (uint32_t i{0}; i < m_framesInFlight; i++) {
-		m_frames[i].inFlight = new ignis::Fence(_device);
+		m_frames[i].inFlight = new Fence(_device.createFence());
 		m_frames[i].cmd = engine::newGraphicsCommand();
 	}
 

@@ -30,7 +30,7 @@ void simulateRocket(PhysicalObject& rocket, SceneNode rocketMesh) {
 	const float weight = ROCKET_MASS * GRAVITY;
 	const float decForce = weight + kineticEnergy / currHeight;
 
-	const float contactTime = ROCKET_MASS * vel / (ROCKET_MASS * GRAVITY - decForce);
+	const float contactTime = ROCKET_MASS * vel / (weight - decForce);
 
 	std::cout << "Height: " << currHeight << std::endl;
 	std::cout << "Velocity: " << vel << "m/s\n"

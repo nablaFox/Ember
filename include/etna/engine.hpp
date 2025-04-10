@@ -3,6 +3,8 @@
 #include <functional>
 #include "ignis/image.hpp"
 #include "ignis/device.hpp"
+#include "ignis/swapchain.hpp"
+#include "ignis/semaphore.hpp"
 #include "math.hpp"
 
 namespace etna::engine {
@@ -28,7 +30,10 @@ void immediateUpdate(ignis::BufferId,
 					 VkDeviceSize offset = 0,
 					 VkDeviceSize size = 0);
 
+void presentCurrent(const ignis::Swapchain&, std::vector<const ignis::Semaphore*>);
+
 ignis::Command createGraphicsCommand();
+
 ignis::Command* newGraphicsCommand();
 
 void queueForDeletion(std::function<void()>);

@@ -2,7 +2,6 @@
 #include <deque>
 #include "ignis/device.hpp"
 #include "ignis/command.hpp"
-#include "ignis/fence.hpp"
 #include "engine.hpp"
 
 using namespace etna;
@@ -11,6 +10,7 @@ using namespace ignis;
 Device* g_device{nullptr};
 VkQueue g_graphicsQueue{nullptr};
 VkQueue g_immediateQueue{nullptr};
+VkQueue g_presentQueue{nullptr};
 
 std::deque<std::function<void()>> g_deletionQueue;
 
@@ -55,6 +55,7 @@ void engine::init(const InitInfo& info) {
 	// TODO: choose graphics & upload queues
 	g_graphicsQueue = g_device->getQueue(0);
 	g_immediateQueue = g_device->getQueue(0);
+	g_presentQueue = g_device->getQueue(0);
 
 	g_shadersFolder = info.shadersFolder;
 
@@ -91,6 +92,14 @@ void engine::immediateUpdate(ignis::BufferId buffer,
 							 VkDeviceSize size) {
 	immediateSubmit(
 		[&](ignis::Command& cmd) { cmd.updateBuffer(buffer, data, offset, size); });
+}
+
+void engine::presentCurrent(const ignis::Swapchain& swapchain,
+							std::vector<const ignis::Semaphore*> waitSemaphores) {
+	swapchain.presentCurrent({
+		.presentationQueue = g_presentQueue,
+		.waitSemaphores = waitSemaphores,
+	});
 }
 
 ignis::Command engine::createGraphicsCommand() {
