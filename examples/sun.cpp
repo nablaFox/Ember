@@ -1,5 +1,6 @@
 #include "color.hpp"
 #include "default_primitives.hpp"
+#include "engine.hpp"
 #include "shared.hpp"
 
 constexpr uint32_t WINDOW_WIDTH{800};
@@ -62,11 +63,15 @@ int main(void) {
 	while (!window.shouldClose()) {
 		window.pollEvents();
 
-		updateFirstPersonCamera(playerCamera, window, {.flyAround = true});
+		engine::updateTime();
 
-		sun->rotate(0, 0.005, 0);
+		firstPersonMovement(playerCamera, window);
 
-		cube->rotate(0, 0.01, 0.01);
+		float dt = engine::getDeltaTime();
+
+		sun->rotate(0, 0.01 * dt, 0);
+
+		cube->rotate(0, 0.1 * dt, 0.1 * dt);
 
 		renderer.beginFrame(window, {.clearColor = CELESTE});
 
