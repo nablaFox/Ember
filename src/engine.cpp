@@ -1,5 +1,5 @@
 #include <deque>
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include "ignis/device.hpp"
 #include "ignis/command.hpp"
 #include "etna/engine.hpp"

@@ -79,6 +79,7 @@ Material::Material(const CreateInfo& info)
 
 Material::Material(const MaterialTemplate::CreateInfo& info) {
 	m_materialTemplate = MaterialTemplate::create({
+		.shaders = info.shaders,
 		.rawShaders = info.rawShaders,
 		.paramsSize = info.paramsSize,
 		.enableDepth = info.enableDepth,

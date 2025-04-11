@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 #include <unordered_map>
 #include "ignis/swapchain.hpp"
 #include "render_target.hpp"

@@ -1,5 +1,5 @@
 #define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "GLFW/glfw3.h"
 
 #include "ignis/semaphore.hpp"
 #include "etna/window.hpp"

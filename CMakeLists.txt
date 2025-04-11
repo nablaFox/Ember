@@ -90,6 +90,11 @@ if (ETNA_INSTALL)
     DESTINATION include/etna
   )
 
+  # install glfw include inside etna
+  install(DIRECTORY ${glfw_SOURCE_DIR}/include/GLFW
+    DESTINATION include/etna
+  )
+
   install(FILES ${CMAKE_BINARY_DIR}/_deps/vulkanmemoryallocator-src/include/vk_mem_alloc.h
     DESTINATION include/etna/ignis
   ) 

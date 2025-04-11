@@ -89,14 +89,14 @@ After setting up your project:
 ```bash
 mkdir my_project
 cd my_project
-curl -L -O "https://github.com/nablaFox/Etna/releases/download/v0.2.0/etna-linux.zip"
-unzip etna-linux.zip
+curl -L -O "https://github.com/nablaFox/Etna/releases/download/v0.2.0/etna-0.2.0.zip"
+unzip etna-0.2.0.zip
 ```
 
 compile and run with:
 
 ```bash
-g++ main.cpp -Ietna-linux/include -Letna-linux/lib \
+g++ main.cpp -Ietna-0.2.0/include -Letna-0.2.0/lib \
   -letna \
   -lglfw3 \
   -lIgnis \
@@ -116,8 +116,8 @@ add_subdirectory(etna_path)
 target_link_libraries(your_target PRIVATE etna::etna)
 ```
 
-Include paths and the linking for your system will be automatically set up for
-you.
+Include paths and library linking will be handled automatically for your
+platform.
 
 ### Dependencies
 

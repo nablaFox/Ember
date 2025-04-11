@@ -1,5 +1,6 @@
 #pragma once
 
+#include "etna/default_materials.hpp"
 #include "etna/engine.hpp"
 #include "etna/etna_core.hpp"
 #include "etna/scene.hpp"
@@ -149,8 +150,8 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 
 	if (g_outlineTemplate == nullptr) {
 		g_outlineTemplate = MaterialTemplate::create({
-			.rawShaders = {engine::getDefaultVertShader(),
-						   engine::getGridFragShader()},
+			.shaders = {"brick_outline.frag"},
+			.rawShaders = {engine::getDefaultVertShader()},
 			.paramsSize = sizeof(OutlineMaterialParams),
 		});
 
@@ -160,7 +161,8 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 	// PONDER: maybe enable dynamic transparency
 	if (g_outlineTemplateTransparent == nullptr && info.transparent) {
 		g_outlineTemplateTransparent = MaterialTemplate::create({
-			.shaders = {"default.vert.spv", "brick_outline.frag.spv"},
+			.shaders = {"brick_outline.frag"},
+			.rawShaders = {engine::getDefaultVertShader()},
 			.paramsSize = sizeof(OutlineMaterialParams),
 			.transparency = true,
 		});
