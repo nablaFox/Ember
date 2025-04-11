@@ -23,7 +23,7 @@ int main(void) {
 		.captureMouse = true,
 	});
 
-	Scene scene({});
+	Scene scene;
 
 	MeshNode sphere = scene.createMeshNode({
 		.name = "Sphere",
@@ -70,23 +70,55 @@ int main(void) {
 
 For more check-out [`examples`](./examples).
 
-You can use the `./examples/run.sh` script utility to easily compile and run an
-example:
-
-```bash
-./examples/run.sh rocket
-```
-
 ### Building
 
 Etna is built as a static library using CMake:
 
 ```bash
-cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
+sudo cmake --install build  # Omit 'sudo' for local user install
 ```
 
-Link to your project via CMake's `add_subdirectory` or install system-wide with `--target install`.
+Prebuilt releases are available [here]().
+
+### Standalone Usage (Linux/X11)
+
+After setting up your project:
+
+```bash
+mkdir my_project
+cd my_project
+curl -L -O "https://..."
+unzip etna.zip
+# Copy the example above to main.cpp
+```
+
+compile and run with:
+
+```bash
+g++ main.cpp -Ietna/include -Llib \
+  -letna \
+  -lglfw3 \
+  -lIgnis \
+  -lm -ldl /usr/lib/libX11.so \
+  /lib/libvulkan.so
+  -o my_project
+
+./my_project
+```
+
+### CMake
+
+Add Etna to your project with:
+
+```cmake
+add_subdirectory(etna_path)
+target_link_libraries(your_target PRIVATE etna::etna)
+```
+
+Include paths and the linking for your system will be automatically set up for
+you.
 
 ### Dependencies
 

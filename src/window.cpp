@@ -9,7 +9,8 @@ using namespace etna;
 using namespace ignis;
 
 Window::Window(const CreateInfo& info)
-	: RenderTarget({.extent = {info.width, info.height}}), m_creationInfo(info) {
+	: RenderTarget(RenderTarget::CreateInfo{.extent = {info.width, info.height}}),
+	  m_creationInfo(info) {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 

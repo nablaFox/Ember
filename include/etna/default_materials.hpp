@@ -32,4 +32,10 @@ void initTransparentGridMaterial();
 
 void initBrickOutlineMaterial();
 
+RawShader getDefaultVertShader();
+
+RawShader getDefaultFragShader();
+
+RawShader getGridFragShader();
+
 }  // namespace etna::engine
