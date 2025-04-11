@@ -1,5 +1,5 @@
-#include "engine.hpp"
-#include "render_target.hpp"
+#include "etna/engine.hpp"
+#include "etna/render_target.hpp"
 
 using namespace ignis;
 using namespace etna;

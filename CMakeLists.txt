@@ -6,10 +6,14 @@ include(cmake/CPM.cmake)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(ETNA_BUILD_EXAMPLES "Build the examples" ON)
+option(ETNA_BUILD_EXAMPLES "Build the examples" ${PROJECT_IS_TOP_LEVEL})
 
 file(GLOB ETNA_SRC "src/*.cpp")
 add_library(etna STATIC ${ETNA_SRC})
+
+target_include_directories(etna PUBLIC 
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
 
 CPMAddPackage(
   NAME Ignis
@@ -30,12 +34,7 @@ CPMAddPackage(
 
 target_link_libraries(etna PUBLIC
 	glfw
-	Ignis::Ignis
-)
-
-target_include_directories(etna PUBLIC 
-	"include/etna" 
-	${Ignis_SOURCE_DIR}/include
+  Ignis
 )
 
 if(ETNA_BUILD_EXAMPLES)

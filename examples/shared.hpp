@@ -1,8 +1,8 @@
 #pragma once
 
-#include "engine.hpp"
+#include "etna/engine.hpp"
 #include "etna/etna_core.hpp"
-#include "scene.hpp"
+#include "etna/scene.hpp"
 
 using namespace etna;
 

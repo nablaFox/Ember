@@ -1,6 +1,6 @@
 #include <algorithm>
-#include "scene.hpp"
-#include "engine.hpp"
+#include "etna/scene.hpp"
+#include "etna/engine.hpp"
 
 using namespace etna;
 using namespace ignis;

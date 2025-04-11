@@ -1,5 +1,5 @@
-#include "material.hpp"
-#include "engine.hpp"
+#include "etna/material.hpp"
+#include "etna/engine.hpp"
 
 using namespace ignis;
 using namespace etna;

@@ -1,7 +1,7 @@
-#include "renderer.hpp"
-#include "engine.hpp"
-#include "default_materials.hpp"
-#include "fence.hpp"
+#include "etna/renderer.hpp"
+#include "etna/engine.hpp"
+#include "etna/default_materials.hpp"
+#include "ignis/fence.hpp"
 
 using namespace etna;
 using namespace ignis;

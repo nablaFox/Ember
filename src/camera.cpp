@@ -1,5 +1,5 @@
-#include "camera.hpp"
-#include "engine.hpp"
+#include "etna/camera.hpp"
+#include "etna/engine.hpp"
 
 using namespace etna;
 

@@ -1,6 +1,6 @@
-#include "default_primitives.hpp"
-#include "primitives.hpp"
-#include "engine.hpp"
+#include "etna/default_primitives.hpp"
+#include "etna/primitives.hpp"
+#include "etna/engine.hpp"
 
 using namespace etna;
 

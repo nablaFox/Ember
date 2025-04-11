@@ -1,4 +1,4 @@
-#include "primitives.hpp"
+#include "etna/primitives.hpp"
 
 using namespace etna;
 

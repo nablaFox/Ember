@@ -1,6 +1,3 @@
-#include "color.hpp"
-#include "default_primitives.hpp"
-#include "engine.hpp"
 #include "shared.hpp"
 
 constexpr uint32_t WINDOW_WIDTH{800};

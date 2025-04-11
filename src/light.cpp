@@ -1,5 +1,5 @@
-#include "light.hpp"
-#include "engine.hpp"
+#include "etna/light.hpp"
+#include "etna/engine.hpp"
 
 using namespace etna;
 

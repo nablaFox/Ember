@@ -1,5 +1,5 @@
-#include "scene_graph.hpp"
-#include "engine.hpp"
+#include "etna/scene_graph.hpp"
+#include "etna/engine.hpp"
 
 using namespace etna;
 

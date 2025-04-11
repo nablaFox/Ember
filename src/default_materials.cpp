@@ -1,5 +1,5 @@
-#include "default_materials.hpp"
-#include "engine.hpp"
+#include "etna/default_materials.hpp"
+#include "etna/engine.hpp"
 
 using namespace etna;
 

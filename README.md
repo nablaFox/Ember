@@ -70,7 +70,8 @@ int main(void) {
 
 For more check-out [`examples`](./examples).
 
-You can use the `./examples/run.sh` script utility to easily run an example:
+You can use the `./examples/run.sh` script utility to easily compile and run an
+example:
 
 ```bash
 ./examples/run.sh rocket
@@ -78,10 +79,14 @@ You can use the `./examples/run.sh` script utility to easily run an example:
 
 ### Building
 
+Etna is built as a static library using CMake:
+
 ```bash
 cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
+
+Link to your project via CMake's `add_subdirectory` or install system-wide with `--target install`.
 
 ### Dependencies
 

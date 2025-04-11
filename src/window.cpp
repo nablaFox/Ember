@@ -2,8 +2,8 @@
 #include <GLFW/glfw3.h>
 
 #include "ignis/semaphore.hpp"
-#include "window.hpp"
-#include "engine.hpp"
+#include "etna/window.hpp"
+#include "etna/engine.hpp"
 
 using namespace etna;
 using namespace ignis;

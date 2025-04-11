@@ -1,6 +1,6 @@
-#include "mesh.hpp"
-#include "command.hpp"
-#include "engine.hpp"
+#include "etna/mesh.hpp"
+#include "ignis/command.hpp"
+#include "etna/engine.hpp"
 
 using namespace etna;
 using namespace ignis;
