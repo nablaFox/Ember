@@ -80,7 +80,7 @@ cmake --build build
 sudo cmake --install build  # Omit 'sudo' for local user install
 ```
 
-Prebuilt releases are available [here]().
+Prebuilt releases are available [here](https://github.com/nablaFox/Etna/releases).
 
 ### Standalone Usage (Linux/X11)
 
@@ -89,20 +89,19 @@ After setting up your project:
 ```bash
 mkdir my_project
 cd my_project
-curl -L -O "https://..."
-unzip etna.zip
-# Copy the example above to main.cpp
+curl -L -O "https://github.com/nablaFox/Etna/releases/download/v0.2.0/etna-linux.zip"
+unzip etna-linux.zip
 ```
 
 compile and run with:
 
 ```bash
-g++ main.cpp -Ietna/include -Llib \
+g++ main.cpp -Ietna-linux/include -Letna-linux/lib \
   -letna \
   -lglfw3 \
   -lIgnis \
   -lm -ldl /usr/lib/libX11.so \
-  /lib/libvulkan.so
+  /lib/libvulkan.so \
   -o my_project
 
 ./my_project
