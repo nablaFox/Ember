@@ -40,39 +40,39 @@ inline void firstPersonMovement(CameraNode camera,
 
 	float dt = engine::getDeltaTime();
 
-	if (window.isKeyPressed(GLFW_KEY_0)) {
+	if (window.isKeyPressed(KEY_ENTER)) {
 		position = {0, 1, 0};
 	}
 
-	if (window.isKeyPressed(GLFW_KEY_W)) {
+	if (window.isKeyPressed(KEY_W)) {
 		position += playerForward * opts.cameraSpeed * dt;
 	}
 
-	if (window.isKeyPressed(GLFW_KEY_S)) {
+	if (window.isKeyPressed(KEY_S)) {
 		position -= playerForward * opts.cameraSpeed * dt;
 	}
 
-	if (window.isKeyPressed(GLFW_KEY_D)) {
+	if (window.isKeyPressed(KEY_D)) {
 		position += playerRight * opts.cameraSpeed * dt;
 	}
 
-	if (window.isKeyPressed(GLFW_KEY_A)) {
+	if (window.isKeyPressed(KEY_A)) {
 		position -= playerRight * opts.cameraSpeed * dt;
 	}
 
-	if (window.isKeyPressed(GLFW_KEY_SPACE)) {
+	if (window.isKeyPressed(KEY_SPACE)) {
 		position += up * opts.cameraSpeed * dt;
 	}
 
-	if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
+	if (window.isKeyPressed(KEY_LEFT_SHIFT)) {
 		position -= up * opts.cameraSpeed * dt;
 	}
 
-	if (window.isKeyPressed(GLFW_KEY_ESCAPE)) {
+	if (window.isKeyPressed(KEY_ESCAPE)) {
 		window.setCaptureMouse(false);
 	}
 
-	if (window.isKeyPressed(GLFW_KEY_ENTER)) {
+	if (window.isKeyPressed(KEY_LEFT_CONTROL)) {
 		window.setCaptureMouse(true);
 	}
 

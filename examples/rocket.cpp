@@ -123,7 +123,7 @@ int main(void) {
 
 		firstPersonMovement(playerCamera, window);
 
-		if (window.isKeyClicked(GLFW_KEY_ENTER)) {
+		if (window.isKeyClicked(KEY_ENTER)) {
 			simulate = !simulate;
 		}
 

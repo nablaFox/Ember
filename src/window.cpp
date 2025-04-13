@@ -74,11 +74,11 @@ void Window::pollEvents() {
 	m_lastMouseY = currentY;
 }
 
-bool Window::isKeyPressed(int key) const {
+bool Window::isKeyPressed(Key key) const {
 	return glfwGetKey(m_window, key) == GLFW_PRESS;
 }
 
-bool Window::isKeyClicked(int key) {
+bool Window::isKeyClicked(Key key) {
 	bool currentState = isKeyPressed(key);
 	bool wasPressed = false;
 

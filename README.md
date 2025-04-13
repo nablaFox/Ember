@@ -1,6 +1,6 @@
 ## Etna Engine
 
-Simple C++ 20 graphics engine written with [Ignis](https://github.com/nablaFox/Ignis).
+Simple C++ 20 Vulkan graphics engine powered by [Ignis](https://github.com/nablaFox/Ignis).
 
 ### Example
 
@@ -66,58 +66,69 @@ int main(void) {
 
 **Output**:
 
-![Etna Demo Gif](./docs/example.gif)
+![Etna Demo Gif](docs/example.gif)
 
 For more check-out [`examples`](./examples).
 
-### Building
+### Standalone Usage
 
-Etna is built as a static library using CMake:
+Etna is a static library intended to be linked against your applications. You
+can find precompiled releases compatible with all supported compilers on
+Windows/Linux/macOS [here]().
 
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-sudo cmake --install build  # Omit 'sudo' for local user install
+Each release is structured as follows:
+
+```
+etna-<version>
+├─ include (headers)
+├─ lib
+│    ├─ libetna.a
+│    └─ libglfw.a
+└─ LICENSE
 ```
 
-Prebuilt releases are available [here](https://github.com/nablaFox/Etna/releases).
+Building with Etna requires linking against the Vulkan loader, `libetna.a` and
+`libglfw.a`. Linking with [GLFW]() additionally requires platform-specific
+libraries. Refer to [docs/some/file]() for the appropriate linker flags for
+your target platform.
 
-### Standalone Usage (Linux/X11)
-
-After setting up your project:
-
-```bash
-mkdir my_project
-cd my_project
-curl -L -O "https://github.com/nablaFox/Etna/releases/download/v0.2.0/etna-0.2.0.zip"
-unzip etna-0.2.0.zip
-```
-
-compile and run with:
-
-```bash
-g++ main.cpp -Ietna-0.2.0/include -Letna-0.2.0/lib \
-  -letna \
-  -lglfw3 \
-  -lIgnis \
-  -lm -ldl /usr/lib/libX11.so \
-  /lib/libvulkan.so \
-  -o my_project
-
-./my_project
-```
-
-### CMake
-
-Add Etna to your project with:
+### CMake Usage
 
 ```cmake
-add_subdirectory(etna_path)
+add_subdirectory(path/to/etna)
 target_link_libraries(your_target PRIVATE etna::etna)
 ```
 
-Include paths and library linking will be handled automatically for your
-platform.
+Note: `path/to/etna` refers to the Etna source directory (not to a precompiled
+release).
+
+### Bootstrap 
+
+To quickly start a new Etna project, you can run the following:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/nablaFox/etna/main/scripts/bootstrap.sh | bash
+```
+
+This script will:
+
+- Prompt you for the project path and setup type (CMake or Standalone)
+- Download the latest Etna release
+- Generate a build.sh script for Standalone setups, or initialize a CMake project
+
+### Building
+
+Requirements:
+
+- CMake 3.14+
+- GCC 11+ or Clang 12+
+- Vulkan SDK
+
+```bash
+cmake -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+cmake --install build --prefix <install_path>
+```
 
 ### Dependencies
 

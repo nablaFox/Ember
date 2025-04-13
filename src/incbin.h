@@ -1,7 +1,15 @@
-// TEMPORARY: waiting for GCC 15 #embed with
-// #embed we will be able of defining static data
-// and hence the linker will strip away unused
-// shaders binaries
+/* TEMPORARY: waiting for GCC 15 #embed feature
+with #embed we will be able of defining static literals like this:
+
+static constexpr unisgned char data[] = {
+	#embed "path/to/file"
+}
+
+hence unused shaders can be stripped by the linker and not
+embedded in the final binary. Users of the library are
+encouraged to use the "-Wl,--gc-sections" flag when compiling
+the final executable.
+*/
 
 #define _EMBED_BINARY(name, file)            \
 	asm(".section .rodata\n"                 \

@@ -22,11 +22,14 @@ target_compile_definitions(etna PUBLIC
   ETNA_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -ffunction-sections -fdata-sections -Wl,--gc-sections")
+target_compile_options(etna PRIVATE
+  $<$<CONFIG:Release>:-O3 -ffunction-sections -fdata-sections>
+  $<$<CONFIG:Debug>:-Wall>
+)
 
 CPMAddPackage(
-  NAME Ignis
-  GITHUB_REPOSITORY nablaFox/Ignis
+  NAME ignis
+  GITHUB_REPOSITORY nablaFox/ignis
   GIT_TAG main
 )
 
@@ -38,37 +41,47 @@ CPMAddPackage(
     "GLFW_BUILD_EXAMPLES OFF"
     "GLFW_BUILD_TESTS OFF"
     "GLFW_BUILD_DOCS OFF"
-	"GLFW_INSTALL FALSE"
+    "GLFW_INSTALL FALSE"
 )
 
-target_link_libraries(etna PUBLIC
-    glfw
-    Ignis
+target_sources(etna PRIVATE
+  $<TARGET_OBJECTS:ignis>
+)
+
+target_include_directories(etna PUBLIC
+  ${ignis_SOURCE_DIR}/include
+  ${glfw_SOURCE_DIR}/include
+)
+
+target_link_libraries(etna 
+  PRIVATE glfw
+  PUBLIC ignis
 )
 
 function(compile_shaders TARGET_NAME SHADER_SRC_DIR SHADER_DST_DIR)
-    file(GLOB SHADER_SOURCES
-        "${SHADER_SRC_DIR}/*.vert"
-        "${SHADER_SRC_DIR}/*.frag"
+  file(GLOB SHADER_SOURCES
+    "${SHADER_SRC_DIR}/*.vert"
+    "${SHADER_SRC_DIR}/*.frag"
+  )
+
+  set(SHADER_OUTPUTS "")
+
+  foreach(SHADER_SOURCE ${SHADER_SOURCES})
+    get_filename_component(SHADER_NAME ${SHADER_SOURCE} NAME)
+    set(SHADER_OUTPUT "${SHADER_DST_DIR}/${SHADER_NAME}.spv")
+    list(APPEND SHADER_OUTPUTS ${SHADER_OUTPUT})
+    set(GLSLC_ARGS "-I${CMAKE_CURRENT_SOURCE_DIR}/include/etna/shaders")
+
+    add_custom_command(
+      OUTPUT ${SHADER_OUTPUT}
+      COMMAND ${CMAKE_COMMAND} -E make_directory "${SHADER_DST_DIR}"
+      COMMAND ${GLSLC} ${GLSLC_ARGS} "${SHADER_SOURCE}" -o "${SHADER_OUTPUT}"
+      DEPENDS "${SHADER_SOURCE}"
+      COMMENT "Compiling shader ${SHADER_NAME}"
     )
+  endforeach()
 
-    set(SHADER_OUTPUTS "")
-    foreach(SHADER_SOURCE ${SHADER_SOURCES})
-        get_filename_component(SHADER_NAME ${SHADER_SOURCE} NAME)
-        set(SHADER_OUTPUT "${SHADER_DST_DIR}/${SHADER_NAME}.spv")
-        list(APPEND SHADER_OUTPUTS ${SHADER_OUTPUT})
-        set(GLSLC_ARGS "-I${CMAKE_CURRENT_SOURCE_DIR}/include/etna/shaders")
-
-        add_custom_command(
-            OUTPUT ${SHADER_OUTPUT}
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${SHADER_DST_DIR}"
-            COMMAND ${GLSLC} ${GLSLC_ARGS} "${SHADER_SOURCE}" -o "${SHADER_OUTPUT}"
-            DEPENDS "${SHADER_SOURCE}"
-            COMMENT "Compiling shader ${SHADER_NAME}"
-        )
-    endforeach()
-
-    add_custom_target(compile_shaders_${TARGET_NAME} DEPENDS ${SHADER_OUTPUTS})
+  add_custom_target(compile_shaders_${TARGET_NAME} DEPENDS ${SHADER_OUTPUTS})
 endfunction()
 
 compile_shaders("src" "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders" "${CMAKE_CURRENT_SOURCE_DIR}/src/shaders")
@@ -77,44 +90,40 @@ add_dependencies(etna compile_shaders_src)
 if (ETNA_INSTALL)
   install(TARGETS etna
     EXPORT etnaTargets
-    RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
   )
 
   install(DIRECTORY include/
-    DESTINATION include
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
 
-  install(DIRECTORY ${Ignis_SOURCE_DIR}/include/ignis
-    DESTINATION include/etna
+  install(DIRECTORY ${ignis_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
 
-  # install glfw include inside etna
-  install(DIRECTORY ${glfw_SOURCE_DIR}/include/GLFW
-    DESTINATION include/etna
+  install(FILES LICENSE
+    DESTINATION .
   )
 
-  install(FILES ${CMAKE_BINARY_DIR}/_deps/vulkanmemoryallocator-src/include/vk_mem_alloc.h
-    DESTINATION include/etna/ignis
-  ) 
-
-  install(TARGETS Ignis glfw
+  install(TARGETS glfw
     EXPORT etnaTargets
-    LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
   )
+
 endif()
 
 if(ETNA_BUILD_EXAMPLES)
-    compile_shaders("examples" "${CMAKE_CURRENT_SOURCE_DIR}/examples/shaders" "${CMAKE_CURRENT_BINARY_DIR}/shaders")
+  compile_shaders("examples" "${CMAKE_CURRENT_SOURCE_DIR}/examples/shaders" "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 
-    file(GLOB EXAMPLES_SRC "examples/*.cpp")
-    foreach(EXAMPLE_SRC ${EXAMPLES_SRC})
-        get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)
-        add_executable(${EXAMPLE_NAME} ${EXAMPLE_SRC})
-        add_dependencies(${EXAMPLE_NAME} compile_shaders_examples)
-        target_link_libraries(${EXAMPLE_NAME} PRIVATE etna)
-        target_include_directories(${EXAMPLE_NAME} PRIVATE "include")
-    endforeach()
+  file(GLOB EXAMPLES_SRC "examples/*.cpp")
+
+  foreach(EXAMPLE_SRC ${EXAMPLES_SRC})
+    get_filename_component(EXAMPLE_NAME ${EXAMPLE_SRC} NAME_WE)
+    add_executable(${EXAMPLE_NAME} ${EXAMPLE_SRC})
+    add_dependencies(${EXAMPLE_NAME} compile_shaders_examples)
+    target_link_libraries(${EXAMPLE_NAME} PRIVATE etna)
+    target_include_directories(${EXAMPLE_NAME} PRIVATE "include")
+    target_link_options(${EXAMPLE_NAME} PRIVATE -Wl,--gc-sections)
+  endforeach()
 endif()
