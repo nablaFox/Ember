@@ -1,10 +1,34 @@
 #!/bin/sh
 
-echo "Project name:"
-read -r PROJECT_NAME
+BUILD_TYPE="standalone"
+PROJECT_NAME=""
 
-echo "Use CMake? (y/n):"
-read -r USE_CMAKE
+usage() {
+  echo "Usage: $0 --name <project_name> [--build <cmake|standalone>]"
+  exit 1
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+  --name)
+    shift
+    PROJECT_NAME="$1"
+    ;;
+  --build)
+    shift
+    BUILD_TYPE="$1"
+    ;;
+  --help)
+    usage
+    ;;
+  esac
+  shift
+done
+
+if [ -z "$PROJECT_NAME" ]; then
+  echo "Error: Project name is required."
+  usage
+fi
 
 mkdir -p "$PROJECT_NAME"
 
@@ -71,15 +95,14 @@ int main(void) {
 		window.swapBuffers();
 	}
 }
-
 EOF
 
-if [ "$USE_CMAKE" = "y" ]; then
+if [ "$BUILD_TYPE" = "cmake" ]; then
   echo "Using CMake for build system"
 
   DOWNLOAD_URL="https://api.github.com/repos/nablaFox/Etna/releases/latest"
 
-  TAG_VERSION=$(curl -s "$DOWNLOAD_URL" | grep '"tag_name":' | cut -d '"' -f 4 2>&1) || {
+  TAG_VERSION=$(wget -q -O - "$DOWNLOAD_URL" | grep '"tag_name":' | cut -d '"' -f 4 2>&1) || {
     echo "Failed to fetch the latest release version"
     rm -rf "../$PROJECT_NAME"
     exit 1
@@ -89,7 +112,7 @@ if [ "$USE_CMAKE" = "y" ]; then
 
   echo "Downloading from: $ZIP_URL"
 
-  curl -L -o Etna-latest.zip "$ZIP_URL" >/dev/null 2>&1 || {
+  wget "$ZIP_URL" -O Etna-latest.zip >/dev/null 2>&1 || {
     echo "Failed to download project"
     rm -rf "../$PROJECT_NAME"
     exit 1
@@ -169,6 +192,6 @@ EOF
   chmod +x build.sh
 
   rm -rf "$RELEASE_VERSION.zip"
-
-  echo "Project setup completed successfully."
 fi
+
+echo "Project setup completed successfully."

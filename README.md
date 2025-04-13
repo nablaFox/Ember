@@ -73,14 +73,14 @@ For more check-out [`examples`](./examples).
 ### Standalone Usage
 
 Etna is a static library intended to be linked against your applications. You
-can find precompiled releases compatible with all supported compilers on
+can find precompiled binary releases compatible with all supported compilers on
 Windows/Linux/macOS [here]().
 
-Each release is structured as follows:
+Such releases are structured as follows:
 
 ```
 etna-<version>
-├─ include (headers)
+├─ include
 ├─ lib
 │    ├─ libetna.a
 │    └─ libglfw.a
@@ -88,33 +88,34 @@ etna-<version>
 ```
 
 Building with Etna requires linking against the Vulkan loader, `libetna.a` and
-`libglfw.a`. Linking with [GLFW]() additionally requires platform-specific
-libraries. Refer to [docs/some/file]() for the appropriate linker flags for
-your target platform.
+`libglfw.a`. Linking with [GLFW](https://github.com/glfw/glfw) additionally
+requires platform-specific libraries. Refer to [docs](docs/some/file) for the
+appropriate linker flags for your target platform.
 
 ### CMake Usage
 
 ```cmake
-add_subdirectory(path/to/etna)
+add_subdirectory(path/to/etna-source)
 target_link_libraries(your_target PRIVATE etna::etna)
 ```
-
-Note: `path/to/etna` refers to the Etna source directory (not to a precompiled
-release).
 
 ### Bootstrap 
 
 To quickly start a new Etna project, you can run the following:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/nablaFox/etna/main/scripts/bootstrap.sh | bash
+SCRIPT=https://raw.githubusercontent.com/nablaFox/etna/main/scripts/bootstrap.sh
+curl -sSL $SCRIPT | sh -s -- --name <project_name> --build <cmake|standalone>
 ```
 
-This script will:
+This will create a new `<project_name>` directory and set up your project based
+on the selected build type:
 
-- Prompt you for the project path and setup type (CMake or Standalone)
-- Download the latest Etna release
-- Generate a build.sh script for Standalone setups, or initialize a CMake project
+- `--build cmake` will create a CMake project by downloading the latest source release.
+
+- `--build standalone` will create a standalone project using the latest
+    precompiled release and setup a simple `build.sh` script targetting the
+    same OS/WM as the one it is run on.
 
 ### Building
 
