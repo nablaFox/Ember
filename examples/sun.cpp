@@ -66,9 +66,9 @@ int main(void) {
 
 		float dt = engine::getDeltaTime();
 
-		sun->rotate(0, 0.01 * dt, 0);
+		sun->rotate(0, 0.01f * dt, 0);
 
-		cube->rotate(0, 0.1 * dt, 0.1 * dt);
+		cube->rotate(0, 0.1f * dt, 0.1f * dt);
 
 		renderer.beginFrame(window, {.clearColor = CELESTE});
 

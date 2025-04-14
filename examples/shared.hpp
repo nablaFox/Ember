@@ -18,8 +18,8 @@ inline void firstPersonMovement(CameraNode camera,
 								const FirstPersonMovementOpts opts = {}) {
 	Transform transform = camera->getTransform();
 
-	transform.yaw += window.mouseDeltaX() * opts.sensitivity;
-	transform.pitch += window.mouseDeltaY() * opts.sensitivity;
+	transform.yaw += static_cast<float>(window.mouseDeltaX()) * opts.sensitivity;
+	transform.pitch += static_cast<float>(window.mouseDeltaY()) * opts.sensitivity;
 
 	if (transform.pitch > M_PI / 2) {
 		transform.pitch = M_PI / 2;
@@ -40,7 +40,7 @@ inline void firstPersonMovement(CameraNode camera,
 
 	float dt = engine::getDeltaTime();
 
-	if (window.isKeyPressed(KEY_ENTER)) {
+	if (window.isKeyPressed(KEY_0)) {
 		position = {0, 1, 0};
 	}
 
@@ -219,7 +219,7 @@ inline MeshNode createBox(const OutlinedCubeCreateInfo& info) {
 
 struct InstanceData {
 	Mat4 transform;
-	Color color;
+	Color color{};
 };
 
 struct InstanceMeshCreateInfo {

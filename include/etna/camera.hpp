@@ -52,6 +52,12 @@ private:
 	Mat4 m_viewMatrix;
 
 	ignis::BufferId m_cameraData{IGNIS_INVALID_BUFFER_ID};
+
+public:
+	Camera(const Camera&) = delete;
+	Camera(Camera&&) = delete;
+	Camera& operator=(const Camera&) = delete;
+	Camera& operator=(Camera&&) = delete;
 };
 
 }  // namespace etna

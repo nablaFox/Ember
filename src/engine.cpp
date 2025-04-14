@@ -14,12 +14,10 @@ VkQueue g_graphicsQueue{nullptr};
 VkQueue g_immediateQueue{nullptr};
 VkQueue g_presentQueue{nullptr};
 float g_deltaTime{0};
+std::string g_shadersFolder;
+std::deque<std::function<void()>> g_deletionQueue;
 
 }
-
-static std::deque<std::function<void()>> g_deletionQueue;
-
-std::string g_shadersFolder;
 
 #define CHECK_INIT assert(g_device != nullptr && "Engine not initialized");
 
@@ -129,8 +127,9 @@ uint32_t engine::clampSampleCount(uint32_t sampleCount) {
 
 	const uint32_t deviceMaxSampleCount = g_device->getMaxSampleCount();
 
-	return deviceMaxSampleCount > MAX_SAMPLE_COUNT ? MAX_SAMPLE_COUNT
-												   : deviceMaxSampleCount;
+	const uint32_t maxToUse = std::min(MAX_SAMPLE_COUNT, deviceMaxSampleCount);
+
+	return sampleCount > maxToUse ? maxToUse : sampleCount;
 }
 
 ignis::Shader* engine::newShader(const std::string& path) {
@@ -155,7 +154,8 @@ ignis::Shader* engine::newShader(const unsigned char* code,
 								 VkShaderStageFlagBits stage) {
 	CHECK_INIT;
 
-	return new Shader(g_device->createShader(code, size, stage));
+	return new Shader(
+		g_device->createShader(code, size, stage, sizeof(PushConstants)));
 }
 
 float engine::getDeltaTime() {

@@ -16,11 +16,11 @@ void initInstancedCube(MeshNode cube) {
 	const float offsetY = ((gridRows - 1) * spacing) / 2.0f;
 
 	for (uint32_t i = 0; i < INSTANCE_COUNT; i++) {
-		uint32_t row = i / gridColumns;
-		uint32_t col = i % gridColumns;
+		const uint32_t row = i / gridColumns;
+		const uint32_t col = i % gridColumns;
 
-		float x = col * spacing - offsetX;
-		float y = row * spacing - offsetY;
+		float x = static_cast<float>(col) * spacing - offsetX;
+		float y = static_cast<float>(row) * spacing - offsetY;
 
 		instances[i].transform = Transform::getTransMatrix({x, y, 0.0f});
 

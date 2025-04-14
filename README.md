@@ -115,7 +115,7 @@ on the selected build type:
 
 - `--build standalone` will create a standalone project using the latest
     precompiled release and setup a simple `build.sh` script targetting the
-    same OS/WM as the one it is run on.
+    same OS/WS as the one it is run on.
 
 ### Building
 

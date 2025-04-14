@@ -3,21 +3,25 @@
 using namespace etna;
 
 MeshHandle engine::createSphere(float radius, uint32_t precision) {
-	uint32_t vertexCount = square(precision + 1);
-	uint32_t indexCount = 6 * square(precision);
+	const uint32_t vertexCount = square(precision + 1);
+	const uint32_t indexCount = 6 * square(precision);
 
 	std::vector<Vertex> vertices(vertexCount);
 	std::vector<Index> indices(indexCount);
 
-	for (uint32_t i = 0; i <= precision; i++) {
-		float phi = (float)i / precision * 2 * M_PI;  // Azimuthal angle [0, 2π]
+	const float precisionf = static_cast<float>(precision);
+
+	for (uint32_t i{0}; i <= precision; i++) {
+		// Azimuthal angle [0, 2π]
+		const float phi = static_cast<float>(i) / precisionf * 2.f * M_PIf;
 
 		for (uint32_t j = 0; j <= precision; j++) {
-			float theta = (float)j / precision * M_PI;	// Polar angle [0, π]
+			const float theta =
+				static_cast<float>(j) / precisionf * M_PIf;	 // Polar angle [0, π]
 
-			float x = sinf(theta) * cosf(phi);
-			float y = sinf(theta) * sinf(phi);
-			float z = cosf(theta);
+			const float x = sinf(theta) * cosf(phi);
+			const float y = sinf(theta) * sinf(phi);
+			const float z = cosf(theta);
 
 			vertices[i * (precision + 1) + j] = Vertex{
 				.position = Vec3{x, y, z} * radius,
@@ -43,10 +47,10 @@ MeshHandle engine::createSphere(float radius, uint32_t precision) {
 		}
 	}
 
-	for (uint32_t i = 0; i <= precision; i++) {
-		for (uint32_t j = 0; j <= precision; j++) {
-			float u = (float)j / precision;
-			float v = (float)i / precision;
+	for (uint32_t i{0}; i <= precision; i++) {
+		for (uint32_t j{0}; j <= precision; j++) {
+			const float u = static_cast<float>(j) / precisionf;
+			const float v = static_cast<float>(i) / precisionf;
 
 			vertices[i * (precision + 1) + j].uv = {u, v};
 		}
@@ -149,7 +153,7 @@ MeshHandle engine::createQuad(float width, float height) {
 		.uv = {1, 1},
 	};
 
-	std::vector<Index> indices = {0, 1, 2, 2, 3, 0};
+	std::vector<Index> indices{0, 1, 2, 2, 3, 0};
 
 	return Mesh::create({
 		.vertices = std::move(vertices),

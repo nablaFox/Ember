@@ -4,7 +4,7 @@
 using namespace etna;
 
 static Mat4 calcProjMatrix(float aspect, float fov, float near, float far) {
-	const float fovAngle = fov * M_PI / 180;
+	const float fovAngle = fov * M_PIf / 180;
 
 	const float top = near * tanf(fovAngle / 2);
 

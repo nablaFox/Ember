@@ -6,10 +6,10 @@ using namespace etna;
 _SceneNode::_SceneNode(Type type,
 					   const std::string& name,
 					   const Transform& transform)
-	: m_name(name),
-	  m_transform(transform),
-	  m_type(type),
-	  m_worldMatrix(transform.getWorldMatrix()) {}
+	: m_transform(transform),
+	  m_worldMatrix(transform.getWorldMatrix()),
+	  m_name(name),
+	  m_type(type) {}
 
 SceneNode _SceneNode::add(SceneNode node) {
 	SceneNode newNode = m_children.emplace_back(node);
@@ -93,9 +93,7 @@ MeshNode scene::createMeshNode(const CreateMeshNodeInfo& info) {
 }
 
 _MeshNode::~_MeshNode() {
-	if (instanceBuffer != IGNIS_INVALID_BUFFER_ID) {
-		_device.destroyBuffer(instanceBuffer);
-	}
+	_device.destroyBuffer(instanceBuffer);
 }
 
 CameraNode scene::createCameraNode(const CreateCameraNodeInfo& info) {

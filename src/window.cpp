@@ -15,7 +15,8 @@ Window::Window(const CreateInfo& info)
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	m_window =
-		glfwCreateWindow(info.width, info.height, info.title, nullptr, nullptr);
+		glfwCreateWindow(static_cast<int>(info.width), static_cast<int>(info.height),
+						 info.title, nullptr, nullptr);
 
 	if (glfwCreateWindowSurface(_device.getInstance(), m_window, nullptr,
 								&m_surface) != VK_SUCCESS) {
@@ -36,11 +37,7 @@ Window::Window(const CreateInfo& info)
 
 	setCaptureMouse(info.captureMouse);
 
-	double x, y;
-	glfwGetCursorPos(m_window, &x, &y);
-
-	m_lastMouseX = x;
-	m_lastMouseY = y;
+	glfwGetCursorPos(m_window, &m_lastMouseX, &m_lastMouseY);
 }
 
 Window::~Window() {
@@ -59,67 +56,21 @@ Window::~Window() {
 	glfwDestroyWindow(m_window);
 }
 
-bool Window::shouldClose() const {
-	return glfwWindowShouldClose(m_window);
-}
-
 void Window::pollEvents() {
 	glfwPollEvents();
 
-	double currentX, currentY;
+	double currentX{0}, currentY{0};
 	glfwGetCursorPos(m_window, &currentX, &currentY);
+
 	m_mouseDeltaX = currentX - m_lastMouseX;
 	m_mouseDeltaY = currentY - m_lastMouseY;
 	m_lastMouseX = currentX;
 	m_lastMouseY = currentY;
 }
 
-bool Window::isKeyPressed(Key key) const {
-	return glfwGetKey(m_window, key) == GLFW_PRESS;
-}
-
-bool Window::isKeyClicked(Key key) {
-	bool currentState = isKeyPressed(key);
-	bool wasPressed = false;
-
-	auto it = m_prevKeyStates.find(key);
-	if (it != m_prevKeyStates.end()) {
-		wasPressed = it->second;
-	}
-
-	bool clicked = currentState && !wasPressed;
-
-	m_prevKeyStates[key] = currentState;
-	return clicked;
-}
-
-bool Window::isMouseCaptured() const {
-	return m_creationInfo.captureMouse;
-}
-
-float Window::getMouseX() const {
-	double x, y;
-	glfwGetCursorPos(m_window, &x, &y);
-	return x;
-}
-
-float Window::getMouseY() const {
-	double x, y;
-	glfwGetCursorPos(m_window, &x, &y);
-	return y;
-}
-
-float Window::mouseDeltaX() const {
-	return m_mouseDeltaX;
-}
-
-float Window::mouseDeltaY() const {
-	return m_mouseDeltaY;
-}
-
 void Window::swapBuffers() {
 	Image& swapchainImage = m_swapchain->acquireNextImage(m_imageAvailable);
-	Image& dstImage = isMultiSampled() ? *m_resolvedImage : *m_drawImage;
+	Image& dstImage = isMultiSampled() ? *getResolvedImage() : *getDrawImage();
 
 	m_blitCmd->begin();
 
@@ -145,6 +96,53 @@ void Window::swapBuffers() {
 	_device.submitCommands({blitCmdInfo}, nullptr);
 
 	engine::presentCurrent(*m_swapchain, {m_finishedBlitting});
+}
+
+bool Window::shouldClose() const {
+	return glfwWindowShouldClose(m_window);
+}
+
+bool Window::isKeyPressed(Key key) const {
+	return glfwGetKey(m_window, key) == GLFW_PRESS;
+}
+
+bool Window::isKeyClicked(Key key) {
+	bool currentState = isKeyPressed(key);
+	bool wasPressed = false;
+
+	auto it = m_prevKeyStates.find(key);
+	if (it != m_prevKeyStates.end()) {
+		wasPressed = it->second;
+	}
+
+	bool clicked = currentState && !wasPressed;
+
+	m_prevKeyStates[key] = currentState;
+	return clicked;
+}
+
+bool Window::isMouseCaptured() const {
+	return m_creationInfo.captureMouse;
+}
+
+double Window::getMouseX() const {
+	double x{0};
+	glfwGetCursorPos(m_window, &x, nullptr);
+	return x;
+}
+
+double Window::getMouseY() const {
+	double y{0};
+	glfwGetCursorPos(m_window, nullptr, &y);
+	return y;
+}
+
+double Window::mouseDeltaX() const {
+	return m_mouseDeltaX;
+}
+
+double Window::mouseDeltaY() const {
+	return m_mouseDeltaY;
 }
 
 void Window::setCaptureMouse(bool capture) {

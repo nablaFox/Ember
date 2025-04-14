@@ -5,9 +5,8 @@
 using namespace etna;
 using namespace ignis;
 
-Mesh::Mesh(const CreateInfo& info) {
-	m_vertexBuffer = _device.createSSBO(info.vertices.size() * sizeof(Vertex));
-
+Mesh::Mesh(const CreateInfo& info)
+	: m_vertexBuffer(_device.createSSBO(info.vertices.size() * sizeof(Vertex))) {
 	m_indexBuffer = new Buffer(_device.createIndexBuffer32(info.indices.size()));
 
 	etna::engine::immediateSubmit([&](ignis::Command& cmd) {

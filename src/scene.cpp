@@ -5,10 +5,10 @@
 using namespace etna;
 using namespace ignis;
 
-Scene::Scene() {
-	m_sceneBuffer = _device.createUBO(sizeof(SceneData));
-	m_lightsBuffer = _device.createUBO(sizeof(ignis::BufferId) * Scene::MAX_LIGHTS);
-}
+Scene::Scene()
+	: m_sceneBuffer(_device.createUBO(sizeof(SceneData))),
+	  m_lightsBuffer(
+		  _device.createUBO(sizeof(ignis::BufferId) * Scene::MAX_LIGHTS)) {}
 
 Scene::~Scene() {
 	_device.destroyBuffer(m_sceneBuffer);

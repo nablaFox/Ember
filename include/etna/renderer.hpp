@@ -69,7 +69,7 @@ private:
 		ignis::Command* cmd;
 	};
 
-	const RenderTarget* m_currTarget;
+	const RenderTarget* m_currTarget{nullptr};
 
 	std::vector<FrameData> m_frames;
 

@@ -38,41 +38,44 @@ public:
 
 	~Window();
 
-	bool shouldClose() const;
-
 	void pollEvents();
+	void swapBuffers();
 
+	bool shouldClose() const;
 	bool isKeyPressed(Key) const;
 	bool isKeyClicked(Key);
-
 	bool isMouseCaptured() const;
 
-	float getMouseX() const;
-	float getMouseY() const;
+	double getMouseX() const;
+	double getMouseY() const;
 
-	float mouseDeltaX() const;
-	float mouseDeltaY() const;
-
-	void swapBuffers();
+	double mouseDeltaX() const;
+	double mouseDeltaY() const;
 
 	void setCaptureMouse(bool capture);
 
 private:
 	ignis::Swapchain* m_swapchain;
 	GLFWwindow* m_window;
-	VkSurfaceKHR m_surface;
+	VkSurfaceKHR m_surface{VK_NULL_HANDLE};
 	CreateInfo m_creationInfo;
 
-	float m_lastMouseX{0};
-	float m_lastMouseY{0};
-	float m_mouseDeltaX{0};
-	float m_mouseDeltaY{0};
+	double m_lastMouseX{0};
+	double m_lastMouseY{0};
+	double m_mouseDeltaX{0};
+	double m_mouseDeltaY{0};
 
 	std::unordered_map<int, bool> m_prevKeyStates;
 
 	ignis::Command* m_blitCmd;
 	ignis::Semaphore* m_imageAvailable;
 	ignis::Semaphore* m_finishedBlitting;
+
+public:
+	Window(const Window&) = delete;
+	Window(Window&&) = delete;
+	Window& operator=(const Window&) = delete;
+	Window& operator=(Window&&) = delete;
 };
 
 }  // namespace etna

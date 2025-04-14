@@ -33,10 +33,6 @@ public:
 
 	auto getParamsSize() const { return m_paramsSize; }
 
-#ifndef NDEBUG
-	uint32_t samples;
-#endif
-
 private:
 	MaterialTemplate(const CreateInfo&);
 

@@ -42,10 +42,12 @@ void Renderer::beginFrame(const RenderTarget& target,
 	cmd.begin();
 
 	const VkClearColorValue clearColorValue{
-		settings.clearColor.r,
-		settings.clearColor.g,
-		settings.clearColor.b,
-		settings.clearColor.a,
+		{
+			settings.clearColor.r,
+			settings.clearColor.g,
+			settings.clearColor.b,
+			settings.clearColor.a,
+		},
 	};
 
 	DrawAttachment* drawAttachment = new DrawAttachment({
@@ -71,24 +73,23 @@ void Renderer::endFrame() {
 
 	cmd.endRendering();
 
-	if (!m_currTarget->isMultiSampled())
-		return;
+	if (m_currTarget->isMultiSampled()) {
+		ignis::Image& drawImage = *m_currTarget->getDrawImage();
+		ignis::Image& resolvedDrawImage = *m_currTarget->getResolvedImage();
 
-	ignis::Image& drawImage = *m_currTarget->getDrawImage();
-	ignis::Image& resolvedDrawImage = *m_currTarget->getResolvedImage();
+		cmd.transitionImageLayout(drawImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		cmd.transitionImageLayout(resolvedDrawImage,
+								  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-	cmd.transitionImageLayout(drawImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-	cmd.transitionImageLayout(resolvedDrawImage,
-							  VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		cmd.resolveImage(drawImage, resolvedDrawImage);
 
-	cmd.resolveImage(drawImage, resolvedDrawImage);
-
-	cmd.transitionToOptimalLayout(drawImage);
-	cmd.transitionToOptimalLayout(resolvedDrawImage);
+		cmd.transitionToOptimalLayout(drawImage);
+		cmd.transitionToOptimalLayout(resolvedDrawImage);
+	}
 
 	cmd.end();
 
-	SubmitCmdInfo cmdInfo{.command = cmd};
+	const SubmitCmdInfo cmdInfo{.command = cmd};
 
 	_device.submitCommands({cmdInfo}, m_frames[m_currentFrame].inFlight);
 
@@ -121,8 +122,8 @@ void Renderer::draw(const DrawSettings& settings) {
 
 	cmd.setViewport(vp);
 
-	cmd.setScissor(
-		{0, 0, m_currTarget->getExtent().width, m_currTarget->getExtent().height});
+	cmd.setScissor(m_currTarget->getExtent().width,
+				   m_currTarget->getExtent().height);
 
 	cmd.bindIndexBuffer(*settings.mesh->getIndexBuffer());
 
@@ -143,10 +144,7 @@ void Renderer::draw(const DrawSettings& settings) {
 
 void Renderer::clearViewport(Viewport vp, Color color) {
 	const VkClearColorValue clearColorValue{
-		color.r,
-		color.g,
-		color.b,
-		color.a,
+		{color.r, color.g, color.b, color.a},
 	};
 
 	getCommand().clearViewport(vp.x, vp.y, vp.width, vp.height, clearColorValue);

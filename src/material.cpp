@@ -6,8 +6,6 @@ using namespace etna;
 
 MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	: m_paramsSize(info.paramsSize) {
-	const uint32_t sampleCount{engine::clampSampleCount(info.samples)};
-
 	for (const auto& shaderPath : info.shaders) {
 		m_shaders.push_back(engine::newShader(shaderPath));
 	}
@@ -24,7 +22,8 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 		.cullMode = VK_CULL_MODE_NONE,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
-		.sampleCount = static_cast<VkSampleCountFlagBits>(sampleCount),
+		.sampleCount = static_cast<VkSampleCountFlagBits>(
+			engine::clampSampleCount(info.samples)),
 		.sampleShadingEnable = _device.isFeatureEnabled("SampleRateShading"),
 	};
 
@@ -48,10 +47,6 @@ MaterialTemplate::MaterialTemplate(const CreateInfo& info)
 	}
 
 	m_pipeline = new Pipeline(pipelineInfo);
-
-#ifndef NDEBUG
-	samples = sampleCount;
-#endif
 }
 
 MaterialTemplate::~MaterialTemplate() {
@@ -104,12 +99,9 @@ MaterialHandle Material::create(const MaterialTemplate::CreateInfo& info) {
 }
 
 Material::~Material() {
-	if (m_paramsUBO != IGNIS_INVALID_BUFFER_ID)
-		_device.destroyBuffer(m_paramsUBO);
+	_device.destroyBuffer(m_paramsUBO);
 }
 
 void Material::updateParams(const void* data) const {
-	if (m_paramsUBO != IGNIS_INVALID_BUFFER_ID) {
-		_device.updateBuffer(m_paramsUBO, data);
-	}
+	_device.updateBuffer(m_paramsUBO, data);
 }

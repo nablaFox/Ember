@@ -6,17 +6,13 @@ using namespace etna;
 
 RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 	const uint32_t sampleCount{engine::clampSampleCount(info.samples)};
-
 	m_creationInfo.samples = sampleCount;
-
-	const VkSampleCountFlagBits sampleCountBits =
-		static_cast<VkSampleCountFlagBits>(sampleCount);
 
 	m_drawImage = new Image(_device.createDrawAttachmentImage({
 		.width = info.extent.width,
 		.height = info.extent.height,
 		.format = engine::COLOR_FORMAT,
-		.sampleCount = sampleCountBits,
+		.sampleCount = static_cast<VkSampleCountFlagBits>(sampleCount),
 	}));
 
 	if (isMultiSampled()) {
@@ -32,7 +28,7 @@ RenderTarget::RenderTarget(const CreateInfo& info) : m_creationInfo(info) {
 		.width = info.extent.width,
 		.height = info.extent.height,
 		.format = engine::DEPTH_FORMAT,
-		.sampleCount = sampleCountBits,
+		.sampleCount = static_cast<VkSampleCountFlagBits>(sampleCount),
 	}));
 
 	etna::engine::immediateSubmit([&](ignis::Command& cmd) {
