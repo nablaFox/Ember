@@ -96,7 +96,7 @@ int main(void) {
 
 	SceneNode rocketMesh = scene.addNode(createRocketModel());
 
-	const Viewport rocketViewport{
+	const Viewport rocketMinimap{
 		.x = WINDOW_WIDTH * (1 - ROCKET_MINIMAP_SIZE),
 		.y = WINDOW_HEIGHT * 0,
 		.width = WINDOW_WIDTH * ROCKET_MINIMAP_SIZE,
@@ -135,9 +135,9 @@ int main(void) {
 
 		renderer.beginFrame(window, LOAD_PREVIOUS);
 
-		renderer.clearViewport(rocketViewport, BLACK);
+		renderer.clearViewport(rocketMinimap, BLACK);
 
-		scene.render(renderer, rocketCamera, {.viewport = rocketViewport});
+		scene.render(renderer, rocketCamera, {.viewport = rocketMinimap});
 
 		renderer.endFrame();
 

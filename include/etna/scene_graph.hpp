@@ -46,6 +46,13 @@ struct _SceneNode {
 
 	MeshNode createMeshNode(const CreateMeshNodeInfo&);
 	CameraNode createCameraNode(const CreateCameraNodeInfo&);
+	LightNode createLightNode(const DirectionalLight::CreateInfo&);
+
+	_SceneNode* getParent() const { return m_parent; }
+
+	void remove();
+
+	bool isRoot() const { return m_parent == nullptr; }
 
 	const Transform& getTransform() const { return m_transform; }
 
@@ -66,17 +73,18 @@ struct _SceneNode {
 	const std::vector<SceneNode>& getChildren() const { return m_children; }
 
 #ifndef NDEBUG
-	void print(const std::string& givenName = "") const;
+	void print() const;
 
 	const char* getTypeLabel() const;
 #endif
 
 protected:
 	Transform m_transform;
-	Mat4 m_worldMatrix;
+	Mat4 m_worldMatrix{Mat4::identity()};
 	std::string m_name;
 	Type m_type;
 
+	_SceneNode* m_parent{nullptr};
 	std::vector<SceneNode> m_children;
 
 	void updateChildrenTransform(const Mat4&);
@@ -116,6 +124,12 @@ MeshNode createMeshNode(const CreateMeshNodeInfo&);
 CameraNode createCameraNode(const CreateCameraNodeInfo&);
 
 LightNode createLightNode(const DirectionalLight::CreateInfo&);
+
+SceneNode find(const std::string& name, const SceneNode& root);
+
+std::vector<MeshNode> getMeshes(const SceneNode&);
+std::vector<CameraNode> getCameras(const SceneNode&);
+std::vector<LightNode> getLights(const SceneNode&);
 
 }  // namespace scene
 

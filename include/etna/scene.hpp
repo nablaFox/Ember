@@ -19,7 +19,7 @@ public:
 	Scene();
 	~Scene();
 
-	SceneNode addNode(SceneNode, const Transform& = {});
+	SceneNode addNode(SceneNode, const Transform& = {}, std::string = "");
 	MeshNode addMesh(MeshNode, const Transform& = {});
 	CameraNode addCamera(CameraNode, const Transform& = {});
 
@@ -27,33 +27,39 @@ public:
 	CameraNode createCameraNode(const CreateCameraNodeInfo&);
 	LightNode createLightNode(const DirectionalLight::CreateInfo&);
 
+	SceneNode getNode(const std::string& name) const;
+	void removeNode(const std::string& name);
+
 	MeshNode getMesh(const std::string& name) const;
 	CameraNode getCamera(const std::string& name) const;
 	LightNode getLight(const std::string& name) const;
 
-	void removeMesh(const std::string&);
-	void removeCamera(const std::string&);
-	void removeLight(const std::string&);
-
 	void render(Renderer&, const CameraNode&, const SceneRenderInfo& = {});
 
 public:
-	const std::vector<SceneNode>& getRoots() const { return m_roots; }
+	const std::unordered_map<std::string, SceneNode>& getNodes() const;
+
+	const std::vector<MeshNode>& getMeshes() const;
+	const std::vector<LightNode>& getLights() const;
+	const std::vector<CameraNode> getCameras() const;
 
 	void print() const;
 
 private:
-	std::vector<SceneNode> m_roots;
-
-	std::unordered_map<std::string, MeshNode> m_meshes;
-	std::unordered_map<std::string, CameraNode> m_camera;
-	std::unordered_map<std::string, LightNode> m_lights;
+	std::unordered_map<std::string, SceneNode> m_roots;
 
 	void addNodeHelper(SceneNode node, const Transform& transform);
 	void updateLights();
 
 	ignis::BufferId m_sceneBuffer{IGNIS_INVALID_BUFFER_ID};
 	ignis::BufferId m_lightsBuffer{IGNIS_INVALID_BUFFER_ID};
+
+	// PONDER: if needed provide a method to explicitly invalidate cache
+	mutable bool m_meshCacheDirty{true};
+	mutable std::vector<MeshNode> m_meshCache;
+
+	mutable bool m_lightCacheDirty{true};
+	mutable std::vector<LightNode> m_lightCache;
 
 	struct SceneData {
 		Color ambient;

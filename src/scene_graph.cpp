@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "etna/scene_graph.hpp"
 #include "etna/engine.hpp"
 
@@ -12,8 +13,11 @@ _SceneNode::_SceneNode(Type type,
 	  m_type(type) {}
 
 SceneNode _SceneNode::add(SceneNode node) {
+	if (node == nullptr)
+		return nullptr;
+
 	SceneNode newNode = m_children.emplace_back(node);
-	updateChildrenTransform(m_worldMatrix);
+	newNode->m_parent = this;
 	return newNode;
 }
 
@@ -29,10 +33,32 @@ CameraNode _SceneNode::createCameraNode(const CreateCameraNodeInfo& info) {
 	return node;
 }
 
+LightNode _SceneNode::createLightNode(const DirectionalLight::CreateInfo& info) {
+	LightNode node = scene::createLightNode(info);
+	add(node);
+	return node;
+}
+
+void _SceneNode::remove() {
+	if (m_parent == nullptr)
+		return;
+
+	for (const auto& child : m_parent->m_children) {
+		if (child->m_name == m_name) {
+			m_parent->m_children.erase(
+				std::remove(m_parent->m_children.begin(), m_parent->m_children.end(),
+							child),
+				m_parent->m_children.end());
+
+			break;
+		}
+	}
+}
+
 void _SceneNode::updateChildrenTransform(const Mat4& transform) {
 	if (m_type == Type::CAMERA) {
 		_CameraNode* cameraNode = static_cast<_CameraNode*>(this);
-		cameraNode->camera->updateTransform(m_worldMatrix);
+		cameraNode->camera->updateTransform(transform);
 	}
 
 	else if (m_type == Type::LIGHT) {
@@ -51,7 +77,10 @@ void _SceneNode::updateChildrenTransform(const Mat4& transform) {
 
 void _SceneNode::updateTransform(const Transform& transform) {
 	m_transform = transform;
-	m_worldMatrix = transform.getWorldMatrix();
+	m_worldMatrix = m_parent != nullptr
+						? m_parent->m_worldMatrix * transform.getWorldMatrix()
+						: transform.getWorldMatrix();
+
 	updateChildrenTransform(m_worldMatrix);
 }
 
@@ -115,6 +144,70 @@ LightNode scene::createLightNode(const DirectionalLight::CreateInfo& info) {
 	return node;
 }
 
+SceneNode scene::find(const std::string& name, const SceneNode& root) {
+	if (name.empty()) {
+		return nullptr;
+	}
+
+	if (root->getName() == name) {
+		return root;
+	}
+
+	for (const auto& child : root->getChildren()) {
+		SceneNode node = find(name, child);
+
+		if (node != nullptr)
+			return node;
+	}
+
+	return nullptr;
+}
+
+std::vector<MeshNode> scene::getMeshes(const SceneNode& root) {
+	std::vector<MeshNode> meshes;
+
+	if (root->getType() == _SceneNode::Type::MESH) {
+		meshes.push_back(std::static_pointer_cast<_MeshNode>(root));
+	}
+
+	for (const auto& child : root->getChildren()) {
+		auto childMeshes = getMeshes(child);
+		meshes.insert(meshes.end(), childMeshes.begin(), childMeshes.end());
+	}
+
+	return meshes;
+}
+
+std::vector<CameraNode> scene::getCameras(const SceneNode& root) {
+	std::vector<CameraNode> cameras;
+
+	if (root->getType() == _SceneNode::Type::CAMERA) {
+		cameras.push_back(std::static_pointer_cast<_CameraNode>(root));
+	}
+
+	for (const auto& child : root->getChildren()) {
+		auto childCameras = getCameras(child);
+		cameras.insert(cameras.end(), childCameras.begin(), childCameras.end());
+	}
+
+	return cameras;
+}
+
+std::vector<LightNode> scene::getLights(const SceneNode& root) {
+	std::vector<LightNode> lights;
+
+	if (root->getType() == _SceneNode::Type::LIGHT) {
+		lights.push_back(std::static_pointer_cast<_LightNode>(root));
+	}
+
+	for (const auto& child : root->getChildren()) {
+		auto childLights = getLights(child);
+		lights.insert(lights.end(), childLights.begin(), childLights.end());
+	}
+
+	return lights;
+}
+
 #ifndef NDEBUG
 
 #define GREEN(x) "\033[32m" x "\033[0m"
@@ -136,10 +229,8 @@ const char* _SceneNode::getTypeLabel() const {
 	}
 }
 
-void _SceneNode::print(const std::string& givenName) const {
-	const std::string name = givenName.empty() ? m_name : givenName;
-
-	std::cout << getTypeLabel() << ": " << name << std::endl;
+void _SceneNode::print() const {
+	std::cout << getTypeLabel() << ": " << m_name << std::endl;
 
 	for (const auto& child : m_children) {
 		std::cout << "  ";
