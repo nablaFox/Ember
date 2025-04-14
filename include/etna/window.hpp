@@ -3,27 +3,11 @@
 #include <unordered_map>
 #include "ignis/swapchain.hpp"
 #include "render_target.hpp"
+#include "key_map.hpp"
 
 struct GLFWwindow;
 
 namespace etna {
-
-enum Key {
-	KEY_ENTER = 257,
-	KEY_ESCAPE = 256,
-	KEY_0 = 48,
-	KEY_W = 87,
-	KEY_S = 83,
-	KEY_A = 65,
-	KEY_D = 68,
-	KEY_SPACE = 32,
-	KEY_UP = 265,
-	KEY_DOWN = 264,
-	KEY_LEFT = 263,
-	KEY_RIGHT = 262,
-	KEY_LEFT_SHIFT = 340,
-	KEY_LEFT_CONTROL = 341,
-};
 
 class Window : public RenderTarget {
 public:

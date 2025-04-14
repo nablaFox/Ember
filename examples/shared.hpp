@@ -72,6 +72,10 @@ inline void firstPersonMovement(CameraNode camera,
 		window.setCaptureMouse(false);
 	}
 
+	if (window.isKeyPressed(KEY_ENTER)) {
+		window.setCaptureMouse(true);
+	}
+
 	if (window.isKeyPressed(KEY_LEFT_CONTROL)) {
 		window.setCaptureMouse(true);
 	}

@@ -29,6 +29,8 @@ public:
 
 	~Mesh();
 
+	void update(const CreateInfo&);
+
 	uint32_t indexCount() const;
 
 	uint32_t vertexCount() const;

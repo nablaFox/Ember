@@ -8,16 +8,19 @@ using namespace ignis;
 Mesh::Mesh(const CreateInfo& info)
 	: m_vertexBuffer(_device.createSSBO(info.vertices.size() * sizeof(Vertex))) {
 	m_indexBuffer = new Buffer(_device.createIndexBuffer32(info.indices.size()));
-
-	etna::engine::immediateSubmit([&](ignis::Command& cmd) {
-		cmd.updateBuffer(m_vertexBuffer, info.vertices.data());
-		cmd.updateBuffer(*m_indexBuffer, info.indices.data());
-	});
+	update(info);
 }
 
 Mesh::~Mesh() {
 	_device.destroyBuffer(m_vertexBuffer);
 	delete m_indexBuffer;
+}
+
+void Mesh::update(const CreateInfo& info) {
+	engine::immediateSubmit([&](Command& cmd) {
+		cmd.updateBuffer(m_vertexBuffer, info.vertices.data());
+		cmd.updateBuffer(*m_indexBuffer, info.indices.data());
+	});
 }
 
 MeshHandle Mesh::create(const CreateInfo& info) {
