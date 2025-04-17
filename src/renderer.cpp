@@ -1,12 +1,9 @@
 #include "etna/renderer.hpp"
 #include "etna/engine.hpp"
-#include "etna/default_materials.hpp"
 #include "ignis/fence.hpp"
 
 using namespace etna;
 using namespace ignis;
-
-static MaterialHandle g_defaultMaterial{nullptr};
 
 Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFlight) {
 	assert(m_framesInFlight > 0);
@@ -17,8 +14,6 @@ Renderer::Renderer(const CreateInfo& info) : m_framesInFlight(info.framesInFligh
 		m_frames[i].inFlight = new Fence(_device.createFence());
 		m_frames[i].cmd = engine::newGraphicsCommand();
 	}
-
-	g_defaultMaterial = engine::createColorMaterial(WHITE);
 }
 
 Renderer::~Renderer() {
@@ -26,8 +21,6 @@ Renderer::~Renderer() {
 		delete m_frames[i].inFlight;
 		delete m_frames[i].cmd;
 	}
-
-	g_defaultMaterial.reset();
 }
 
 void Renderer::beginFrame(const RenderTarget& target,
@@ -113,10 +106,9 @@ void Renderer::draw(const DrawSettings& settings) {
 		.maxDepth = 1.f,
 	};
 
-	const MaterialHandle materialToUse =
-		settings.material != nullptr ? settings.material : g_defaultMaterial;
+	assert(settings.material != nullptr);
 
-	Pipeline& pipeline = materialToUse->getTemplate().getPipeline();
+	Pipeline& pipeline = settings.material->getTemplate().getPipeline();
 
 	cmd.bindPipeline(pipeline);
 
@@ -130,7 +122,7 @@ void Renderer::draw(const DrawSettings& settings) {
 	const engine::PushConstants m_pushConstants{
 		.model = settings.transform,
 		.vertices = settings.mesh->getVertexBuffer(),
-		.material = materialToUse->getParamsUBO(),
+		.material = settings.material->getParamsUBO(),
 		.instanceBuffer = settings.instanceBuffer,
 		.buff1 = settings.buff1,
 		.buff2 = settings.buff2,

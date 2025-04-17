@@ -1,4 +1,5 @@
-#include <memory>
+#pragma once
+
 #include "light.hpp"
 #include "transform.hpp"
 #include "mesh.hpp"

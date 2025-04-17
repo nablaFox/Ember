@@ -4,8 +4,7 @@
 using namespace ignis;
 using namespace etna;
 
-MaterialTemplate::MaterialTemplate(const CreateInfo& info)
-	: m_paramsSize(info.paramsSize) {
+MaterialTemplate::MaterialTemplate(const CreateInfo& info) {
 	for (const auto& shaderPath : info.shaders) {
 		m_shaders.push_back(engine::newShader(shaderPath));
 	}
@@ -63,31 +62,28 @@ MaterialTemplateHandle MaterialTemplate::create(const CreateInfo& info) {
 
 Material::Material(const CreateInfo& info)
 	: m_materialTemplate(info.templateHandle) {
-	size_t paramsSize = m_materialTemplate->getParamsSize();
-
-	if (!paramsSize) {
+	if (!info.paramsSize) {
 		return;
 	}
 
-	m_paramsUBO = _device.createUBO(paramsSize, info.params);
+	m_paramsUBO = _device.createUBO(info.paramsSize, info.params);
 }
 
-Material::Material(const MaterialTemplate::CreateInfo& info) {
+Material::Material(const MaterialTemplate::CreateInfo& info, size_t paramsSize) {
 	m_materialTemplate = MaterialTemplate::create({
 		.shaders = info.shaders,
 		.rawShaders = info.rawShaders,
-		.paramsSize = info.paramsSize,
 		.enableDepth = info.enableDepth,
 		.transparency = info.transparency,
 		.polygonMode = info.polygonMode,
 		.lineWidth = info.lineWidth,
 	});
 
-	if (!info.paramsSize) {
+	if (!paramsSize) {
 		return;
 	}
 
-	m_paramsUBO = _device.createUBO(info.paramsSize);
+	m_paramsUBO = _device.createUBO(paramsSize);
 }
 
 MaterialHandle Material::create(const CreateInfo& info) {

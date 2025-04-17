@@ -156,7 +156,6 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 		g_outlineTemplate = MaterialTemplate::create({
 			.shaders = {"brick_outline.frag"},
 			.rawShaders = {engine::getDefaultVertShader()},
-			.paramsSize = sizeof(OutlineMaterialParams),
 		});
 
 		engine::queueForDeletion([=] { g_outlineTemplate.reset(); });
@@ -167,7 +166,6 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 		g_outlineTemplateTransparent = MaterialTemplate::create({
 			.shaders = {"brick_outline.frag"},
 			.rawShaders = {engine::getDefaultVertShader()},
-			.paramsSize = sizeof(OutlineMaterialParams),
 			.transparency = true,
 		});
 
@@ -185,6 +183,7 @@ inline MeshNode createOutlinedBrick(const OutlinedBrickCreateInfo& info) {
 	MaterialHandle material = Material::create({
 		.templateHandle =
 			info.transparent ? g_outlineTemplateTransparent : g_outlineTemplate,
+		.paramsSize = sizeof(OutlineMaterialParams),
 		.params = &outlineParams,
 	});
 

@@ -1,17 +1,23 @@
 #include "etna/scene.hpp"
+#include "etna/default_materials.hpp"
 #include "etna/engine.hpp"
 
 using namespace etna;
 using namespace ignis;
 
+static MaterialHandle g_defaultMaterial{nullptr};
+
 Scene::Scene()
 	: m_sceneBuffer(_device.createUBO(sizeof(SceneData))),
 	  m_lightsBuffer(
-		  _device.createUBO(sizeof(ignis::BufferId) * Scene::MAX_LIGHTS)) {}
+		  _device.createUBO(sizeof(ignis::BufferId) * Scene::MAX_LIGHTS)) {
+	g_defaultMaterial = engine::createColorMaterial(WHITE);
+}
 
 Scene::~Scene() {
 	_device.destroyBuffer(m_sceneBuffer);
 	_device.destroyBuffer(m_lightsBuffer);
+	g_defaultMaterial.reset();
 }
 
 SceneNode Scene::addNode(SceneNode node,
@@ -168,7 +174,9 @@ void Scene::render(Renderer& renderer,
 		if (meshNode->mesh == nullptr)
 			continue;
 
-		const MaterialHandle material = meshNode->material;
+		const MaterialHandle material =
+			meshNode->material ? meshNode->material : g_defaultMaterial;
+
 		const MeshHandle mesh = meshNode->mesh;
 		const Mat4 worldMatrix = meshNode->getWorldMatrix();
 

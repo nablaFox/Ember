@@ -53,6 +53,7 @@ MaterialHandle engine::createColorMaterial(Color color) {
 
 	return Material::create({
 		.templateHandle = g_colorMaterialTemplate,
+		.paramsSize = sizeof(Color),
 		.params = &color,
 	});
 }
@@ -62,6 +63,7 @@ MaterialHandle engine::createPointMaterial(Color color) {
 
 	return Material::create({
 		.templateHandle = g_pointMaterialTemplate,
+		.paramsSize = sizeof(Color),
 		.params = &color,
 	});
 }
@@ -71,6 +73,7 @@ MaterialHandle engine::createGridMaterial(GridMaterialParams params) {
 
 	return Material::create({
 		.templateHandle = g_gridTemplate,
+		.paramsSize = sizeof(GridMaterialParams),
 		.params = &params,
 	});
 }
@@ -80,6 +83,7 @@ MaterialHandle engine::createTransparentGridMaterial(GridMaterialParams params) 
 
 	return Material::create({
 		.templateHandle = g_transparentGridTemplate,
+		.paramsSize = sizeof(GridMaterialParams),
 		.params = &params,
 	});
 }
@@ -98,7 +102,6 @@ void engine::initColorMaterial() {
 
 	g_colorMaterialTemplate = MaterialTemplate::create({
 		.rawShaders = {g_default_vert, g_default_frag},
-		.paramsSize = sizeof(Color),
 	});
 
 	queueForDeletion([=] { g_colorMaterialTemplate.reset(); });
@@ -111,7 +114,6 @@ void engine::initPointMaterial() {
 
 	g_pointMaterialTemplate = MaterialTemplate::create({
 		.rawShaders = {g_default_vert, g_default_frag},
-		.paramsSize = sizeof(Color),
 		.polygonMode = VK_POLYGON_MODE_POINT,
 	});
 
@@ -125,7 +127,6 @@ void engine::initGridMaterial() {
 
 	g_gridTemplate = MaterialTemplate::create({
 		.rawShaders = {g_default_vert, g_grid_frag},
-		.paramsSize = sizeof(GridMaterialParams),
 	});
 
 	queueForDeletion([=] { g_gridTemplate.reset(); });
@@ -138,7 +139,6 @@ void engine::initTransparentGridMaterial() {
 
 	g_transparentGridTemplate = MaterialTemplate::create({
 		.rawShaders = {g_default_vert, g_grid_frag},
-		.paramsSize = sizeof(GridMaterialParams),
 		.transparency = true,
 	});
 
